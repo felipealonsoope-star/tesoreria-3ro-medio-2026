@@ -261,6 +261,9 @@ td:first-child{font-weight:500}
       <h2>Estado de pagos · 3° Medio 2026</h2>
       <p id="pub-fecha">Cargando...</p>
       <div class="pub-stats-grid" id="pub-stats" style="display:none"></div>
+      <div id="pub-historico" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.2)">
+        <div style="font-size:10px;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">💰 Fondo acumulado total</div>
+      </div>
     </div>
     <div class="filter-bar">
       <button class="filter-btn active" onclick="setFiltro('todos',this)">Todos</button>
@@ -373,6 +376,18 @@ td:first-child{font-weight:500}
 
   <!-- ADMIN AVISOS -->
   <div id="as-avisos" class="admin-section">
+    <!-- Configuración saldo anterior -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:16px;box-shadow:var(--shadow)">
+      <div style="font-size:12px;font-weight:600;margin-bottom:4px">💰 Saldo acumulado años anteriores</div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:10px">Este monto se suma al saldo actual para mostrar el fondo total del curso a los apoderados.</div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <input type="number" id="saldo-ant-input" placeholder="Ej: 350000" min="0"
+          style="padding:8px 12px;border:1px solid var(--border2);border-radius:var(--radius-sm);font-size:14px;font-family:'DM Mono',monospace;width:180px;outline:none"
+          onkeydown="if(event.key==='Enter')guardarSaldoAnt()">
+        <button class="btn btn-primary" onclick="guardarSaldoAnt()">Guardar</button>
+        <span id="saldo-ant-actual" style="font-size:12px;color:var(--text2)"></span>
+      </div>
+    </div>
     <div class="toolbar">
       <button class="btn btn-primary" onclick="openModalAviso()">+ Nuevo aviso</button>
     </div>
@@ -388,6 +403,17 @@ td:first-child{font-weight:500}
     <div class="field"><label>Descripción</label><input type="text" id="c-desc" placeholder="Ej: Cuotas marzo"></div>
     <div class="field"><label>Monto ($)</label><input type="number" id="c-monto" min="0"></div>
     <div class="field"><label>Boleta N° (opcional)</label><input type="text" id="c-boleta"></div>
+    <div class="field">
+      <label>Foto boleta / comprobante (opcional)</label>
+      <div id="foto-preview" style="display:none;margin-bottom:8px">
+        <img id="foto-img" style="max-width:100%;max-height:200px;border-radius:8px;border:1px solid var(--border)">
+        <button onclick="clearFoto()" style="display:block;margin-top:4px;font-size:11px;color:var(--red-text);background:none;border:none;cursor:pointer">✕ Quitar foto</button>
+      </div>
+      <label id="foto-label" style="display:flex;align-items:center;gap:8px;padding:10px;border:1px dashed var(--border2);border-radius:var(--radius-sm);cursor:pointer;font-size:12px;color:var(--text2)">
+        📷 Toca para tomar foto o elegir imagen
+        <input type="file" id="c-foto" accept="image/*" capture="environment" style="display:none" onchange="previewFoto(this)">
+      </label>
+    </div>
     <div class="field"><label>Categoría</label>
       <select id="c-cat"><option>Cuotas mensuales</option><option>Caja chica</option><option>Rifa / evento</option><option>Paseo</option><option>Material escolar</option><option>Otro</option></select>
     </div>
@@ -434,6 +460,7 @@ td:first-child{font-weight:500}
 // ═══════════════════════════════════════
 const ADMIN_PASSWORD = 'tesoreria2026';
 const API_URL = 'https://script.google.com/macros/s/AKfycby3pNp0D2bWE0bJ-pHuoS3guebH1jAM6z1zhGAxHiwVviX8o6MHOZ3_f0V1JaA3m3cK/exec';
+let SALDO_ANTERIOR = parseInt(localStorage.getItem('tres2026_saldo_ant')||'0')||0;
 // ═══════════════════════════════════════
 
 const MESES = ['Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
@@ -599,6 +626,21 @@ function renderPagos(){
     <div class="pub-stat"><div class="pub-stat-label">Al día</div><div class="pub-stat-val">${alDia}/${als.length}</div><div class="pub-stat-sub">alumnos</div></div>
     <div class="pub-stat"><div class="pub-stat-label">Caja chica</div><div class="pub-stat-val">${ccPag}/${als.length}</div><div class="pub-stat-sub">pagaron</div></div>`;
 
+  // Cuadro saldo total histórico — siempre visible
+  const saldoCajaActual = (DATA.caja||[]).filter(m=>m.tipo==='entrada').reduce((s,m)=>s+m.monto,0)
+                        - (DATA.caja||[]).filter(m=>m.tipo==='salida').reduce((s,m)=>s+m.monto,0);
+  const totalHistorico = SALDO_ANTERIOR + saldoCajaActual;
+  const histEl = document.getElementById('pub-historico');
+  if(histEl){
+    histEl.style.display='block';
+    histEl.innerHTML=`
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px">
+        ${SALDO_ANTERIOR>0?`<div class="pub-stat"><div class="pub-stat-label">Años anteriores</div><div class="pub-stat-val">${fmt(SALDO_ANTERIOR)}</div><div class="pub-stat-sub">saldo acumulado</div></div>`:''}
+        <div class="pub-stat"><div class="pub-stat-label">Movim. 2026</div><div class="pub-stat-val">${fmt(saldoCajaActual)}</div><div class="pub-stat-sub">saldo libro de caja</div></div>
+        <div class="pub-stat" style="background:rgba(255,255,255,0.2)"><div class="pub-stat-label">💰 Total disponible</div><div class="pub-stat-val" style="font-size:${totalHistorico>=1000000?'18px':'22px'}">${fmt(totalHistorico)}</div><div class="pub-stat-sub">fondo total del curso</div></div>
+      </div>`;
+  }
+
   // Tabla
   let lista = als;
   if(filtro==='al-dia') lista=als.filter(a=>MESES.every(m=>a.cuotas[m])&&a.cc);
@@ -635,12 +677,31 @@ function renderCajaPublica(){
     <div class="stat-card"><div class="stat-label">Movimientos</div><div class="stat-val val-b">${caja.length}</div></div>`;
   const lista = document.getElementById('pub-caja-lista');
   if(!caja.length){lista.innerHTML='<div class="empty">Sin movimientos registrados.</div>';return;}
-  lista.innerHTML=[...caja].sort((a,b)=>b.fecha.localeCompare(a.fecha)).map(m=>`
+  lista.innerHTML=[...caja].sort((a,b)=>b.fecha.localeCompare(a.fecha)).map((m,i)=>`
     <div class="mov-item">
       <div><div class="mov-fecha">${fmtD(m.fecha)}</div><span class="tipo-badge t-${m.tipo}">${m.tipo}</span></div>
-      <div><div class="mov-desc">${m.desc}</div><div class="mov-cat">${m.cat||''}</div></div>
-      <div class="mov-monto" style="color:${m.tipo==='entrada'?'var(--green-text)':'var(--red-text)'}">${m.tipo==='salida'?'−':''}${fmt(m.monto)}</div>
+      <div>
+        <div class="mov-desc">${m.desc}</div>
+        <div class="mov-cat">${m.cat||''}${m.boleta?' · Boleta '+m.boleta:''}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="mov-monto" style="color:${m.tipo==='entrada'?'var(--green-text)':'var(--red-text)'}">${m.tipo==='salida'?'−':''}${fmt(m.monto)}</span>
+        ${m.foto?`<button onclick="verBoletaPub(${caja.indexOf(m)})" style="background:none;border:none;cursor:pointer;font-size:18px;padding:0" title="Ver boleta">📷</button>`:''}
+      </div>
     </div>`).join('');
+}
+
+function verBoletaPub(ri){
+  const m=(DATA.caja||[])[ri];
+  if(!m||!m.foto) return;
+  const overlay=document.createElement('div');
+  overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;padding:16px';
+  overlay.innerHTML=`
+    <img src="${m.foto}" style="max-width:95vw;max-height:75vh;border-radius:8px;object-fit:contain">
+    <div style="color:white;font-size:13px;text-align:center;opacity:.85">${m.desc} — ${fmtD(m.fecha)}${m.boleta?' · Boleta N° '+m.boleta:''}</div>
+    <button onclick="this.parentElement.remove()" style="padding:8px 28px;background:white;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:500">Cerrar</button>`;
+  overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.remove();});
+  document.body.appendChild(overlay);
 }
 
 // ══════════════════════════════════════════
@@ -808,22 +869,58 @@ function renderCajaAdmin(){
   if(!caja.length){lista.innerHTML='<div class="empty">Sin movimientos.</div>';updateSaldo();return;}
   lista.innerHTML=[...caja].sort((a,b)=>b.fecha.localeCompare(a.fecha)).map(m=>{
     const ri=caja.indexOf(m);
+    const fotoBtn = m.foto
+      ? `<button onclick="verFoto('${ri}')" style="background:none;border:none;cursor:pointer;font-size:16px;line-height:1" title="Ver boleta">📷</button>`
+      : '<span style="color:var(--text3);font-size:11px">—</span>';
     return `<div class="mov-row">
       <div style="color:var(--text2);font-size:11px">${fmtD(m.fecha)}</div>
       <div>${m.desc}<br><span style="font-size:10px;color:var(--text3)">${m.cat||''}</span></div>
       <div><span class="tipo-badge t-${m.tipo}">${m.tipo}</span></div>
       <div style="font-weight:600;color:${m.tipo==='entrada'?'var(--green-text)':'var(--red-text)'}">${m.tipo==='salida'?'−':''}${fmt(m.monto)}</div>
-      <div style="font-size:11px;color:var(--text2)">${m.boleta||'—'}</div>
+      <div style="font-size:11px;color:var(--text2);display:flex;align-items:center;gap:4px">${m.boleta||'—'} ${fotoBtn}</div>
       <div><button class="del-btn" onclick="delMov(${ri})">✕</button></div>
     </div>`;
   }).join('');
   updateSaldo();
 }
+
+// ── VER FOTO BOLETA ──
+function verFoto(ri){
+  const m = DATA.caja[ri];
+  if(!m||!m.foto) return;
+  const overlay = document.createElement('div');
+  overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px';
+  overlay.innerHTML=`
+    <img src="${m.foto}" style="max-width:95vw;max-height:80vh;border-radius:8px;object-fit:contain">
+    <div style="color:white;font-size:13px;opacity:.8">${m.desc} — ${fmtD(m.fecha)}${m.boleta?' · Boleta '+m.boleta:''}</div>
+    <button onclick="this.parentElement.remove()" style="padding:8px 24px;background:white;border:none;border-radius:8px;cursor:pointer;font-size:14px">Cerrar</button>`;
+  overlay.addEventListener('click', e => { if(e.target===overlay) overlay.remove(); });
+  document.body.appendChild(overlay);
+}
+// ── FOTOS DE BOLETAS ──
+function previewFoto(input){
+  if(!input.files||!input.files[0]) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('foto-img').src = e.target.result;
+    document.getElementById('foto-preview').style.display = 'block';
+    document.getElementById('foto-label').style.display = 'none';
+  };
+  reader.readAsDataURL(input.files[0]);
+}
+function clearFoto(){
+  document.getElementById('c-foto').value='';
+  document.getElementById('foto-img').src='';
+  document.getElementById('foto-preview').style.display='none';
+  document.getElementById('foto-label').style.display='flex';
+}
+
 function openMovModal(tipo){
   movTipo=tipo;
   document.getElementById('caja-title').textContent=tipo==='entrada'?'Nueva entrada':'Nueva salida';
   document.getElementById('c-fecha').value=today();
   ['c-desc','c-monto','c-boleta'].forEach(id=>document.getElementById(id).value='');
+  clearFoto();
   document.getElementById('modal-caja').classList.add('open');
 }
 function guardarMov(){
@@ -831,10 +928,12 @@ function guardarMov(){
   const monto=parseInt(document.getElementById('c-monto').value)||0;
   if(!desc||!monto){alert('Completa descripción y monto');return;}
   if(!DATA.caja)DATA.caja=[];
-  const mov={tipo:movTipo,fecha:document.getElementById('c-fecha').value,desc,monto,boleta:document.getElementById('c-boleta').value.trim(),cat:document.getElementById('c-cat').value};
+  const fotoImg = document.getElementById('foto-img');
+  const foto = (fotoImg.src && fotoImg.src.startsWith('data:')) ? fotoImg.src : null;
+  const mov={tipo:movTipo,fecha:document.getElementById('c-fecha').value,desc,monto,boleta:document.getElementById('c-boleta').value.trim(),cat:document.getElementById('c-cat').value,foto:foto||null};
   DATA.caja.push(mov);
   saveLocal();closeModal('modal-caja');renderCajaAdmin();
-  api({accion:'addCaja',...mov});
+  api({accion:'addCaja',...mov,foto:undefined}); // fotos quedan solo local
 }
 function delMov(i){if(!confirm('¿Eliminar?'))return; api({accion:'delCaja',fila:i}); DATA.caja.splice(i,1);saveLocal();renderCajaAdmin();}
 
@@ -956,7 +1055,22 @@ function toggleEvPago(id,nombre){
 // ══════════════════════════════════════════
 // ADMIN — AVISOS
 // ══════════════════════════════════════════
+function guardarSaldoAnt(){
+  const val = parseInt(document.getElementById('saldo-ant-input').value)||0;
+  SALDO_ANTERIOR = val;
+  localStorage.setItem('tres2026_saldo_ant', val);
+  document.getElementById('saldo-ant-actual').textContent = '✓ Guardado: '+fmt(val);
+  document.getElementById('saldo-ant-input').value='';
+  // Re-render para que se vea reflejado en vista pública
+  renderPublico();
+}
+
 function renderAvisosAdmin(){
+  // Inicializa el campo de saldo anterior con el valor actual
+  const input = document.getElementById('saldo-ant-input');
+  if(input && SALDO_ANTERIOR>0){
+    document.getElementById('saldo-ant-actual').textContent = 'Actual: '+fmt(SALDO_ANTERIOR);
+  }
   const avs=DATA.avisos||[];
   const cont=document.getElementById('lista-avisos-admin');
   if(!avs.length){cont.innerHTML='<div class="empty">Sin avisos. Agrega informaciones para el curso.</div>';return;}
