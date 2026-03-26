@@ -627,16 +627,16 @@ function renderPagos(){
     <div class="pub-stat"><div class="pub-stat-label">Caja chica</div><div class="pub-stat-val">${ccPag}/${als.length}</div><div class="pub-stat-sub">pagaron</div></div>`;
 
   // Cuadro saldo total histórico — siempre visible
-  // Saldo anterior = suma de entradas del libro de caja que contengan "anterior" en la descripción
+  // Saldo anterior = depósitos bancarios que contengan "anterior" en la descripción
+  const banco = DATA.banco||[];
   const caja = DATA.caja||[];
-  const saldoAntEntradas = caja.filter(m =>
-    m.tipo==='entrada' &&
+  const saldoAntBanco = banco.filter(m =>
+    m.tipo==='deposito' &&
     (m.desc||'').toLowerCase().includes('anterior')
   ).reduce((s,m)=>s+m.monto, 0);
 
-  // Si hay valor en localStorage (campo admin) se usa ese, si no, se busca en la caja
   const saldoAntLocal = parseInt(localStorage.getItem('tres2026_saldo_ant')||'0')||0;
-  const saldoAnterior = saldoAntEntradas || saldoAntLocal || SALDO_ANTERIOR;
+  const saldoAnterior = saldoAntBanco || saldoAntLocal || SALDO_ANTERIOR;
 
   const cuotasRec = als.reduce((s,a)=>s+MESES.filter(m=>a.cuotas[m]).length*CUOTA, 0);
   const ccRec     = als.filter(a=>a.cc).length * CUOTA_CC;
@@ -686,11 +686,9 @@ function renderPagos(){
 function renderCajaPublica(){
   if(!DATA) return;
   const caja=DATA.caja||[];
-  const antMonto = caja.filter(m=>m.tipo==='entrada'&&(m.desc||'').toLowerCase().includes('anterior')).reduce((s,m)=>s+m.monto,0);
   const e=caja.filter(m=>m.tipo==='entrada').reduce((s,m)=>s+m.monto,0);
   const sa=caja.filter(m=>m.tipo==='salida').reduce((s,m)=>s+m.monto,0);
   document.getElementById('pub-caja-stats').innerHTML=`
-    ${antMonto>0?`<div class="stat-card"><div class="stat-label">Años anteriores</div><div class="stat-val val-b">${fmt(antMonto)}</div></div>`:''}
     <div class="stat-card"><div class="stat-label">Saldo</div><div class="stat-val ${(e-sa)>=0?'val-g':'val-r'}">${fmt(e-sa)}</div></div>
     <div class="stat-card"><div class="stat-label">Total ingresos</div><div class="stat-val val-g">${fmt(e)}</div></div>
     <div class="stat-card"><div class="stat-label">Total gastos</div><div class="stat-val val-r">${fmt(sa)}</div></div>
@@ -730,11 +728,13 @@ function verBoletaPub(ri){
 function renderBancoPublico(){
   if(!DATA) return;
   const banco=DATA.banco||[], caja=DATA.caja||[];
+  const antMonto = banco.filter(m=>m.tipo==='deposito'&&(m.desc||'').toLowerCase().includes('anterior')).reduce((s,m)=>s+m.monto,0);
   const deps=banco.filter(m=>m.tipo==='deposito').reduce((s,m)=>s+m.monto,0);
   const reti=banco.filter(m=>m.tipo!=='deposito').reduce((s,m)=>s+m.monto,0);
   const saldoB=deps-reti;
   const saldoC=caja.filter(m=>m.tipo==='entrada').reduce((s,m)=>s+m.monto,0)-caja.filter(m=>m.tipo==='salida').reduce((s,m)=>s+m.monto,0);
   document.getElementById('pub-banco-stats').innerHTML=`
+    ${antMonto>0?`<div class="stat-card"><div class="stat-label">Años anteriores</div><div class="stat-val val-b">${fmt(antMonto)}</div></div>`:''}
     <div class="stat-card"><div class="stat-label">Saldo banco</div><div class="stat-val ${saldoB>=0?'val-g':'val-r'}">${fmt(saldoB)}</div></div>
     <div class="stat-card"><div class="stat-label">Total depósitos</div><div class="stat-val val-g">${fmt(deps)}</div></div>
     <div class="stat-card"><div class="stat-label">Total retiros</div><div class="stat-val val-r">${fmt(reti)}</div></div>`;
@@ -879,12 +879,9 @@ function toggleCC(idx){
 // ══════════════════════════════════════════
 function renderCajaAdmin(){
   const caja=DATA.caja||[];
-  const antEntradas = caja.filter(m=>m.tipo==='entrada'&&(m.desc||'').toLowerCase().includes('anterior'));
-  const antMonto = antEntradas.reduce((s,m)=>s+m.monto,0);
   const e  = caja.filter(m=>m.tipo==='entrada').reduce((s,m)=>s+m.monto,0);
   const sa = caja.filter(m=>m.tipo==='salida').reduce((s,m)=>s+m.monto,0);
   document.getElementById('stats-caja').innerHTML=`
-    ${antMonto>0?`<div class="stat-card"><div class="stat-label">Años anteriores</div><div class="stat-val val-b">${fmt(antMonto)}</div></div>`:''}
     <div class="stat-card"><div class="stat-label">Saldo</div><div class="stat-val ${(e-sa)>=0?'val-g':'val-r'}">${fmt(e-sa)}</div></div>
     <div class="stat-card"><div class="stat-label">Entradas</div><div class="stat-val val-g">${fmt(e)}</div></div>
     <div class="stat-card"><div class="stat-label">Salidas</div><div class="stat-val val-r">${fmt(sa)}</div></div>`;
@@ -965,12 +962,14 @@ function delMov(i){if(!confirm('¿Eliminar?'))return; api({accion:'delCaja',fila
 // ══════════════════════════════════════════
 function renderBancoAdmin(){
   const banco=DATA.banco||[], caja=DATA.caja||[];
+  const antMonto = banco.filter(m=>m.tipo==='deposito'&&(m.desc||'').toLowerCase().includes('anterior')).reduce((s,m)=>s+m.monto,0);
   const deps=banco.filter(m=>m.tipo==='deposito').reduce((s,m)=>s+m.monto,0);
   const reti=banco.filter(m=>m.tipo!=='deposito').reduce((s,m)=>s+m.monto,0);
   const saldoB=deps-reti;
   const saldoC=caja.filter(m=>m.tipo==='entrada').reduce((s,m)=>s+m.monto,0)-caja.filter(m=>m.tipo==='salida').reduce((s,m)=>s+m.monto,0);
   const diff=saldoB-saldoC;
   document.getElementById('stats-banco').innerHTML=`
+    ${antMonto>0?`<div class="stat-card"><div class="stat-label">Años anteriores</div><div class="stat-val val-b">${fmt(antMonto)}</div></div>`:''}
     <div class="stat-card"><div class="stat-label">Saldo banco</div><div class="stat-val ${saldoB>=0?'val-g':'val-r'}">${fmt(saldoB)}</div></div>
     <div class="stat-card"><div class="stat-label">Depósitos</div><div class="stat-val val-g">${fmt(deps)}</div></div>
     <div class="stat-card"><div class="stat-label">Retiros</div><div class="stat-val val-r">${fmt(reti)}</div></div>`;
