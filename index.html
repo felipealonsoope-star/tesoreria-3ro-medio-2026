@@ -627,17 +627,25 @@ function renderPagos(){
     <div class="pub-stat"><div class="pub-stat-label">Caja chica</div><div class="pub-stat-val">${ccPag}/${als.length}</div><div class="pub-stat-sub">pagaron</div></div>`;
 
   // Cuadro saldo total histórico — siempre visible
-  const saldoCajaActual = (DATA.caja||[]).filter(m=>m.tipo==='entrada').reduce((s,m)=>s+m.monto,0)
-                        - (DATA.caja||[]).filter(m=>m.tipo==='salida').reduce((s,m)=>s+m.monto,0);
-  const totalHistorico = SALDO_ANTERIOR + saldoCajaActual;
+  // Total = años anteriores + cuotas recaudadas + caja chica recaudada + rifas/eventos recaudados
+  const cuotasRec = als.reduce((s,a)=>s+MESES.filter(m=>a.cuotas[m]).length*CUOTA, 0);
+  const ccRec     = als.filter(a=>a.cc).length * CUOTA_CC;
+  const rifasRec  = (DATA.eventos||[]).reduce((s,ev)=>{
+    const pagaron = als.filter(a=>ev.pagos&&ev.pagos[a.nombre]).length;
+    return s + pagaron * (ev.monto||0);
+  }, 0);
+  const totalDisponible = SALDO_ANTERIOR + cuotasRec + ccRec + rifasRec;
+
   const histEl = document.getElementById('pub-historico');
   if(histEl){
     histEl.style.display='block';
     histEl.innerHTML=`
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px">
-        ${SALDO_ANTERIOR>0?`<div class="pub-stat"><div class="pub-stat-label">Años anteriores</div><div class="pub-stat-val">${fmt(SALDO_ANTERIOR)}</div><div class="pub-stat-sub">saldo acumulado</div></div>`:''}
-        <div class="pub-stat"><div class="pub-stat-label">Movim. 2026</div><div class="pub-stat-val">${fmt(saldoCajaActual)}</div><div class="pub-stat-sub">saldo libro de caja</div></div>
-        <div class="pub-stat" style="background:rgba(255,255,255,0.2)"><div class="pub-stat-label">💰 Total disponible</div><div class="pub-stat-val" style="font-size:${totalHistorico>=1000000?'18px':'22px'}">${fmt(totalHistorico)}</div><div class="pub-stat-sub">fondo total del curso</div></div>
+        ${SALDO_ANTERIOR>0?`<div class="pub-stat"><div class="pub-stat-label">Años anteriores</div><div class="pub-stat-val">${fmt(SALDO_ANTERIOR)}</div><div class="pub-stat-sub">acumulado</div></div>`:''}
+        <div class="pub-stat"><div class="pub-stat-label">Cuotas 2026</div><div class="pub-stat-val">${fmt(cuotasRec)}</div><div class="pub-stat-sub">recaudado</div></div>
+        <div class="pub-stat"><div class="pub-stat-label">Caja chica</div><div class="pub-stat-val">${fmt(ccRec)}</div><div class="pub-stat-sub">recaudado</div></div>
+        ${rifasRec>0?`<div class="pub-stat"><div class="pub-stat-label">Rifas/eventos</div><div class="pub-stat-val">${fmt(rifasRec)}</div><div class="pub-stat-sub">recaudado</div></div>`:''}
+        <div class="pub-stat" style="background:rgba(255,255,255,0.22)"><div class="pub-stat-label">💰 Total disponible</div><div class="pub-stat-val" style="font-size:${totalDisponible>=1000000?'17px':'22px'}">${fmt(totalDisponible)}</div><div class="pub-stat-sub">fondo total del curso</div></div>
       </div>`;
   }
 
