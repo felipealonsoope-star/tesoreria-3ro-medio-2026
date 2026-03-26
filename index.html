@@ -627,16 +627,14 @@ function renderPagos(){
     <div class="pub-stat"><div class="pub-stat-label">Caja chica</div><div class="pub-stat-val">${ccPag}/${als.length}</div><div class="pub-stat-sub">pagaron</div></div>`;
 
   // Cuadro saldo total histórico — siempre visible
-  // Saldo anterior = depósitos bancarios que contengan "anterior" en la descripción
+  // Saldo anterior = busca en banco Y en caja (donde sea que esté registrado)
   const banco = DATA.banco||[];
   const caja = DATA.caja||[];
-  const saldoAntBanco = banco.filter(m =>
-    m.tipo==='deposito' &&
-    (m.desc||'').toLowerCase().includes('anterior')
-  ).reduce((s,m)=>s+m.monto, 0);
-
+  const esAnterior = m => (m.desc||'').toLowerCase().includes('anterior');
+  const saldoAntBanco = banco.filter(m=>m.tipo==='deposito' && esAnterior(m)).reduce((s,m)=>s+m.monto,0);
+  const saldoAntCaja  = caja.filter(m=>m.tipo==='entrada' && esAnterior(m)).reduce((s,m)=>s+m.monto,0);
   const saldoAntLocal = parseInt(localStorage.getItem('tres2026_saldo_ant')||'0')||0;
-  const saldoAnterior = saldoAntBanco || saldoAntLocal || SALDO_ANTERIOR;
+  const saldoAnterior = saldoAntBanco + saldoAntCaja || saldoAntLocal || SALDO_ANTERIOR;
 
   const cuotasRec = als.reduce((s,a)=>s+MESES.filter(m=>a.cuotas[m]).length*CUOTA, 0);
   const ccRec     = als.filter(a=>a.cc).length * CUOTA_CC;
@@ -728,7 +726,9 @@ function verBoletaPub(ri){
 function renderBancoPublico(){
   if(!DATA) return;
   const banco=DATA.banco||[], caja=DATA.caja||[];
-  const antMonto = banco.filter(m=>m.tipo==='deposito'&&(m.desc||'').toLowerCase().includes('anterior')).reduce((s,m)=>s+m.monto,0);
+  const esAnt = m=>(m.desc||'').toLowerCase().includes('anterior');
+  const antMonto = banco.filter(m=>m.tipo==='deposito'&&esAnt(m)).reduce((s,m)=>s+m.monto,0)
+                 + caja.filter(m=>m.tipo==='entrada'&&esAnt(m)).reduce((s,m)=>s+m.monto,0);
   const deps=banco.filter(m=>m.tipo==='deposito').reduce((s,m)=>s+m.monto,0);
   const reti=banco.filter(m=>m.tipo!=='deposito').reduce((s,m)=>s+m.monto,0);
   const saldoB=deps-reti;
@@ -962,7 +962,9 @@ function delMov(i){if(!confirm('¿Eliminar?'))return; api({accion:'delCaja',fila
 // ══════════════════════════════════════════
 function renderBancoAdmin(){
   const banco=DATA.banco||[], caja=DATA.caja||[];
-  const antMonto = banco.filter(m=>m.tipo==='deposito'&&(m.desc||'').toLowerCase().includes('anterior')).reduce((s,m)=>s+m.monto,0);
+  const esAnt = m=>(m.desc||'').toLowerCase().includes('anterior');
+  const antMonto = banco.filter(m=>m.tipo==='deposito'&&esAnt(m)).reduce((s,m)=>s+m.monto,0)
+                 + caja.filter(m=>m.tipo==='entrada'&&esAnt(m)).reduce((s,m)=>s+m.monto,0);
   const deps=banco.filter(m=>m.tipo==='deposito').reduce((s,m)=>s+m.monto,0);
   const reti=banco.filter(m=>m.tipo!=='deposito').reduce((s,m)=>s+m.monto,0);
   const saldoB=deps-reti;
