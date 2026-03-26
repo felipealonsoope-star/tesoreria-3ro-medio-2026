@@ -627,21 +627,31 @@ function renderPagos(){
     <div class="pub-stat"><div class="pub-stat-label">Caja chica</div><div class="pub-stat-val">${ccPag}/${als.length}</div><div class="pub-stat-sub">pagaron</div></div>`;
 
   // Cuadro saldo total histórico — siempre visible
-  // Total = años anteriores + cuotas recaudadas + caja chica recaudada + rifas/eventos recaudados
+  // Saldo anterior = suma de entradas del libro de caja que contengan "anterior" en la descripción
+  const caja = DATA.caja||[];
+  const saldoAntEntradas = caja.filter(m =>
+    m.tipo==='entrada' &&
+    (m.desc||'').toLowerCase().includes('anterior')
+  ).reduce((s,m)=>s+m.monto, 0);
+
+  // Si hay valor en localStorage (campo admin) se usa ese, si no, se busca en la caja
+  const saldoAntLocal = parseInt(localStorage.getItem('tres2026_saldo_ant')||'0')||0;
+  const saldoAnterior = saldoAntEntradas || saldoAntLocal || SALDO_ANTERIOR;
+
   const cuotasRec = als.reduce((s,a)=>s+MESES.filter(m=>a.cuotas[m]).length*CUOTA, 0);
   const ccRec     = als.filter(a=>a.cc).length * CUOTA_CC;
   const rifasRec  = (DATA.eventos||[]).reduce((s,ev)=>{
     const pagaron = als.filter(a=>ev.pagos&&ev.pagos[a.nombre]).length;
     return s + pagaron * (ev.monto||0);
   }, 0);
-  const totalDisponible = SALDO_ANTERIOR + cuotasRec + ccRec + rifasRec;
+  const totalDisponible = saldoAnterior + cuotasRec + ccRec + rifasRec;
 
   const histEl = document.getElementById('pub-historico');
   if(histEl){
     histEl.style.display='block';
     histEl.innerHTML=`
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px">
-        ${SALDO_ANTERIOR>0?`<div class="pub-stat"><div class="pub-stat-label">Años anteriores</div><div class="pub-stat-val">${fmt(SALDO_ANTERIOR)}</div><div class="pub-stat-sub">acumulado</div></div>`:''}
+        ${saldoAnterior>0?`<div class="pub-stat"><div class="pub-stat-label">Años anteriores</div><div class="pub-stat-val">${fmt(saldoAnterior)}</div><div class="pub-stat-sub">acumulado</div></div>`:''}
         <div class="pub-stat"><div class="pub-stat-label">Cuotas 2026</div><div class="pub-stat-val">${fmt(cuotasRec)}</div><div class="pub-stat-sub">recaudado</div></div>
         <div class="pub-stat"><div class="pub-stat-label">Caja chica</div><div class="pub-stat-val">${fmt(ccRec)}</div><div class="pub-stat-sub">recaudado</div></div>
         ${rifasRec>0?`<div class="pub-stat"><div class="pub-stat-label">Rifas/eventos</div><div class="pub-stat-val">${fmt(rifasRec)}</div><div class="pub-stat-sub">recaudado</div></div>`:''}
@@ -676,9 +686,11 @@ function renderPagos(){
 function renderCajaPublica(){
   if(!DATA) return;
   const caja=DATA.caja||[];
+  const antMonto = caja.filter(m=>m.tipo==='entrada'&&(m.desc||'').toLowerCase().includes('anterior')).reduce((s,m)=>s+m.monto,0);
   const e=caja.filter(m=>m.tipo==='entrada').reduce((s,m)=>s+m.monto,0);
   const sa=caja.filter(m=>m.tipo==='salida').reduce((s,m)=>s+m.monto,0);
   document.getElementById('pub-caja-stats').innerHTML=`
+    ${antMonto>0?`<div class="stat-card"><div class="stat-label">Años anteriores</div><div class="stat-val val-b">${fmt(antMonto)}</div></div>`:''}
     <div class="stat-card"><div class="stat-label">Saldo</div><div class="stat-val ${(e-sa)>=0?'val-g':'val-r'}">${fmt(e-sa)}</div></div>
     <div class="stat-card"><div class="stat-label">Total ingresos</div><div class="stat-val val-g">${fmt(e)}</div></div>
     <div class="stat-card"><div class="stat-label">Total gastos</div><div class="stat-val val-r">${fmt(sa)}</div></div>
@@ -867,9 +879,12 @@ function toggleCC(idx){
 // ══════════════════════════════════════════
 function renderCajaAdmin(){
   const caja=DATA.caja||[];
-  const e=caja.filter(m=>m.tipo==='entrada').reduce((s,m)=>s+m.monto,0);
-  const sa=caja.filter(m=>m.tipo==='salida').reduce((s,m)=>s+m.monto,0);
+  const antEntradas = caja.filter(m=>m.tipo==='entrada'&&(m.desc||'').toLowerCase().includes('anterior'));
+  const antMonto = antEntradas.reduce((s,m)=>s+m.monto,0);
+  const e  = caja.filter(m=>m.tipo==='entrada').reduce((s,m)=>s+m.monto,0);
+  const sa = caja.filter(m=>m.tipo==='salida').reduce((s,m)=>s+m.monto,0);
   document.getElementById('stats-caja').innerHTML=`
+    ${antMonto>0?`<div class="stat-card"><div class="stat-label">Años anteriores</div><div class="stat-val val-b">${fmt(antMonto)}</div></div>`:''}
     <div class="stat-card"><div class="stat-label">Saldo</div><div class="stat-val ${(e-sa)>=0?'val-g':'val-r'}">${fmt(e-sa)}</div></div>
     <div class="stat-card"><div class="stat-label">Entradas</div><div class="stat-val val-g">${fmt(e)}</div></div>
     <div class="stat-card"><div class="stat-label">Salidas</div><div class="stat-val val-r">${fmt(sa)}</div></div>`;
