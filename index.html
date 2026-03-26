@@ -6,7 +6,7 @@
 <title>Tesorería 3° Medio 2026</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-:root {
+:root{
   --bg:#f7f6f3;--surface:#fff;--surface2:#f0efe9;
   --border:rgba(0,0,0,0.09);--border2:rgba(0,0,0,0.15);
   --text:#1a1917;--text2:#6b6a65;--text3:#a8a7a2;
@@ -23,94 +23,134 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
 #login-screen{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:300;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
 #login-screen.show{display:flex}
 .login-box{background:var(--surface);border-radius:18px;padding:30px 24px;width:90%;max-width:320px;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,0.2)}
-.login-icon{font-size:36px;margin-bottom:12px}
 .login-box h2{font-size:17px;font-weight:500;margin-bottom:6px}
 .login-box p{font-size:12px;color:var(--text2);margin-bottom:20px}
 .login-box input{width:100%;padding:11px 14px;font-size:18px;border:1px solid var(--border2);border-radius:var(--radius-sm);font-family:'DM Mono',monospace;text-align:center;letter-spacing:6px;outline:none;margin-bottom:12px}
 .login-box input:focus{border-color:var(--text)}
 .login-btn{width:100%;padding:12px;border-radius:var(--radius-sm);background:var(--text);color:white;border:none;font-size:14px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif}
-.login-btn:hover{opacity:.85}
 #login-error{font-size:12px;color:var(--red-text);margin-top:8px;min-height:16px}
 .login-cancel{margin-top:10px;background:none;border:none;color:var(--text3);font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif}
 
 /* TOPBAR */
 .topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 16px;display:flex;align-items:center;justify-content:space-between;height:52px;position:sticky;top:0;z-index:50}
 .topbar-left{display:flex;align-items:center;gap:10px}
-.logo{width:30px;height:30px;background:var(--text);border-radius:8px;display:flex;align-items:center;justify-content:center;color:white;font-size:13px;font-weight:600}
+.logo{width:30px;height:30px;background:var(--text);border-radius:8px;display:flex;align-items:center;justify-content:center;color:white;font-size:13px;font-weight:600;flex-shrink:0}
 .topbar-title{font-size:14px;font-weight:500}
 .topbar-sub{font-size:11px;color:var(--text2)}
 .topbar-right{display:flex;gap:6px;align-items:center}
 .chip{font-size:11px;padding:3px 10px;border-radius:20px;font-weight:500;font-family:'DM Mono',monospace}
 .chip-green{background:var(--green-bg);color:var(--green-text)}
-.chip-blue{background:var(--blue-bg);color:var(--blue-text)}
-#btn-admin{font-size:11px;padding:4px 12px;border-radius:20px;border:1px solid var(--border2);background:var(--surface);cursor:pointer;color:var(--text2);font-family:'DM Sans',sans-serif}
-#btn-admin:hover{background:var(--surface2)}
+#btn-admin{font-size:11px;padding:4px 12px;border-radius:20px;border:1px solid var(--border2);background:var(--surface);cursor:pointer;color:var(--text2);font-family:'DM Sans',sans-serif;white-space:nowrap}
 #btn-admin.active{background:var(--text);color:white;border-color:transparent}
 
-/* MÉTRICAS PÚBLICAS */
-.pub-stat{background:rgba(255,255,255,0.15);border-radius:8px;padding:12px 14px;text-align:center}
-.pub-stat-label{font-size:10px;color:rgba(255,255,255,0.75);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;font-weight:500}
+/* TABS PÚBLICOS */
+.pub-tabs{background:var(--surface);border-bottom:1px solid var(--border);display:flex;overflow-x:auto;scrollbar-width:none;padding:0 12px}
+.pub-tabs::-webkit-scrollbar{display:none}
+.pub-tab{padding:11px 14px;font-size:13px;font-weight:400;color:var(--text2);border:none;background:none;cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;font-family:'DM Sans',sans-serif;transition:color .15s,border-color .15s}
+.pub-tab:hover{color:var(--text)}
+.pub-tab.active{color:var(--text);border-bottom-color:var(--text);font-weight:500}
+
+/* CONTENIDO PÚBLICO */
+.pub-content{padding:16px;max-width:900px;margin:0 auto}
+.pub-section{display:none}
+.pub-section.active{display:block}
+
+/* BANNER */
+.pub-banner{background:linear-gradient(135deg,#1a5c38,#2d9e5f);border-radius:var(--radius);padding:18px;margin-bottom:14px;color:white}
+.pub-banner h2{font-size:16px;font-weight:500;margin-bottom:3px}
+.pub-banner p{font-size:12px;opacity:.8}
+.pub-stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-top:14px}
+.pub-stat{background:rgba(255,255,255,0.15);border-radius:8px;padding:12px 10px;text-align:center}
+.pub-stat-label{font-size:10px;color:rgba(255,255,255,0.75);text-transform:uppercase;letter-spacing:.05em;font-weight:500;margin-bottom:4px}
 .pub-stat-val{font-size:20px;font-weight:600;color:white;font-family:'DM Mono',monospace}
 .pub-stat-sub{font-size:10px;color:rgba(255,255,255,0.6);margin-top:2px}
 
-/* VISTA PÚBLICA */
-#view-public{padding:16px;max-width:800px;margin:0 auto}
-.pub-banner{background:linear-gradient(135deg,#1a5c38,#2d9e5f);border-radius:var(--radius);padding:18px;text-align:center;margin-bottom:14px;color:white}
-.pub-banner h2{font-size:16px;font-weight:500;margin-bottom:3px}
-.pub-banner p{font-size:12px;opacity:.8}
+/* FILTROS */
 .filter-bar{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
 .filter-btn{padding:5px 14px;border-radius:20px;border:1px solid var(--border2);background:var(--surface);font-size:12px;cursor:pointer;color:var(--text2);font-family:'DM Sans',sans-serif}
 .filter-btn.active{background:var(--text);color:white;border-color:transparent}
-.al-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:11px 14px;margin-bottom:8px;box-shadow:var(--shadow)}
-.al-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-.al-nombre{font-weight:500;font-size:13px}
-.status-badge{font-size:11px;padding:3px 9px;border-radius:10px;font-weight:500}
-.s-ok{background:var(--green-bg);color:var(--green-text)}
-.s-debt{background:var(--red-bg);color:var(--red-text)}
-.chips{display:flex;gap:3px;flex-wrap:wrap}
-.mc{font-size:9px;padding:2px 5px;border-radius:4px;font-weight:600}
-.mc-p{background:var(--green-bg);color:var(--green-text)}
-.mc-d{background:var(--red-bg);color:var(--red-text)}
 
-/* VISTA ADMIN */
-#view-admin{display:none;padding:16px;max-width:1000px;margin:0 auto}
-#view-admin.show{display:block}
-.admin-header{background:linear-gradient(135deg,#1a1917,#3a3835);border-radius:var(--radius);padding:14px 16px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between}
-.admin-header h2{color:white;font-size:15px;font-weight:500}
-.admin-header p{color:rgba(255,255,255,.6);font-size:11px;margin-top:2px}
-.admin-tabs{display:flex;gap:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:16px}
-.admin-tab{padding:9px 16px;font-size:13px;cursor:pointer;border:none;background:transparent;color:var(--text2);font-family:'DM Sans',sans-serif;border-right:1px solid var(--border)}
-.admin-tab:last-child{border-right:none}
-.admin-tab:hover{background:var(--surface2)}
-.admin-tab.active{background:var(--text);color:white;font-weight:500}
-.admin-section{display:none}
-.admin-section.active{display:block}
+/* TABLA PAGOS */
+.table-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:auto;box-shadow:var(--shadow)}
+table{width:100%;border-collapse:collapse;min-width:680px}
+thead th{background:var(--surface2);font-weight:500;font-size:11px;padding:8px 10px;text-align:left;border-bottom:1px solid var(--border);color:var(--text2);text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
+tbody tr{border-bottom:1px solid var(--border)}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:#fafaf8}
+td{padding:7px 10px;vertical-align:middle;font-size:12px}
+td:first-child{font-weight:500}
+.pill{display:inline-flex;align-items:center;justify-content:center;width:24px;height:20px;border-radius:4px;font-size:11px;font-weight:600}
+.pill-p{background:var(--green-bg);color:var(--green-text)}
+.pill-d{background:var(--red-bg);color:var(--red-text)}
+.badge{font-size:11px;padding:3px 9px;border-radius:10px;font-weight:500;white-space:nowrap}
+.badge-ok{background:var(--green-bg);color:var(--green-text)}
+.badge-debt{background:var(--red-bg);color:var(--red-text)}
 
-/* STATS */
+/* SECCIÓN CAJA PÚBLICA */
+.section-title{font-size:13px;font-weight:500;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px}
 .stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:16px}
 .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;box-shadow:var(--shadow)}
 .stat-label{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.04em;font-weight:500;margin-bottom:4px}
 .stat-val{font-size:20px;font-weight:500;font-family:'DM Mono',monospace}
-.val-g{color:var(--green-text)}.val-r{color:var(--red-text)}.val-b{color:var(--blue-text)}
+.val-g{color:var(--green-text)}.val-r{color:var(--red-text)}.val-b{color:var(--blue-text)}.val-a{color:var(--amber-text)}
 
-/* TABLA */
-.table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:auto;box-shadow:var(--shadow)}
-table{width:100%;border-collapse:collapse;min-width:600px}
-thead th{background:var(--surface2);font-weight:500;font-size:11px;padding:8px 8px;text-align:left;border-bottom:1px solid var(--border);color:var(--text2);text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
-tbody tr{border-bottom:1px solid var(--border)}
-tbody tr:last-child{border-bottom:none}
-tbody tr:hover{background:#fafaf8}
-td{padding:6px 8px;vertical-align:middle}
-td:first-child{font-size:12px;font-weight:500}
+/* MOVIMIENTOS PÚBLICOS */
+.mov-list{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.mov-item{display:grid;grid-template-columns:80px 1fr auto;gap:10px;padding:10px 14px;border-bottom:1px solid var(--border);align-items:center;font-size:12px}
+.mov-item:last-child{border-bottom:none}
+.mov-fecha{color:var(--text2);font-size:11px}
+.mov-desc{font-weight:500}
+.mov-cat{font-size:10px;color:var(--text3)}
+.mov-monto{font-weight:600;font-family:'DM Mono',monospace;white-space:nowrap}
+.tipo-badge{font-size:10px;padding:2px 8px;border-radius:10px;font-weight:500}
+.t-entrada{background:var(--green-bg);color:var(--green-text)}
+.t-salida{background:var(--red-bg);color:var(--red-text)}
+.t-deposito{background:var(--blue-bg);color:var(--blue-text)}
+.t-retiro{background:var(--amber-bg);color:var(--amber-text)}
 
-/* BOTONES PAGO */
-.pay-btn{width:32px;height:28px;border-radius:6px;border:none;font-size:15px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:transform .1s;font-weight:600}
-.pay-btn:hover{transform:scale(1.15)}
+/* EVENTOS PÚBLICOS */
+.evento-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:10px;box-shadow:var(--shadow)}
+.evento-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+.evento-nombre{font-weight:500;font-size:14px}
+.evento-meta{font-size:12px;color:var(--text2);margin-top:3px}
+.evento-stats{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.evento-stat{font-size:12px;padding:4px 10px;border-radius:6px;background:var(--surface2)}
+.evento-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:4px}
+.evento-al{display:flex;justify-content:space-between;align-items:center;padding:4px 8px;border-radius:5px;font-size:11px}
+.ev-p{background:var(--green-bg);color:var(--green-text)}
+.ev-d{background:var(--red-bg);color:var(--red-text)}
+
+/* AVISOS */
+.aviso-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:10px;box-shadow:var(--shadow);display:flex;gap:12px;align-items:flex-start}
+.aviso-icon{font-size:20px;flex-shrink:0;margin-top:1px}
+.aviso-titulo{font-weight:500;font-size:13px;margin-bottom:3px}
+.aviso-texto{font-size:12px;color:var(--text2);line-height:1.5}
+.aviso-fecha{font-size:11px;color:var(--text3);margin-top:5px}
+.aviso-urgente{border-left:3px solid var(--red-text)}
+.aviso-info{border-left:3px solid var(--blue-text)}
+.aviso-ok{border-left:3px solid var(--green-text)}
+
+/* VISTA ADMIN */
+#view-admin{display:none;padding:16px;max-width:1000px;margin:0 auto}
+#view-admin.show{display:block}
+.admin-banner{background:linear-gradient(135deg,#1a1917,#3a3835);border-radius:var(--radius);padding:12px 16px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
+.admin-banner h2{color:white;font-size:14px;font-weight:500}
+.admin-banner p{color:rgba(255,255,255,.55);font-size:11px;margin-top:2px}
+.admin-tabs{display:flex;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:14px}
+.admin-tab{padding:9px 14px;font-size:12px;cursor:pointer;border:none;background:transparent;color:var(--text2);font-family:'DM Sans',sans-serif;border-right:1px solid var(--border);flex:1;white-space:nowrap}
+.admin-tab:last-child{border-right:none}
+.admin-tab.active{background:var(--text);color:white;font-weight:500}
+.admin-section{display:none}
+.admin-section.active{display:block}
+
+/* BOTONES PAGO ADMIN */
+.pay-btn{width:32px;height:26px;border-radius:5px;border:none;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:transform .1s;font-weight:700}
+.pay-btn:hover{transform:scale(1.1)}
 .pay-btn:active{transform:scale(.9)}
 .pay-btn.pagado{background:var(--green-bg);color:var(--green-text)}
 .pay-btn.pendiente{background:var(--surface2);color:var(--text3)}
 
-/* CAJA */
+/* BOTONES */
 .toolbar{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
 .btn{padding:7px 14px;border-radius:var(--radius-sm);border:1px solid var(--border2);background:var(--surface);font-size:12px;cursor:pointer;color:var(--text);font-family:'DM Sans',sans-serif;font-weight:500;white-space:nowrap}
 .btn:hover{background:var(--surface2)}
@@ -118,44 +158,56 @@ td:first-child{font-size:12px;font-weight:500}
 .btn-primary:hover{opacity:.85;background:var(--text)}
 .btn-green{background:var(--green-bg);color:var(--green-text);border-color:var(--green-border)}
 .btn-red{background:var(--red-bg);color:var(--red-text);border-color:var(--red-border)}
-.mov-head{display:grid;grid-template-columns:85px 1fr 90px 85px 85px 30px;gap:8px;padding:8px 12px;background:var(--surface2);border-bottom:1px solid var(--border);font-size:11px;font-weight:500;color:var(--text2);text-transform:uppercase;letter-spacing:.04em}
-.mov-row{display:grid;grid-template-columns:85px 1fr 90px 85px 85px 30px;gap:8px;padding:9px 12px;border-bottom:1px solid var(--border);align-items:center;font-size:12px}
+.btn-blue{background:var(--blue-bg);color:var(--blue-text);border-color:#c7d9f8}
+
+/* ADMIN MOVIMIENTOS */
+.mov-head{display:grid;grid-template-columns:85px 1fr 90px 85px 80px 30px;gap:6px;padding:8px 12px;background:var(--surface2);border-bottom:1px solid var(--border);font-size:11px;font-weight:500;color:var(--text2);text-transform:uppercase;letter-spacing:.04em}
+.mov-row{display:grid;grid-template-columns:85px 1fr 90px 85px 80px 30px;gap:6px;padding:9px 12px;border-bottom:1px solid var(--border);align-items:center;font-size:12px}
 .mov-row:last-child{border-bottom:none}
 .mov-row:hover{background:#fafaf8}
-.tipo-badge{font-size:10px;padding:2px 8px;border-radius:10px;font-weight:500;display:inline-block}
-.badge-e{background:var(--green-bg);color:var(--green-text)}
-.badge-s{background:var(--red-bg);color:var(--red-text)}
 .del-btn{background:none;border:none;cursor:pointer;color:var(--text3);font-size:13px;padding:2px 4px;border-radius:4px}
 .del-btn:hover{color:var(--red-text);background:var(--red-bg)}
+
+/* ADMIN EVENTOS */
+.ev-admin-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:10px;box-shadow:var(--shadow)}
+.ev-admin-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+.ev-admin-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:4px;margin-top:8px}
+.ev-al-btn{display:flex;justify-content:space-between;align-items:center;padding:5px 8px;border-radius:5px;font-size:11px;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:opacity .1s}
+.ev-al-btn:hover{opacity:.75}
+.ev-al-p{background:var(--green-bg);color:var(--green-text)}
+.ev-al-d{background:var(--surface2);color:var(--text2)}
+
+/* AVISOS ADMIN */
+.aviso-admin-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin-bottom:8px;box-shadow:var(--shadow);display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
 
 /* MODAL */
 .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.25);z-index:200;align-items:center;justify-content:center;backdrop-filter:blur(2px)}
 .overlay.open{display:flex}
-.modal{background:var(--surface);border-radius:14px;padding:20px;width:92%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,0.12);max-height:90vh;overflow-y:auto}
+.modal{background:var(--surface);border-radius:14px;padding:20px;width:92%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,0.12);max-height:90vh;overflow-y:auto}
 .modal h3{font-size:15px;font-weight:500;margin-bottom:16px}
 .field{margin-bottom:12px}
 .field label{display:block;font-size:11px;color:var(--text2);margin-bottom:4px;font-weight:500;text-transform:uppercase;letter-spacing:.04em}
 .field input,.field select,.field textarea{width:100%;padding:8px 10px;border:1px solid var(--border2);border-radius:var(--radius-sm);font-size:13px;background:var(--surface);color:var(--text);font-family:'DM Sans',sans-serif;outline:none}
 .field input:focus,.field select:focus{border-color:var(--text)}
-.field textarea{height:60px;resize:vertical}
+.field textarea{height:70px;resize:vertical}
 .modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+.info-box{background:var(--blue-bg);color:var(--blue-text);border-radius:var(--radius-sm);padding:10px 14px;font-size:12px;margin-bottom:14px;border:1px solid #c7d9f8}
 
-/* CUADRE */
-.cuadre-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow);margin-top:14px}
-.cuadre-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-top:10px}
+/* CUADRE BANCO */
+.cuadre-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow);margin-top:12px}
+.cuadre-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-top:10px}
 .ci-label{font-size:11px;color:var(--text2);margin-bottom:3px}
 .ci-val{font-size:18px;font-weight:500;font-family:'DM Mono',monospace}
 .ci-note{font-size:10px;color:var(--text2);margin-top:2px}
 
-/* INFO */
-.info-box{background:var(--blue-bg);color:var(--blue-text);border-radius:var(--radius-sm);padding:10px 14px;font-size:12px;margin-bottom:14px;border:1px solid #c7d9f8}
 .empty{padding:28px;text-align:center;font-size:13px;color:var(--text2)}
-.loading{text-align:center;padding:40px;color:var(--text2);font-size:13px}
+.loading{text-align:center;padding:36px;color:var(--text2);font-size:13px}
 .spinner{width:24px;height:24px;border:2px solid var(--border2);border-top-color:var(--text);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 12px}
 @keyframes spin{to{transform:rotate(360deg)}}
 
 @media(max-width:600px){
-  .mov-head,.mov-row{grid-template-columns:70px 1fr 80px 30px}
+  .pub-stat-val{font-size:16px}
+  .mov-head,.mov-row{grid-template-columns:70px 1fr 75px 30px}
   .mov-head>div:nth-child(4),.mov-head>div:nth-child(5),
   .mov-row>div:nth-child(4),.mov-row>div:nth-child(5){display:none}
 }
@@ -166,11 +218,10 @@ td:first-child{font-size:12px;font-weight:500}
 <!-- LOGIN -->
 <div id="login-screen">
   <div class="login-box">
-    <div class="login-icon">🔐</div>
+    <div style="font-size:32px;margin-bottom:10px">🔐</div>
     <h2>Acceso tesorero</h2>
     <p>Solo tú puedes marcar pagos</p>
-    <input type="password" id="pwd-input" placeholder="••••••" maxlength="20"
-      onkeydown="if(event.key==='Enter')doLogin()">
+    <input type="password" id="pwd-input" placeholder="••••••" maxlength="20" onkeydown="if(event.key==='Enter')doLogin()">
     <button class="login-btn" onclick="doLogin()">Entrar</button>
     <div id="login-error"></div>
     <button class="login-cancel" onclick="closeLogin()">Cancelar</button>
@@ -187,59 +238,97 @@ td:first-child{font-size:12px;font-weight:500}
     </div>
   </div>
   <div class="topbar-right">
-    <span class="chip chip-green" id="hdr-saldo" style="display:none">Saldo: $0</span>
+    <span class="chip chip-green" id="hdr-saldo" style="display:none">$0</span>
     <button id="btn-admin" onclick="handleAdminBtn()">Admin</button>
   </div>
 </div>
 
-<!-- VISTA PÚBLICA -->
-<div id="view-public">
-  <div style="padding:16px;max-width:800px;margin:0 auto">
+<!-- TABS PÚBLICOS -->
+<div class="pub-tabs" id="pub-tabs-bar">
+  <button class="pub-tab active" onclick="setPubTab('pagos',this)">Estado de pagos</button>
+  <button class="pub-tab" onclick="setPubTab('caja',this)">Libro de caja</button>
+  <button class="pub-tab" onclick="setPubTab('banco',this)">Banco</button>
+  <button class="pub-tab" onclick="setPubTab('eventos',this)">Rifas y eventos</button>
+  <button class="pub-tab" onclick="setPubTab('avisos',this)">Avisos</button>
+</div>
+
+<!-- CONTENIDO PÚBLICO -->
+<div class="pub-content" id="view-public">
+
+  <!-- PAGOS -->
+  <div id="pub-pagos" class="pub-section active">
     <div class="pub-banner">
       <h2>Estado de pagos · 3° Medio 2026</h2>
       <p id="pub-fecha">Cargando...</p>
-      <div id="pub-stats" style="display:none;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-top:14px"></div>
+      <div class="pub-stats-grid" id="pub-stats" style="display:none"></div>
     </div>
-
     <div class="filter-bar">
       <button class="filter-btn active" onclick="setFiltro('todos',this)">Todos</button>
       <button class="filter-btn" onclick="setFiltro('al-dia',this)">Al día</button>
       <button class="filter-btn" onclick="setFiltro('deuda',this)">Con deuda</button>
     </div>
     <div id="pub-loading" class="loading"><div class="spinner"></div>Cargando datos...</div>
-    <div id="lista-publica"></div>
+    <div id="lista-pagos" class="table-card" style="display:none">
+      <table><thead><tr id="thead-pub"></tr></thead><tbody id="tbody-pub"></tbody></table>
+    </div>
   </div>
+
+  <!-- CAJA PÚBLICA -->
+  <div id="pub-caja" class="pub-section">
+    <div class="stats-row" id="pub-caja-stats"></div>
+    <div class="section-title">Últimos movimientos</div>
+    <div id="pub-caja-lista" class="mov-list"><div class="empty">Sin movimientos registrados.</div></div>
+  </div>
+
+  <!-- BANCO PÚBLICO -->
+  <div id="pub-banco" class="pub-section">
+    <div class="stats-row" id="pub-banco-stats"></div>
+    <div class="section-title">Movimientos bancarios</div>
+    <div id="pub-banco-lista" class="mov-list"><div class="empty">Sin movimientos bancarios.</div></div>
+    <div id="pub-cuadre"></div>
+  </div>
+
+  <!-- EVENTOS PÚBLICOS -->
+  <div id="pub-eventos" class="pub-section">
+    <div id="pub-eventos-lista"><div class="empty">No hay rifas ni eventos registrados.</div></div>
+  </div>
+
+  <!-- AVISOS PÚBLICOS -->
+  <div id="pub-avisos" class="pub-section">
+    <div id="pub-avisos-lista"><div class="empty">No hay avisos por ahora.</div></div>
+  </div>
+
 </div>
 
 <!-- VISTA ADMIN -->
 <div id="view-admin">
-  <div class="admin-header">
-    <div>
-      <h2>Panel de tesorero</h2>
-      <p>Solo visible para ti — los apoderados ven solo el estado de pagos</p>
-    </div>
+  <div class="admin-banner">
+    <div><h2>Panel de tesorero 🔐</h2><p>Los apoderados no ven esta vista</p></div>
+    <button class="btn" style="font-size:11px;padding:4px 10px" onclick="logoutAdmin()">Salir</button>
   </div>
   <div class="admin-tabs">
-    <button class="admin-tab active" onclick="switchTab('cuotas',this)">Cuotas</button>
-    <button class="admin-tab" onclick="switchTab('caja-chica',this)">Caja chica</button>
-    <button class="admin-tab" onclick="switchTab('caja',this)">Libro de caja</button>
-    <button class="admin-tab" onclick="switchTab('banco',this)">Banco</button>
+    <button class="admin-tab active" onclick="switchAdminTab('cuotas',this)">Cuotas</button>
+    <button class="admin-tab" onclick="switchAdminTab('caja-chica',this)">Caja chica</button>
+    <button class="admin-tab" onclick="switchAdminTab('caja',this)">Libro caja</button>
+    <button class="admin-tab" onclick="switchAdminTab('banco',this)">Banco</button>
+    <button class="admin-tab" onclick="switchAdminTab('eventos',this)">Eventos</button>
+    <button class="admin-tab" onclick="switchAdminTab('avisos',this)">Avisos</button>
   </div>
 
-  <!-- CUOTAS -->
+  <!-- ADMIN CUOTAS -->
   <div id="as-cuotas" class="admin-section active">
     <div class="stats-row" id="stats-cuotas"></div>
-    <div class="info-box">Toca ✓ para marcar pagado, ✗ para desmarcar. Los cambios se guardan automáticamente.</div>
-    <div class="table-wrap">
+    <div class="info-box">Toca ✓ para marcar pagado, ✗ para desmarcar. Se guarda automáticamente.</div>
+    <div class="table-card">
       <table><thead><tr id="thead-c"></tr></thead><tbody id="tbody-c"></tbody></table>
     </div>
   </div>
 
-  <!-- CAJA CHICA -->
+  <!-- ADMIN CAJA CHICA -->
   <div id="as-caja-chica" class="admin-section">
     <div class="stats-row" id="stats-cc"></div>
     <div class="info-box">Cuota anual única $10.000 por alumno.</div>
-    <div class="table-wrap" style="margin-top:12px">
+    <div class="table-card" style="margin-top:12px">
       <table style="min-width:280px">
         <thead><tr><th>Alumno</th><th style="text-align:center">Estado</th><th style="text-align:right">Fecha</th></tr></thead>
         <tbody id="tbody-cc"></tbody>
@@ -247,35 +336,51 @@ td:first-child{font-size:12px;font-weight:500}
     </div>
   </div>
 
-  <!-- CAJA -->
+  <!-- ADMIN CAJA -->
   <div id="as-caja" class="admin-section">
     <div class="stats-row" id="stats-caja"></div>
     <div class="toolbar">
       <button class="btn btn-green" onclick="openMovModal('entrada')">+ Entrada</button>
       <button class="btn btn-red" onclick="openMovModal('salida')">− Salida</button>
     </div>
-    <div class="table-wrap">
+    <div class="table-card">
       <div class="mov-head"><div>Fecha</div><div>Descripción</div><div>Tipo</div><div>Monto</div><div>Boleta</div><div></div></div>
       <div id="lista-caja"><div class="empty">Sin movimientos.</div></div>
     </div>
   </div>
 
-  <!-- BANCO -->
+  <!-- ADMIN BANCO -->
   <div id="as-banco" class="admin-section">
     <div class="stats-row" id="stats-banco"></div>
     <div class="toolbar">
       <button class="btn btn-green" onclick="openBancoModal('deposito')">+ Depósito</button>
       <button class="btn btn-red" onclick="openBancoModal('retiro')">− Retiro</button>
     </div>
-    <div class="table-wrap">
+    <div class="table-card">
       <div class="mov-head"><div>Fecha</div><div>Descripción</div><div>Tipo</div><div>Monto</div><div>N° Op.</div><div></div></div>
-      <div id="lista-banco"><div class="empty">Sin movimientos bancarios.</div></div>
+      <div id="lista-banco"><div class="empty">Sin movimientos.</div></div>
     </div>
-    <div id="cuadre"></div>
+    <div id="cuadre-admin"></div>
+  </div>
+
+  <!-- ADMIN EVENTOS -->
+  <div id="as-eventos" class="admin-section">
+    <div class="toolbar">
+      <button class="btn btn-primary" onclick="openModalEvento()">+ Nuevo evento / rifa</button>
+    </div>
+    <div id="lista-eventos-admin"><div class="empty">Sin eventos. Crea rifas, paseos u otros cobros.</div></div>
+  </div>
+
+  <!-- ADMIN AVISOS -->
+  <div id="as-avisos" class="admin-section">
+    <div class="toolbar">
+      <button class="btn btn-primary" onclick="openModalAviso()">+ Nuevo aviso</button>
+    </div>
+    <div id="lista-avisos-admin"><div class="empty">Sin avisos. Agrega informaciones para el curso.</div></div>
   </div>
 </div>
 
-<!-- MODAL CAJA -->
+<!-- MODALES -->
 <div class="overlay" id="modal-caja">
   <div class="modal">
     <h3 id="caja-title">Nueva entrada</h3>
@@ -284,20 +389,12 @@ td:first-child{font-size:12px;font-weight:500}
     <div class="field"><label>Monto ($)</label><input type="number" id="c-monto" min="0"></div>
     <div class="field"><label>Boleta N° (opcional)</label><input type="text" id="c-boleta"></div>
     <div class="field"><label>Categoría</label>
-      <select id="c-cat">
-        <option>Cuotas mensuales</option><option>Caja chica</option>
-        <option>Rifa / evento</option><option>Paseo</option>
-        <option>Material escolar</option><option>Otro</option>
-      </select>
+      <select id="c-cat"><option>Cuotas mensuales</option><option>Caja chica</option><option>Rifa / evento</option><option>Paseo</option><option>Material escolar</option><option>Otro</option></select>
     </div>
-    <div class="modal-actions">
-      <button class="btn" onclick="closeModal('modal-caja')">Cancelar</button>
-      <button class="btn btn-primary" onclick="guardarMov()">Guardar</button>
-    </div>
+    <div class="modal-actions"><button class="btn" onclick="closeModal('modal-caja')">Cancelar</button><button class="btn btn-primary" onclick="guardarMov()">Guardar</button></div>
   </div>
 </div>
 
-<!-- MODAL BANCO -->
 <div class="overlay" id="modal-banco">
   <div class="modal">
     <h3 id="banco-title">Nuevo depósito</h3>
@@ -305,34 +402,53 @@ td:first-child{font-size:12px;font-weight:500}
     <div class="field"><label>Descripción</label><input type="text" id="b-desc"></div>
     <div class="field"><label>Monto ($)</label><input type="number" id="b-monto" min="0"></div>
     <div class="field"><label>N° Operación (opcional)</label><input type="text" id="b-op"></div>
-    <div class="modal-actions">
-      <button class="btn" onclick="closeModal('modal-banco')">Cancelar</button>
-      <button class="btn btn-primary" onclick="guardarBanco()">Guardar</button>
+    <div class="modal-actions"><button class="btn" onclick="closeModal('modal-banco')">Cancelar</button><button class="btn btn-primary" onclick="guardarBanco()">Guardar</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="modal-evento">
+  <div class="modal">
+    <h3 id="ev-title">Nuevo evento / rifa</h3>
+    <div class="field"><label>Nombre</label><input type="text" id="ev-nombre" placeholder="Ej: Rifa abril 2026"></div>
+    <div class="field"><label>Monto por alumno ($)</label><input type="number" id="ev-monto" min="0" placeholder="3000"></div>
+    <div class="field"><label>Fecha</label><input type="date" id="ev-fecha"></div>
+    <div class="field"><label>Descripción (opcional)</label><textarea id="ev-desc" placeholder="Detalles del evento..."></textarea></div>
+    <div class="modal-actions"><button class="btn" onclick="closeModal('modal-evento')">Cancelar</button><button class="btn btn-primary" onclick="guardarEvento()">Crear</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="modal-aviso">
+  <div class="modal">
+    <h3>Nuevo aviso</h3>
+    <div class="field"><label>Título</label><input type="text" id="av-titulo" placeholder="Ej: Reunión de apoderados"></div>
+    <div class="field"><label>Mensaje</label><textarea id="av-texto" placeholder="Descripción del aviso..."></textarea></div>
+    <div class="field"><label>Tipo</label>
+      <select id="av-tipo"><option value="info">📢 Información</option><option value="urgente">🔴 Urgente</option><option value="ok">✅ Buenas noticias</option></select>
     </div>
+    <div class="field"><label>Fecha (opcional)</label><input type="date" id="av-fecha"></div>
+    <div class="modal-actions"><button class="btn" onclick="closeModal('modal-aviso')">Cancelar</button><button class="btn btn-primary" onclick="guardarAviso()">Publicar</button></div>
   </div>
 </div>
 
 <script>
-// ═══════════════════════════════════════════
-// CONFIGURACIÓN — edita estos dos valores
-// ═══════════════════════════════════════════
-const ADMIN_PASSWORD = 'tesoreria2026';  // ← cambia tu contraseña aquí
-const API_URL = '';                       // ← pega aquí la URL de Apps Script cuando la tengas
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════════
+const ADMIN_PASSWORD = 'tesoreria2026';
+const API_URL = 'https://script.google.com/macros/s/AKfycby3pNp0D2bWE0bJ-pHuoS3guebH1jAM6z1zhGAxHiwVviX8o6MHOZ3_f0V1JaA3m3cK/exec';
+// ═══════════════════════════════════════
 
 const MESES = ['Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
 const CUOTA = 10000, CUOTA_CC = 10000;
-const KEY = 'tres2026';
+const KEY = 'tres2026v3';
 
-let DATA = null, isAdmin = false, filtro = 'todos', movTipo = 'entrada', bancoTipo = 'deposito';
+let DATA = null, isAdmin = false, filtro = 'todos', movTipo = 'entrada', bancoTipo = 'deposito', editEvId = null;
 
 const fmt = n => '$'+Math.round(n).toLocaleString('es-CL');
 const today = () => new Date().toISOString().slice(0,10);
 const fmtD = d => { if(!d) return '—'; const p=d.split('-'); return p[2]+'/'+p[1]+'/'+p[0]; };
 const activos = () => (DATA?.alumnos||[]).filter(a=>a.activo);
 
-function saveLocal(){ try{ localStorage.setItem(KEY,JSON.stringify(DATA)); }catch(e){} }
-function loadLocal(){ try{ const d=localStorage.getItem(KEY); if(d) return JSON.parse(d); }catch(e){} return null; }
+function saveLocal(){ try{localStorage.setItem(KEY,JSON.stringify(DATA));}catch(e){} }
+function loadLocal(){ try{const d=localStorage.getItem(KEY);if(d)return JSON.parse(d);}catch(e){} return null; }
 
 function initData(){
   return {
@@ -356,42 +472,65 @@ function initData(){
       'Sepúlveda González, Maximiliano Alfonso','Tapia Monsalve, Sebastián Antonio',
       'Ugalde Fuentes, Amanda Lucía','Urra Riquelme, José Tomás',
       'Valderrama Garriga, Maximiliano Alexander','Vergara Licán, Renato Agustín'
-    ].map(nombre=>({nombre,activo:true,cuotas:Object.fromEntries(MESES.map(m=>[m,false])),cc:false,cc_fecha:null})),
-    caja:[], banco:[]
+    ].map(n=>({nombre:n,activo:true,cuotas:Object.fromEntries(MESES.map(m=>[m,false])),cc:false,cc_fecha:null})),
+    caja:[], banco:[], eventos:[], avisos:[], nextEv:1, nextAv:1
   };
 }
 
 async function loadData(){
   if(API_URL){
     try{
-      const r = await fetch(API_URL);
+      const r = await fetch(API_URL+'?t='+Date.now());
       const j = await r.json();
-      if(j.ok){ DATA=j.data; saveLocal(); return; }
+      if(j.ok){
+        // Mezcla datos del Sheet con eventos/avisos locales (no están en el Sheet aún)
+        const local = loadLocal() || {};
+        DATA = { ...j.data, eventos: local.eventos||[], avisos: local.avisos||[], nextEv: local.nextEv||1, nextAv: local.nextAv||1 };
+        saveLocal(); return;
+      }
     }catch(e){ console.log('API no disponible, usando local'); }
   }
   DATA = loadLocal() || initData();
 }
 
-// ── LOGIN ──
+async function api(body){
+  if(!API_URL) return;
+  try{ fetch(API_URL,{method:'POST',body:JSON.stringify({key:ADMIN_PASSWORD,...body})}); }
+  catch(e){ console.log('sync error',e); }
+}
+
+// ── TABS PÚBLICOS ──
+function setPubTab(tab, el){
+  document.querySelectorAll('.pub-tab').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.pub-section').forEach(s=>s.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('pub-'+tab).classList.add('active');
+  if(tab==='pagos') renderPagos();
+  if(tab==='caja') renderCajaPublica();
+  if(tab==='banco') renderBancoPublico();
+  if(tab==='eventos') renderEventosPublicos();
+  if(tab==='avisos') renderAvisosPublicos();
+}
+
+// ── ADMIN LOGIN ──
 function handleAdminBtn(){
-  if(isAdmin){ logoutAdmin(); return; }
+  if(isAdmin){logoutAdmin();return;}
   document.getElementById('pwd-input').value='';
   document.getElementById('login-error').textContent='';
   document.getElementById('login-screen').classList.add('show');
   setTimeout(()=>document.getElementById('pwd-input').focus(),150);
 }
-
 function doLogin(){
-  const pwd = document.getElementById('pwd-input').value;
-  if(pwd === ADMIN_PASSWORD){
-    isAdmin = true;
+  if(document.getElementById('pwd-input').value===ADMIN_PASSWORD){
+    isAdmin=true;
     document.getElementById('login-screen').classList.remove('show');
     document.getElementById('btn-admin').classList.add('active');
     document.getElementById('btn-admin').textContent='Salir';
+    document.getElementById('pub-tabs-bar').style.display='none';
     document.getElementById('view-public').style.display='none';
-    document.getElementById('view-admin').style.display='block';
+    document.getElementById('view-admin').classList.add('show');
     document.getElementById('hdr-saldo').style.display='';
-    document.getElementById('topbar-sub').textContent='Modo administrador 🔐';
+    document.getElementById('topbar-sub').textContent='Modo admin 🔐';
     renderAdmin();
   } else {
     document.getElementById('login-error').textContent='Contraseña incorrecta';
@@ -399,86 +538,239 @@ function doLogin(){
     document.getElementById('pwd-input').focus();
   }
 }
-
-function closeLogin(){
-  document.getElementById('login-screen').classList.remove('show');
-}
-
+function closeLogin(){ document.getElementById('login-screen').classList.remove('show'); }
 function logoutAdmin(){
   isAdmin=false;
   document.getElementById('btn-admin').classList.remove('active');
   document.getElementById('btn-admin').textContent='Admin';
-  document.getElementById('view-admin').style.display='none';
+  document.getElementById('view-admin').classList.remove('show');
+  document.getElementById('pub-tabs-bar').style.display='';
   document.getElementById('view-public').style.display='';
   document.getElementById('hdr-saldo').style.display='none';
   document.getElementById('topbar-sub').textContent='Directiva de curso';
-  renderPublico();
+  renderPagos();
 }
-
 function closeModal(id){ document.getElementById(id).classList.remove('open'); }
 document.querySelectorAll('.overlay').forEach(m=>m.addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');}));
 
-// ── ADMIN ──
-function switchTab(tab, el){
+// ── ADMIN TABS ──
+function switchAdminTab(tab,el){
   document.querySelectorAll('.admin-tab').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('.admin-section').forEach(s=>s.classList.remove('active'));
   el.classList.add('active');
   document.getElementById('as-'+tab).classList.add('active');
-  const renders={cuotas:renderCuotas,'caja-chica':renderCC,caja:renderCaja,banco:renderBanco};
-  if(renders[tab]) renders[tab]();
+  const m={cuotas:renderCuotas,'caja-chica':renderCC,caja:renderCajaAdmin,banco:renderBancoAdmin,eventos:renderEventosAdmin,avisos:renderAvisosAdmin};
+  if(m[tab]) m[tab]();
 }
-
 function renderAdmin(){ renderCuotas(); updateSaldo(); }
-
 function updateSaldo(){
   const e=(DATA.caja||[]).filter(m=>m.tipo==='entrada').reduce((s,m)=>s+m.monto,0);
-  const s=(DATA.caja||[]).filter(m=>m.tipo==='salida').reduce((s,m)=>s+m.monto,0);
-  document.getElementById('hdr-saldo').textContent='Saldo: '+fmt(e-s);
+  const sa=(DATA.caja||[]).filter(m=>m.tipo==='salida').reduce((s,m)=>s+m.monto,0);
+  document.getElementById('hdr-saldo').textContent='Saldo: '+fmt(e-sa);
 }
 
-// ── CUOTAS ADMIN ──
-function renderCuotas(){
-  const als = activos();
-  document.getElementById('thead-c').innerHTML =
-    '<th>Alumno</th>'+MESES.map(m=>`<th style="text-align:center">${m}</th>`).join('')+'<th style="text-align:right;min-width:90px">Estado</th>';
+// ══════════════════════════════════════════
+// VISTA PÚBLICA — PAGOS
+// ══════════════════════════════════════════
+function setFiltro(f,el){
+  filtro=f;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  renderPagos();
+}
 
-  document.getElementById('tbody-c').innerHTML = als.map(a=>{
-    const idx = DATA.alumnos.indexOf(a);
-    const pagados = MESES.filter(m=>a.cuotas[m]).length;
-    const deuda = (MESES.length - pagados)*CUOTA;
-    const celdas = MESES.map(m=>{
-      const p = a.cuotas[m];
-      return `<td style="text-align:center;padding:4px 5px">
-        <button class="pay-btn ${p?'pagado':'pendiente'}" onclick="toggleCuota(${idx},'${m}')" title="${p?'Pagado — toca para desmarcar':'Sin pago — toca para marcar pagado'}">
-          ${p?'✓':'✗'}
-        </button>
-      </td>`;
-    }).join('');
+function renderPagos(){
+  if(!DATA) return;
+  document.getElementById('pub-fecha').textContent='Actualizado el '+new Date().toLocaleDateString('es-CL',{day:'numeric',month:'long',year:'numeric'});
+  document.getElementById('pub-loading').style.display='none';
+  document.getElementById('lista-pagos').style.display='';
+
+  const als = activos();
+  // Stats
+  const totalPag = als.reduce((s,a)=>s+MESES.filter(m=>a.cuotas[m]).length*CUOTA,0);
+  const totalDeuda = als.reduce((s,a)=>s+MESES.filter(m=>!a.cuotas[m]).length*CUOTA,0);
+  const alDia = als.filter(a=>MESES.every(m=>a.cuotas[m])&&a.cc).length;
+  const ccPag = als.filter(a=>a.cc).length;
+  const ps = document.getElementById('pub-stats');
+  ps.style.display='grid';
+  ps.innerHTML=`
+    <div class="pub-stat"><div class="pub-stat-label">Recaudado</div><div class="pub-stat-val">${fmt(totalPag)}</div><div class="pub-stat-sub">cuotas mensuales</div></div>
+    <div class="pub-stat"><div class="pub-stat-label">Pendiente</div><div class="pub-stat-val">${fmt(totalDeuda)}</div><div class="pub-stat-sub">por cobrar</div></div>
+    <div class="pub-stat"><div class="pub-stat-label">Al día</div><div class="pub-stat-val">${alDia}/${als.length}</div><div class="pub-stat-sub">alumnos</div></div>
+    <div class="pub-stat"><div class="pub-stat-label">Caja chica</div><div class="pub-stat-val">${ccPag}/${als.length}</div><div class="pub-stat-sub">pagaron</div></div>`;
+
+  // Tabla
+  let lista = als;
+  if(filtro==='al-dia') lista=als.filter(a=>MESES.every(m=>a.cuotas[m])&&a.cc);
+  if(filtro==='deuda') lista=als.filter(a=>MESES.some(m=>!a.cuotas[m])||!a.cc);
+
+  document.getElementById('thead-pub').innerHTML =
+    '<th>Alumno</th>'+MESES.map(m=>`<th style="text-align:center">${m}</th>`).join('')+'<th style="text-align:center">C.C.</th><th style="text-align:right">Estado</th>';
+
+  document.getElementById('tbody-pub').innerHTML = lista.map(a=>{
+    const dm=MESES.filter(m=>!a.cuotas[m]).length*CUOTA;
+    const dc=a.cc?0:CUOTA_CC;
+    const dt=dm+dc;
     return `<tr>
-      <td style="min-width:160px">${a.nombre}</td>
-      ${celdas}
+      <td style="min-width:150px;white-space:nowrap">${a.nombre}</td>
+      ${MESES.map(m=>`<td style="text-align:center;padding:5px 4px"><span class="pill ${a.cuotas[m]?'pill-p':'pill-d'}">${a.cuotas[m]?'✓':'✗'}</span></td>`).join('')}
+      <td style="text-align:center;padding:5px 4px"><span class="pill ${a.cc?'pill-p':'pill-d'}">${a.cc?'✓':'✗'}</span></td>
+      <td style="text-align:right;padding:6px 10px"><span class="badge ${dt===0?'badge-ok':'badge-debt'}">${dt===0?'Al día':fmt(dt)+' debe'}</span></td>
+    </tr>`;
+  }).join('')||'<tr><td colspan="13" class="empty">No hay alumnos en esta categoría.</td></tr>';
+}
+
+// ══════════════════════════════════════════
+// VISTA PÚBLICA — CAJA
+// ══════════════════════════════════════════
+function renderCajaPublica(){
+  if(!DATA) return;
+  const caja=DATA.caja||[];
+  const e=caja.filter(m=>m.tipo==='entrada').reduce((s,m)=>s+m.monto,0);
+  const sa=caja.filter(m=>m.tipo==='salida').reduce((s,m)=>s+m.monto,0);
+  document.getElementById('pub-caja-stats').innerHTML=`
+    <div class="stat-card"><div class="stat-label">Saldo</div><div class="stat-val ${(e-sa)>=0?'val-g':'val-r'}">${fmt(e-sa)}</div></div>
+    <div class="stat-card"><div class="stat-label">Total ingresos</div><div class="stat-val val-g">${fmt(e)}</div></div>
+    <div class="stat-card"><div class="stat-label">Total gastos</div><div class="stat-val val-r">${fmt(sa)}</div></div>
+    <div class="stat-card"><div class="stat-label">Movimientos</div><div class="stat-val val-b">${caja.length}</div></div>`;
+  const lista = document.getElementById('pub-caja-lista');
+  if(!caja.length){lista.innerHTML='<div class="empty">Sin movimientos registrados.</div>';return;}
+  lista.innerHTML=[...caja].sort((a,b)=>b.fecha.localeCompare(a.fecha)).map(m=>`
+    <div class="mov-item">
+      <div><div class="mov-fecha">${fmtD(m.fecha)}</div><span class="tipo-badge t-${m.tipo}">${m.tipo}</span></div>
+      <div><div class="mov-desc">${m.desc}</div><div class="mov-cat">${m.cat||''}</div></div>
+      <div class="mov-monto" style="color:${m.tipo==='entrada'?'var(--green-text)':'var(--red-text)'}">${m.tipo==='salida'?'−':''}${fmt(m.monto)}</div>
+    </div>`).join('');
+}
+
+// ══════════════════════════════════════════
+// VISTA PÚBLICA — BANCO
+// ══════════════════════════════════════════
+function renderBancoPublico(){
+  if(!DATA) return;
+  const banco=DATA.banco||[], caja=DATA.caja||[];
+  const deps=banco.filter(m=>m.tipo==='deposito').reduce((s,m)=>s+m.monto,0);
+  const reti=banco.filter(m=>m.tipo!=='deposito').reduce((s,m)=>s+m.monto,0);
+  const saldoB=deps-reti;
+  const saldoC=caja.filter(m=>m.tipo==='entrada').reduce((s,m)=>s+m.monto,0)-caja.filter(m=>m.tipo==='salida').reduce((s,m)=>s+m.monto,0);
+  document.getElementById('pub-banco-stats').innerHTML=`
+    <div class="stat-card"><div class="stat-label">Saldo banco</div><div class="stat-val ${saldoB>=0?'val-g':'val-r'}">${fmt(saldoB)}</div></div>
+    <div class="stat-card"><div class="stat-label">Total depósitos</div><div class="stat-val val-g">${fmt(deps)}</div></div>
+    <div class="stat-card"><div class="stat-label">Total retiros</div><div class="stat-val val-r">${fmt(reti)}</div></div>`;
+  const lista=document.getElementById('pub-banco-lista');
+  if(!banco.length){lista.innerHTML='<div class="empty">Sin movimientos bancarios.</div>';}
+  else lista.innerHTML=[...banco].sort((a,b)=>b.fecha.localeCompare(a.fecha)).map(m=>`
+    <div class="mov-item">
+      <div><div class="mov-fecha">${fmtD(m.fecha)}</div><span class="tipo-badge t-${m.tipo}">${m.tipo}</span></div>
+      <div><div class="mov-desc">${m.desc}</div></div>
+      <div class="mov-monto" style="color:${m.tipo==='deposito'?'var(--green-text)':'var(--amber-text)'}">${m.tipo!=='deposito'?'−':''}${fmt(m.monto)}</div>
+    </div>`).join('');
+  const diff=saldoB-saldoC;
+  const color=Math.abs(diff)<100?'var(--green-text)':diff>0?'var(--amber-text)':'var(--red-text)';
+  document.getElementById('pub-cuadre').innerHTML=`
+    <div class="cuadre-box" style="margin-top:14px">
+      <div style="font-size:12px;font-weight:500;color:var(--text2);text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px">Cuadre de cuentas</div>
+      <div class="cuadre-grid">
+        <div><div class="ci-label">Libro de caja</div><div class="ci-val" style="color:${saldoC>=0?'var(--green-text)':'var(--red-text)'}">${fmt(saldoC)}</div></div>
+        <div><div class="ci-label">Saldo banco</div><div class="ci-val" style="color:${saldoB>=0?'var(--green-text)':'var(--red-text)'}">${fmt(saldoB)}</div></div>
+        <div><div class="ci-label">Diferencia</div><div class="ci-val" style="color:${color}">${fmt(Math.abs(diff))}</div><div class="ci-note">${Math.abs(diff)<100?'✓ Cuadrado':diff>0?'Banco mayor':'Caja mayor'}</div></div>
+      </div>
+    </div>`;
+}
+
+// ══════════════════════════════════════════
+// VISTA PÚBLICA — EVENTOS
+// ══════════════════════════════════════════
+function renderEventosPublicos(){
+  if(!DATA) return;
+  const evs=DATA.eventos||[];
+  const cont=document.getElementById('pub-eventos-lista');
+  if(!evs.length){cont.innerHTML='<div class="empty">No hay rifas ni eventos registrados.</div>';return;}
+  const als=activos();
+  cont.innerHTML=evs.map(ev=>{
+    const pag=als.filter(a=>ev.pagos&&ev.pagos[a.nombre]).length;
+    const total=als.length;
+    const porc=total>0?Math.round(pag/total*100):0;
+    return `<div class="evento-card">
+      <div class="evento-header">
+        <div>
+          <div class="evento-nombre">${ev.nombre}</div>
+          <div class="evento-meta">${fmtD(ev.fecha)} · ${fmt(ev.monto)} por alumno${ev.desc?` · ${ev.desc}`:''}</div>
+        </div>
+        <span class="badge ${pag===total?'badge-ok':'badge-debt'}">${pag===total?'Completo':pag+'/'+total}</span>
+      </div>
+      <div class="evento-stats">
+        <span class="evento-stat">💰 Recaudado: ${fmt(pag*ev.monto)}</span>
+        <span class="evento-stat">⏳ Pendiente: ${fmt((total-pag)*ev.monto)}</span>
+        <span class="evento-stat">📊 ${porc}% completado</span>
+      </div>
+      <div class="evento-grid">
+        ${als.map(a=>`<div class="evento-al ${ev.pagos&&ev.pagos[a.nombre]?'ev-p':'ev-d'}">
+          <span>${a.nombre.split(',')[0]}</span>
+          <span>${ev.pagos&&ev.pagos[a.nombre]?'✓':'✗'}</span>
+        </div>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════
+// VISTA PÚBLICA — AVISOS
+// ══════════════════════════════════════════
+function renderAvisosPublicos(){
+  if(!DATA) return;
+  const avs=DATA.avisos||[];
+  const cont=document.getElementById('pub-avisos-lista');
+  if(!avs.length){cont.innerHTML='<div class="empty">No hay avisos por ahora.</div>';return;}
+  const icons={info:'📢',urgente:'🔴',ok:'✅'};
+  cont.innerHTML=[...avs].sort((a,b)=>b.id-a.id).map(av=>`
+    <div class="aviso-card aviso-${av.tipo}">
+      <div class="aviso-icon">${icons[av.tipo]||'📢'}</div>
+      <div>
+        <div class="aviso-titulo">${av.titulo}</div>
+        <div class="aviso-texto">${av.texto}</div>
+        ${av.fecha?`<div class="aviso-fecha">${fmtD(av.fecha)}</div>`:''}
+      </div>
+    </div>`).join('');
+}
+
+// ══════════════════════════════════════════
+// ADMIN — CUOTAS
+// ══════════════════════════════════════════
+function renderCuotas(){
+  const als=activos();
+  document.getElementById('thead-c').innerHTML='<th>Alumno</th>'+MESES.map(m=>`<th style="text-align:center">${m}</th>`).join('')+'<th style="text-align:right;min-width:90px">Estado</th>';
+  document.getElementById('tbody-c').innerHTML=als.map(a=>{
+    const idx=DATA.alumnos.indexOf(a);
+    const deuda=MESES.filter(m=>!a.cuotas[m]).length*CUOTA;
+    return `<tr>
+      <td style="min-width:150px;white-space:nowrap;font-size:12px">${a.nombre}</td>
+      ${MESES.map(m=>`<td style="text-align:center;padding:4px 3px">
+        <button class="pay-btn ${a.cuotas[m]?'pagado':'pendiente'}" onclick="toggleCuota(${idx},'${m}')">${a.cuotas[m]?'✓':'✗'}</button>
+      </td>`).join('')}
       <td style="text-align:right;font-size:11px;white-space:nowrap;color:${deuda>0?'var(--red-text)':'var(--green-text)'}">
         ${deuda>0?'Debe '+fmt(deuda):'✓ Al día'}
       </td>
     </tr>`;
   }).join('');
-
-  const totalPag = als.reduce((s,a)=>s+MESES.filter(m=>a.cuotas[m]).length*CUOTA,0);
-  const totalDeuda = als.reduce((s,a)=>s+MESES.filter(m=>!a.cuotas[m]).length*CUOTA,0);
-  const alDia = als.filter(a=>MESES.every(m=>a.cuotas[m])).length;
+  const totalPag=als.reduce((s,a)=>s+MESES.filter(m=>a.cuotas[m]).length*CUOTA,0);
+  const totalDeuda=als.reduce((s,a)=>s+MESES.filter(m=>!a.cuotas[m]).length*CUOTA,0);
+  const alDia=als.filter(a=>MESES.every(m=>a.cuotas[m])).length;
   document.getElementById('stats-cuotas').innerHTML=`
     <div class="stat-card"><div class="stat-label">Recaudado</div><div class="stat-val val-g">${fmt(totalPag)}</div></div>
     <div class="stat-card"><div class="stat-label">Pendiente</div><div class="stat-val val-r">${fmt(totalDeuda)}</div></div>
     <div class="stat-card"><div class="stat-label">Al día</div><div class="stat-val val-b">${alDia}/${als.length}</div></div>
     <div class="stat-card"><div class="stat-label">Cuota/mes</div><div class="stat-val">${fmt(CUOTA)}</div></div>`;
 }
-
-function toggleCuota(idx, mes){
-  DATA.alumnos[idx].cuotas[mes] = !DATA.alumnos[idx].cuotas[mes];
+function toggleCuota(idx,mes){
+  DATA.alumnos[idx].cuotas[mes]=!DATA.alumnos[idx].cuotas[mes];
   saveLocal(); renderCuotas();
+  api({accion:'toggleCuota',nombre:DATA.alumnos[idx].nombre,mes,valor:DATA.alumnos[idx].cuotas[mes]});
 }
 
-// ── CAJA CHICA ──
+// ══════════════════════════════════════════
+// ADMIN — CAJA CHICA
+// ══════════════════════════════════════════
 function renderCC(){
   const als=activos(), pag=als.filter(a=>a.cc).length;
   document.getElementById('stats-cc').innerHTML=`
@@ -488,28 +780,30 @@ function renderCC(){
   document.getElementById('tbody-cc').innerHTML=als.map(a=>{
     const idx=DATA.alumnos.indexOf(a);
     return `<tr>
-      <td>${a.nombre}</td>
+      <td style="font-size:12px">${a.nombre}</td>
       <td style="text-align:center"><button class="pay-btn ${a.cc?'pagado':'pendiente'}" onclick="toggleCC(${idx})">${a.cc?'✓':'✗'}</button></td>
       <td style="text-align:right;font-size:11px;color:var(--text2)">${a.cc?fmtD(a.cc_fecha):'Pendiente'}</td>
     </tr>`;
   }).join('');
 }
-
 function toggleCC(idx){
   DATA.alumnos[idx].cc=!DATA.alumnos[idx].cc;
   DATA.alumnos[idx].cc_fecha=DATA.alumnos[idx].cc?today():null;
   saveLocal(); renderCC();
+  api({accion:'toggleCC',nombre:DATA.alumnos[idx].nombre,valor:DATA.alumnos[idx].cc,fecha:DATA.alumnos[idx].cc_fecha||''});
 }
 
-// ── CAJA ──
-function renderCaja(){
+// ══════════════════════════════════════════
+// ADMIN — LIBRO DE CAJA
+// ══════════════════════════════════════════
+function renderCajaAdmin(){
   const caja=DATA.caja||[];
   const e=caja.filter(m=>m.tipo==='entrada').reduce((s,m)=>s+m.monto,0);
-  const s=caja.filter(m=>m.tipo==='salida').reduce((s,m)=>s+m.monto,0);
+  const sa=caja.filter(m=>m.tipo==='salida').reduce((s,m)=>s+m.monto,0);
   document.getElementById('stats-caja').innerHTML=`
-    <div class="stat-card"><div class="stat-label">Saldo</div><div class="stat-val ${(e-s)>=0?'val-g':'val-r'}">${fmt(e-s)}</div></div>
+    <div class="stat-card"><div class="stat-label">Saldo</div><div class="stat-val ${(e-sa)>=0?'val-g':'val-r'}">${fmt(e-sa)}</div></div>
     <div class="stat-card"><div class="stat-label">Entradas</div><div class="stat-val val-g">${fmt(e)}</div></div>
-    <div class="stat-card"><div class="stat-label">Salidas</div><div class="stat-val val-r">${fmt(s)}</div></div>`;
+    <div class="stat-card"><div class="stat-label">Salidas</div><div class="stat-val val-r">${fmt(sa)}</div></div>`;
   const lista=document.getElementById('lista-caja');
   if(!caja.length){lista.innerHTML='<div class="empty">Sin movimientos.</div>';updateSaldo();return;}
   lista.innerHTML=[...caja].sort((a,b)=>b.fecha.localeCompare(a.fecha)).map(m=>{
@@ -517,15 +811,14 @@ function renderCaja(){
     return `<div class="mov-row">
       <div style="color:var(--text2);font-size:11px">${fmtD(m.fecha)}</div>
       <div>${m.desc}<br><span style="font-size:10px;color:var(--text3)">${m.cat||''}</span></div>
-      <div><span class="tipo-badge badge-${m.tipo==='entrada'?'e':'s'}">${m.tipo}</span></div>
-      <div style="font-weight:500;color:${m.tipo==='entrada'?'var(--green-text)':'var(--red-text)'}">${m.tipo==='salida'?'−':''}${fmt(m.monto)}</div>
+      <div><span class="tipo-badge t-${m.tipo}">${m.tipo}</span></div>
+      <div style="font-weight:600;color:${m.tipo==='entrada'?'var(--green-text)':'var(--red-text)'}">${m.tipo==='salida'?'−':''}${fmt(m.monto)}</div>
       <div style="font-size:11px;color:var(--text2)">${m.boleta||'—'}</div>
       <div><button class="del-btn" onclick="delMov(${ri})">✕</button></div>
     </div>`;
   }).join('');
   updateSaldo();
 }
-
 function openMovModal(tipo){
   movTipo=tipo;
   document.getElementById('caja-title').textContent=tipo==='entrada'?'Nueva entrada':'Nueva salida';
@@ -538,13 +831,17 @@ function guardarMov(){
   const monto=parseInt(document.getElementById('c-monto').value)||0;
   if(!desc||!monto){alert('Completa descripción y monto');return;}
   if(!DATA.caja)DATA.caja=[];
-  DATA.caja.push({tipo:movTipo,fecha:document.getElementById('c-fecha').value,desc,monto,boleta:document.getElementById('c-boleta').value.trim(),cat:document.getElementById('c-cat').value});
-  saveLocal();closeModal('modal-caja');renderCaja();
+  const mov={tipo:movTipo,fecha:document.getElementById('c-fecha').value,desc,monto,boleta:document.getElementById('c-boleta').value.trim(),cat:document.getElementById('c-cat').value};
+  DATA.caja.push(mov);
+  saveLocal();closeModal('modal-caja');renderCajaAdmin();
+  api({accion:'addCaja',...mov});
 }
-function delMov(i){if(!confirm('¿Eliminar?'))return;DATA.caja.splice(i,1);saveLocal();renderCaja();}
+function delMov(i){if(!confirm('¿Eliminar?'))return; api({accion:'delCaja',fila:i}); DATA.caja.splice(i,1);saveLocal();renderCajaAdmin();}
 
-// ── BANCO ──
-function renderBanco(){
+// ══════════════════════════════════════════
+// ADMIN — BANCO
+// ══════════════════════════════════════════
+function renderBancoAdmin(){
   const banco=DATA.banco||[], caja=DATA.caja||[];
   const deps=banco.filter(m=>m.tipo==='deposito').reduce((s,m)=>s+m.monto,0);
   const reti=banco.filter(m=>m.tipo!=='deposito').reduce((s,m)=>s+m.monto,0);
@@ -556,30 +853,29 @@ function renderBanco(){
     <div class="stat-card"><div class="stat-label">Depósitos</div><div class="stat-val val-g">${fmt(deps)}</div></div>
     <div class="stat-card"><div class="stat-label">Retiros</div><div class="stat-val val-r">${fmt(reti)}</div></div>`;
   const lista=document.getElementById('lista-banco');
-  if(!banco.length){lista.innerHTML='<div class="empty">Sin movimientos bancarios.</div>';}
+  if(!banco.length){lista.innerHTML='<div class="empty">Sin movimientos.</div>';}
   else lista.innerHTML=[...banco].sort((a,b)=>b.fecha.localeCompare(a.fecha)).map(m=>{
     const ri=banco.indexOf(m);const esE=m.tipo==='deposito';
     return `<div class="mov-row">
       <div style="color:var(--text2);font-size:11px">${fmtD(m.fecha)}</div>
       <div>${m.desc}</div>
-      <div><span class="tipo-badge badge-${esE?'e':'s'}">${m.tipo}</span></div>
-      <div style="font-weight:500;color:${esE?'var(--green-text)':'var(--red-text)'}">${esE?'':'-'}${fmt(m.monto)}</div>
+      <div><span class="tipo-badge t-${m.tipo}">${m.tipo}</span></div>
+      <div style="font-weight:600;color:${esE?'var(--green-text)':'var(--amber-text)'}">${esE?'':'-'}${fmt(m.monto)}</div>
       <div style="font-size:11px;color:var(--text2)">${m.op||'—'}</div>
       <div><button class="del-btn" onclick="delBanco(${ri})">✕</button></div>
     </div>`;
   }).join('');
   const color=Math.abs(diff)<100?'var(--green-text)':diff>0?'var(--amber-text)':'var(--red-text)';
-  document.getElementById('cuadre').innerHTML=`
+  document.getElementById('cuadre-admin').innerHTML=`
     <div class="cuadre-box">
       <div style="font-size:12px;font-weight:500;color:var(--text2);text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px">Cuadre de cuentas</div>
       <div class="cuadre-grid">
         <div><div class="ci-label">Libro de caja</div><div class="ci-val" style="color:${saldoC>=0?'var(--green-text)':'var(--red-text)'}">${fmt(saldoC)}</div></div>
         <div><div class="ci-label">Saldo banco</div><div class="ci-val" style="color:${saldoB>=0?'var(--green-text)':'var(--red-text)'}">${fmt(saldoB)}</div></div>
-        <div><div class="ci-label">Diferencia</div><div class="ci-val" style="color:${color}">${fmt(Math.abs(diff))}</div><div class="ci-note">${Math.abs(diff)<100?'Cuadrado ✓':diff>0?'Banco > Caja':'Caja > Banco'}</div></div>
+        <div><div class="ci-label">Diferencia</div><div class="ci-val" style="color:${color}">${fmt(Math.abs(diff))}</div><div class="ci-note">${Math.abs(diff)<100?'✓ Cuadrado':diff>0?'Banco > Caja':'Caja > Banco'}</div></div>
       </div>
     </div>`;
 }
-
 function openBancoModal(tipo){
   bancoTipo=tipo;
   document.getElementById('banco-title').textContent=tipo==='deposito'?'Nuevo depósito':'Nuevo retiro';
@@ -592,101 +888,127 @@ function guardarBanco(){
   const monto=parseInt(document.getElementById('b-monto').value)||0;
   if(!desc||!monto){alert('Completa descripción y monto');return;}
   if(!DATA.banco)DATA.banco=[];
-  DATA.banco.push({tipo:bancoTipo,fecha:document.getElementById('b-fecha').value,desc,monto,op:document.getElementById('b-op').value.trim()});
-  saveLocal();closeModal('modal-banco');renderBanco();
+  const mov={tipo:bancoTipo,fecha:document.getElementById('b-fecha').value,desc,monto,op:document.getElementById('b-op').value.trim()};
+  DATA.banco.push(mov);
+  saveLocal();closeModal('modal-banco');renderBancoAdmin();
+  api({accion:'addBanco',...mov});
 }
-function delBanco(i){if(!confirm('¿Eliminar?'))return;DATA.banco.splice(i,1);saveLocal();renderBanco();}
+function delBanco(i){if(!confirm('¿Eliminar?'))return; api({accion:'delBanco',fila:i}); DATA.banco.splice(i,1);saveLocal();renderBancoAdmin();}
 
-// ── VISTA PÚBLICA ──
-function setFiltro(f,el){
-  filtro=f;document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');renderPublico();
-}
-function renderPublico(){
-  if(!DATA)return;
-  document.getElementById('pub-fecha').textContent='Actualizado el '+new Date().toLocaleDateString('es-CL',{day:'numeric',month:'long',year:'numeric'});
-  document.getElementById('pub-loading').style.display='none';
-
-  // ── MÉTRICAS RESUMEN ──
-  const als = activos();
-  const totalPag = als.reduce((s,a)=>s+MESES.filter(m=>a.cuotas[m]).length*CUOTA,0);
-  const totalDeuda = als.reduce((s,a)=>s+MESES.filter(m=>!a.cuotas[m]).length*CUOTA,0);
-  const alDia = als.filter(a=>MESES.every(m=>a.cuotas[m])&&a.cc).length;
-  const ccPag = als.filter(a=>a.cc).length;
-  const pubStats = document.getElementById('pub-stats');
-  pubStats.style.display = 'grid';
-  pubStats.innerHTML = `
-    <div class="pub-stat">
-      <div class="pub-stat-label">Recaudado</div>
-      <div class="pub-stat-val">${fmt(totalPag)}</div>
-      <div class="pub-stat-sub">cuotas mensuales</div>
-    </div>
-    <div class="pub-stat">
-      <div class="pub-stat-label">Pendiente</div>
-      <div class="pub-stat-val">${fmt(totalDeuda)}</div>
-      <div class="pub-stat-sub">por cobrar</div>
-    </div>
-    <div class="pub-stat">
-      <div class="pub-stat-label">Al día</div>
-      <div class="pub-stat-val">${alDia} / ${als.length}</div>
-      <div class="pub-stat-sub">alumnos</div>
-    </div>
-    <div class="pub-stat">
-      <div class="pub-stat-label">Caja chica</div>
-      <div class="pub-stat-val">${ccPag} / ${als.length}</div>
-      <div class="pub-stat-sub">pagaron</div>
+// ══════════════════════════════════════════
+// ADMIN — EVENTOS
+// ══════════════════════════════════════════
+function renderEventosAdmin(){
+  const evs=DATA.eventos||[];
+  const cont=document.getElementById('lista-eventos-admin');
+  if(!evs.length){cont.innerHTML='<div class="empty">Sin eventos. Crea rifas, paseos u otros cobros.</div>';return;}
+  const als=activos();
+  cont.innerHTML=evs.map(ev=>{
+    const pag=als.filter(a=>ev.pagos&&ev.pagos[a.nombre]).length;
+    return `<div class="ev-admin-card">
+      <div class="ev-admin-header">
+        <div>
+          <div style="font-weight:500;font-size:14px">${ev.nombre}</div>
+          <div style="font-size:12px;color:var(--text2);margin-top:3px">${fmtD(ev.fecha)} · ${fmt(ev.monto)} c/u · ${pag}/${als.length} pagaron · ${fmt(pag*ev.monto)} recaudado</div>
+          ${ev.desc?`<div style="font-size:11px;color:var(--text3);margin-top:2px">${ev.desc}</div>`:''}
+        </div>
+        <button class="btn btn-red" style="font-size:11px;padding:3px 9px;flex-shrink:0" onclick="eliminarEvento(${ev.id})">Eliminar</button>
+      </div>
+      <div class="ev-admin-grid">
+        ${als.map(a=>`<button class="ev-al-btn ${ev.pagos&&ev.pagos[a.nombre]?'ev-al-p':'ev-al-d'}" onclick="toggleEvPago(${ev.id},'${a.nombre}')">
+          <span style="font-size:11px">${a.nombre.split(',')[0]}</span>
+          <span>${ev.pagos&&ev.pagos[a.nombre]?'✓':'✗'}</span>
+        </button>`).join('')}
+      </div>
     </div>`;
-
-  // ── LISTA ──
-  let lista=als;
-  if(filtro==='al-dia') lista=als.filter(a=>MESES.every(m=>a.cuotas[m])&&a.cc);
-  if(filtro==='deuda') lista=als.filter(a=>MESES.some(m=>!a.cuotas[m])||!a.cc);
-
-  document.getElementById('lista-publica').innerHTML = `
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:auto;box-shadow:var(--shadow)">
-      <table style="width:100%;border-collapse:collapse;min-width:680px">
-        <thead>
-          <tr style="background:var(--surface2)">
-            <th style="padding:9px 12px;text-align:left;font-size:11px;font-weight:500;color:var(--text2);text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid var(--border);white-space:nowrap">Alumno</th>
-            ${MESES.map(m=>`<th style="padding:9px 7px;text-align:center;font-size:11px;font-weight:500;color:var(--text2);text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid var(--border)">${m}</th>`).join('')}
-            <th style="padding:9px 7px;text-align:center;font-size:11px;font-weight:500;color:var(--text2);text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid var(--border)">C.C.</th>
-            <th style="padding:9px 12px;text-align:right;font-size:11px;font-weight:500;color:var(--text2);text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid var(--border)">Estado</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${lista.map(a=>{
-            const dm=MESES.filter(m=>!a.cuotas[m]).length*CUOTA;
-            const dc=a.cc?0:CUOTA_CC;
-            const dt=dm+dc;
-            const meses = MESES.map(m=>`
-              <td style="text-align:center;padding:5px 4px;border-bottom:1px solid var(--border)">
-                <span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:20px;border-radius:4px;font-size:11px;font-weight:600;background:${a.cuotas[m]?'var(--green-bg)':'var(--red-bg)'};color:${a.cuotas[m]?'var(--green-text)':'var(--red-text)'}">
-                  ${a.cuotas[m]?'✓':'✗'}
-                </span>
-              </td>`).join('');
-            return `<tr style="border-bottom:1px solid var(--border)">
-              <td style="padding:7px 12px;font-weight:500;font-size:12px;white-space:nowrap">${a.nombre}</td>
-              ${meses}
-              <td style="text-align:center;padding:5px 4px;border-bottom:1px solid var(--border)">
-                <span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:20px;border-radius:4px;font-size:11px;font-weight:600;background:${a.cc?'var(--green-bg)':'var(--red-bg)'};color:${a.cc?'var(--green-text)':'var(--red-text)'}">
-                  ${a.cc?'✓':'✗'}
-                </span>
-              </td>
-              <td style="text-align:right;padding:7px 12px;white-space:nowrap">
-                <span style="font-size:11px;padding:3px 9px;border-radius:10px;font-weight:500;background:${dt===0?'var(--green-bg)':'var(--red-bg)'};color:${dt===0?'var(--green-text)':'var(--red-text)'}">
-                  ${dt===0?'Al día':fmt(dt)+' debe'}
-                </span>
-              </td>
-            </tr>`;
-          }).join('')}
-        </tbody>
-      </table>
-    </div>` || '<div class="empty">No hay alumnos en esta categoría.</div>';
+  }).join('');
+}
+function openModalEvento(){
+  ['ev-nombre','ev-monto','ev-desc'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('ev-fecha').value=today();
+  document.getElementById('ev-title').textContent='Nuevo evento / rifa';
+  document.getElementById('modal-evento').classList.add('open');
+}
+function guardarEvento(){
+  const nombre=document.getElementById('ev-nombre').value.trim();
+  const monto=parseInt(document.getElementById('ev-monto').value)||0;
+  if(!nombre){alert('Ingresa el nombre');return;}
+  if(!DATA.eventos)DATA.eventos=[];
+  if(!DATA.nextEv)DATA.nextEv=1;
+  DATA.eventos.push({
+    id:DATA.nextEv++, nombre, monto,
+    fecha:document.getElementById('ev-fecha').value,
+    desc:document.getElementById('ev-desc').value.trim(),
+    pagos:Object.fromEntries(activos().map(a=>[a.nombre,false]))
+  });
+  saveLocal();closeModal('modal-evento');renderEventosAdmin();
+}
+function eliminarEvento(id){
+  if(!confirm('¿Eliminar este evento?'))return;
+  DATA.eventos=DATA.eventos.filter(e=>e.id!==id);
+  saveLocal();renderEventosAdmin();
+}
+function toggleEvPago(id,nombre){
+  const ev=DATA.eventos.find(e=>e.id===id);
+  if(ev){if(!ev.pagos)ev.pagos={};ev.pagos[nombre]=!ev.pagos[nombre];saveLocal();renderEventosAdmin();}
 }
 
-// ── INIT ──
+// ══════════════════════════════════════════
+// ADMIN — AVISOS
+// ══════════════════════════════════════════
+function renderAvisosAdmin(){
+  const avs=DATA.avisos||[];
+  const cont=document.getElementById('lista-avisos-admin');
+  if(!avs.length){cont.innerHTML='<div class="empty">Sin avisos. Agrega informaciones para el curso.</div>';return;}
+  const icons={info:'📢',urgente:'🔴',ok:'✅'};
+  cont.innerHTML=[...avs].sort((a,b)=>b.id-a.id).map(av=>`
+    <div class="aviso-admin-card">
+      <div style="display:flex;gap:10px;align-items:flex-start">
+        <div style="font-size:18px">${icons[av.tipo]||'📢'}</div>
+        <div>
+          <div style="font-weight:500;font-size:13px">${av.titulo}</div>
+          <div style="font-size:12px;color:var(--text2);margin-top:2px">${av.texto}</div>
+          ${av.fecha?`<div style="font-size:11px;color:var(--text3);margin-top:4px">${fmtD(av.fecha)}</div>`:''}
+        </div>
+      </div>
+      <button class="del-btn" onclick="eliminarAviso(${av.id})">✕</button>
+    </div>`).join('');
+}
+function openModalAviso(){
+  ['av-titulo','av-texto'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('av-fecha').value='';
+  document.getElementById('modal-aviso').classList.add('open');
+}
+function guardarAviso(){
+  const titulo=document.getElementById('av-titulo').value.trim();
+  const texto=document.getElementById('av-texto').value.trim();
+  if(!titulo||!texto){alert('Completa título y mensaje');return;}
+  if(!DATA.avisos)DATA.avisos=[];
+  if(!DATA.nextAv)DATA.nextAv=1;
+  DATA.avisos.push({id:DATA.nextAv++,titulo,texto,tipo:document.getElementById('av-tipo').value,fecha:document.getElementById('av-fecha').value||null});
+  saveLocal();closeModal('modal-aviso');renderAvisosAdmin();
+}
+function eliminarAviso(id){
+  if(!confirm('¿Eliminar este aviso?'))return;
+  DATA.avisos=DATA.avisos.filter(a=>a.id!==id);
+  saveLocal();renderAvisosAdmin();
+}
+
+// ══════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════
 (async()=>{
   await loadData();
-  renderPublico();
+  renderPagos();
+  // Refresca datos públicos cada 60 segundos
+  setInterval(async()=>{
+    if(!isAdmin){
+      await loadData();
+      // Refresca la tab activa
+      const activeTab=document.querySelector('.pub-tab.active');
+      if(activeTab) activeTab.click();
+    }
+  },60000);
 })();
 </script>
 </body>
