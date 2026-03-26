@@ -7,521 +7,283 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #f7f6f3;
-  --surface: #ffffff;
-  --surface2: #f0efe9;
-  --border: rgba(0,0,0,0.09);
-  --border2: rgba(0,0,0,0.15);
-  --text: #1a1917;
-  --text2: #6b6a65;
-  --text3: #a8a7a2;
-  --green-bg: #e8f5e2;
-  --green-text: #2d6b1f;
-  --green-border: #b4d9a0;
-  --red-bg: #fdecea;
-  --red-text: #8b2020;
-  --red-border: #f5bcbc;
-  --blue-bg: #e8f0fd;
-  --blue-text: #1d4ed8;
-  --amber-bg: #fef3e2;
-  --amber-text: #92400e;
-  --radius: 10px;
-  --radius-sm: 6px;
-  --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --bg:#f7f6f3;--surface:#fff;--surface2:#f0efe9;
+  --border:rgba(0,0,0,0.09);--border2:rgba(0,0,0,0.15);
+  --text:#1a1917;--text2:#6b6a65;--text3:#a8a7a2;
+  --green-bg:#e8f5e2;--green-text:#2d6b1f;--green-border:#b4d9a0;
+  --red-bg:#fdecea;--red-text:#8b2020;--red-border:#f5bcbc;
+  --blue-bg:#e8f0fd;--blue-text:#1d4ed8;
+  --amber-bg:#fef3e2;--amber-text:#92400e;
+  --radius:10px;--radius-sm:6px;--shadow:0 1px 3px rgba(0,0,0,0.06);
 }
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  font-family: 'DM Sans', sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  font-size: 14px;
-  line-height: 1.5;
-  min-height: 100vh;
-}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);font-size:14px;min-height:100vh}
+
+/* LOGIN */
+#login-screen{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:300;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+#login-screen.show{display:flex}
+.login-box{background:var(--surface);border-radius:18px;padding:30px 24px;width:90%;max-width:320px;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,0.2)}
+.login-icon{font-size:36px;margin-bottom:12px}
+.login-box h2{font-size:17px;font-weight:500;margin-bottom:6px}
+.login-box p{font-size:12px;color:var(--text2);margin-bottom:20px}
+.login-box input{width:100%;padding:11px 14px;font-size:18px;border:1px solid var(--border2);border-radius:var(--radius-sm);font-family:'DM Mono',monospace;text-align:center;letter-spacing:6px;outline:none;margin-bottom:12px}
+.login-box input:focus{border-color:var(--text)}
+.login-btn{width:100%;padding:12px;border-radius:var(--radius-sm);background:var(--text);color:white;border:none;font-size:14px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif}
+.login-btn:hover{opacity:.85}
+#login-error{font-size:12px;color:var(--red-text);margin-top:8px;min-height:16px}
+.login-cancel{margin-top:10px;background:none;border:none;color:var(--text3);font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif}
 
 /* TOPBAR */
-.topbar {
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  padding: 0 20px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 56px;
-  position: sticky;
-  top: 0;
-  z-index: 50;
-}
-.topbar-left { display: flex; align-items: center; gap: 12px; }
-.logo {
-  width: 32px; height: 32px;
-  background: var(--text);
-  border-radius: 8px;
-  display: flex; align-items: center; justify-content: center;
-  color: white; font-size: 14px; font-weight: 600;
-}
-.topbar-title { font-size: 15px; font-weight: 500; }
-.topbar-sub { font-size: 12px; color: var(--text2); }
-.topbar-right { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-.chip {
-  font-size: 11px; padding: 3px 10px;
-  border-radius: 20px; font-weight: 500;
-  font-family: 'DM Mono', monospace;
-}
-.chip-green { background: var(--green-bg); color: var(--green-text); }
-.chip-blue { background: var(--blue-bg); color: var(--blue-text); }
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 16px;display:flex;align-items:center;justify-content:space-between;height:52px;position:sticky;top:0;z-index:50}
+.topbar-left{display:flex;align-items:center;gap:10px}
+.logo{width:30px;height:30px;background:var(--text);border-radius:8px;display:flex;align-items:center;justify-content:center;color:white;font-size:13px;font-weight:600}
+.topbar-title{font-size:14px;font-weight:500}
+.topbar-sub{font-size:11px;color:var(--text2)}
+.topbar-right{display:flex;gap:6px;align-items:center}
+.chip{font-size:11px;padding:3px 10px;border-radius:20px;font-weight:500;font-family:'DM Mono',monospace}
+.chip-green{background:var(--green-bg);color:var(--green-text)}
+.chip-blue{background:var(--blue-bg);color:var(--blue-text)}
+#btn-admin{font-size:11px;padding:4px 12px;border-radius:20px;border:1px solid var(--border2);background:var(--surface);cursor:pointer;color:var(--text2);font-family:'DM Sans',sans-serif}
+#btn-admin:hover{background:var(--surface2)}
+#btn-admin.active{background:var(--text);color:white;border-color:transparent}
 
-/* TABS */
-.tabs-wrap {
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  overflow-x: auto;
-  scrollbar-width: none;
-  padding: 0 12px;
-}
-.tabs-wrap::-webkit-scrollbar { display: none; }
-.tab {
-  padding: 12px 14px;
-  font-size: 13px;
-  font-weight: 400;
-  color: var(--text2);
-  border: none; background: none;
-  cursor: pointer;
-  white-space: nowrap;
-  border-bottom: 2px solid transparent;
-  transition: color 0.15s, border-color 0.15s;
-  font-family: 'DM Sans', sans-serif;
-}
-.tab:hover { color: var(--text); }
-.tab.active { color: var(--text); border-bottom-color: var(--text); font-weight: 500; }
+/* VISTA PÚBLICA */
+#view-public{padding:16px;max-width:800px;margin:0 auto}
+.pub-banner{background:linear-gradient(135deg,#1a5c38,#2d9e5f);border-radius:var(--radius);padding:18px;text-align:center;margin-bottom:14px;color:white}
+.pub-banner h2{font-size:16px;font-weight:500;margin-bottom:3px}
+.pub-banner p{font-size:12px;opacity:.8}
+.filter-bar{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.filter-btn{padding:5px 14px;border-radius:20px;border:1px solid var(--border2);background:var(--surface);font-size:12px;cursor:pointer;color:var(--text2);font-family:'DM Sans',sans-serif}
+.filter-btn.active{background:var(--text);color:white;border-color:transparent}
+.al-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:11px 14px;margin-bottom:8px;box-shadow:var(--shadow)}
+.al-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.al-nombre{font-weight:500;font-size:13px}
+.status-badge{font-size:11px;padding:3px 9px;border-radius:10px;font-weight:500}
+.s-ok{background:var(--green-bg);color:var(--green-text)}
+.s-debt{background:var(--red-bg);color:var(--red-text)}
+.chips{display:flex;gap:3px;flex-wrap:wrap}
+.mc{font-size:9px;padding:2px 5px;border-radius:4px;font-weight:600}
+.mc-p{background:var(--green-bg);color:var(--green-text)}
+.mc-d{background:var(--red-bg);color:var(--red-text)}
 
-/* CONTENT */
-.content { padding: 20px; max-width: 1100px; margin: 0 auto; }
-.section { display: none; }
-.section.active { display: block; }
+/* VISTA ADMIN */
+#view-admin{display:none;padding:16px;max-width:1000px;margin:0 auto}
+#view-admin.show{display:block}
+.admin-header{background:linear-gradient(135deg,#1a1917,#3a3835);border-radius:var(--radius);padding:14px 16px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between}
+.admin-header h2{color:white;font-size:15px;font-weight:500}
+.admin-header p{color:rgba(255,255,255,.6);font-size:11px;margin-top:2px}
+.admin-tabs{display:flex;gap:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:16px}
+.admin-tab{padding:9px 16px;font-size:13px;cursor:pointer;border:none;background:transparent;color:var(--text2);font-family:'DM Sans',sans-serif;border-right:1px solid var(--border)}
+.admin-tab:last-child{border-right:none}
+.admin-tab:hover{background:var(--surface2)}
+.admin-tab.active{background:var(--text);color:white;font-weight:500}
+.admin-section{display:none}
+.admin-section.active{display:block}
 
-/* STATS GRID */
-.stats {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 10px;
-  margin-bottom: 18px;
-}
-.stat {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 14px 16px;
-  box-shadow: var(--shadow);
-}
-.stat-label { font-size: 11px; color: var(--text2); margin-bottom: 4px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.04em; }
-.stat-val { font-size: 22px; font-weight: 500; font-family: 'DM Mono', monospace; }
-.val-green { color: var(--green-text); }
-.val-red { color: var(--red-text); }
-.val-blue { color: var(--blue-text); }
+/* STATS */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:16px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;box-shadow:var(--shadow)}
+.stat-label{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.04em;font-weight:500;margin-bottom:4px}
+.stat-val{font-size:20px;font-weight:500;font-family:'DM Mono',monospace}
+.val-g{color:var(--green-text)}.val-r{color:var(--red-text)}.val-b{color:var(--blue-text)}
 
-/* TOOLBAR */
-.toolbar {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 14px;
-  flex-wrap: wrap;
-  align-items: center;
-}
-.btn {
-  padding: 7px 14px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border2);
-  background: var(--surface);
-  font-size: 12px;
-  cursor: pointer;
-  color: var(--text);
-  font-family: 'DM Sans', sans-serif;
-  font-weight: 500;
-  transition: background 0.12s;
-  white-space: nowrap;
-}
-.btn:hover { background: var(--surface2); }
-.btn-primary { background: var(--text); color: white; border-color: transparent; }
-.btn-primary:hover { opacity: 0.85; background: var(--text); }
-.btn-green { background: var(--green-bg); color: var(--green-text); border-color: var(--green-border); }
-.btn-green:hover { opacity: 0.85; }
-.btn-red { background: var(--red-bg); color: var(--red-text); border-color: var(--red-border); }
-.btn-red:hover { opacity: 0.85; }
-.btn-amber { background: var(--amber-bg); color: var(--amber-text); border-color: #f5d79e; }
-.btn-amber:hover { opacity: 0.85; }
+/* TABLA */
+.table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:auto;box-shadow:var(--shadow)}
+table{width:100%;border-collapse:collapse;min-width:600px}
+thead th{background:var(--surface2);font-weight:500;font-size:11px;padding:8px 8px;text-align:left;border-bottom:1px solid var(--border);color:var(--text2);text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
+tbody tr{border-bottom:1px solid var(--border)}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:#fafaf8}
+td{padding:6px 8px;vertical-align:middle}
+td:first-child{font-size:12px;font-weight:500}
 
-input[type=search], .search-input {
-  padding: 7px 12px;
-  border: 1px solid var(--border2);
-  border-radius: var(--radius-sm);
-  font-size: 12px;
-  background: var(--surface);
-  color: var(--text);
-  font-family: 'DM Sans', sans-serif;
-  width: 200px;
-  outline: none;
-}
-input[type=search]:focus { border-color: var(--text); }
+/* BOTONES PAGO */
+.pay-btn{width:32px;height:28px;border-radius:6px;border:none;font-size:15px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:transform .1s;font-weight:600}
+.pay-btn:hover{transform:scale(1.15)}
+.pay-btn:active{transform:scale(.9)}
+.pay-btn.pagado{background:var(--green-bg);color:var(--green-text)}
+.pay-btn.pendiente{background:var(--surface2);color:var(--text3)}
 
-/* TABLE */
-.table-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  overflow: auto;
-  box-shadow: var(--shadow);
-}
-table { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 500px; }
-thead th {
-  background: var(--surface2);
-  font-weight: 500;
-  font-size: 11px;
-  padding: 9px 12px;
-  text-align: left;
-  border-bottom: 1px solid var(--border);
-  color: var(--text2);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  white-space: nowrap;
-}
-tbody tr { border-bottom: 1px solid var(--border); }
-tbody tr:last-child { border-bottom: none; }
-tbody tr:hover { background: #fafaf8; }
-td { padding: 8px 12px; vertical-align: middle; }
-td:first-child { font-weight: 500; }
-
-/* PILLS */
-.pill {
-  display: inline-flex; align-items: center; justify-content: center;
-  width: 28px; height: 22px;
-  border-radius: 5px;
-  font-size: 11px; font-weight: 600;
-  cursor: pointer;
-  user-select: none;
-  transition: opacity 0.1s, transform 0.1s;
-}
-.pill:hover { opacity: 0.75; transform: scale(0.95); }
-.pill-p { background: var(--green-bg); color: var(--green-text); }
-.pill-d { background: var(--red-bg); color: var(--red-text); }
-
-/* MOVIMIENTO CAJA */
-.caja-head {
-  display: grid;
-  grid-template-columns: 90px 1fr 100px 90px 90px 32px;
-  gap: 8px;
-  padding: 9px 14px;
-  background: var(--surface2);
-  border-bottom: 1px solid var(--border);
-  font-size: 11px; font-weight: 500;
-  color: var(--text2);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-.mov-row {
-  display: grid;
-  grid-template-columns: 90px 1fr 100px 90px 90px 32px;
-  gap: 8px;
-  padding: 10px 14px;
-  border-bottom: 1px solid var(--border);
-  align-items: center;
-  font-size: 12px;
-}
-.mov-row:last-child { border-bottom: none; }
-.mov-row:hover { background: #fafaf8; }
-.tipo-badge {
-  font-size: 10px; padding: 2px 8px;
-  border-radius: 10px; font-weight: 500;
-  display: inline-block;
-}
-.badge-entrada { background: var(--green-bg); color: var(--green-text); }
-.badge-salida { background: var(--red-bg); color: var(--red-text); }
-.del-btn {
-  background: none; border: none; cursor: pointer;
-  color: var(--text3); font-size: 14px;
-  padding: 2px 5px; border-radius: 4px;
-}
-.del-btn:hover { color: var(--red-text); background: var(--red-bg); }
+/* CAJA */
+.toolbar{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
+.btn{padding:7px 14px;border-radius:var(--radius-sm);border:1px solid var(--border2);background:var(--surface);font-size:12px;cursor:pointer;color:var(--text);font-family:'DM Sans',sans-serif;font-weight:500;white-space:nowrap}
+.btn:hover{background:var(--surface2)}
+.btn-primary{background:var(--text);color:white;border-color:transparent}
+.btn-primary:hover{opacity:.85;background:var(--text)}
+.btn-green{background:var(--green-bg);color:var(--green-text);border-color:var(--green-border)}
+.btn-red{background:var(--red-bg);color:var(--red-text);border-color:var(--red-border)}
+.mov-head{display:grid;grid-template-columns:85px 1fr 90px 85px 85px 30px;gap:8px;padding:8px 12px;background:var(--surface2);border-bottom:1px solid var(--border);font-size:11px;font-weight:500;color:var(--text2);text-transform:uppercase;letter-spacing:.04em}
+.mov-row{display:grid;grid-template-columns:85px 1fr 90px 85px 85px 30px;gap:8px;padding:9px 12px;border-bottom:1px solid var(--border);align-items:center;font-size:12px}
+.mov-row:last-child{border-bottom:none}
+.mov-row:hover{background:#fafaf8}
+.tipo-badge{font-size:10px;padding:2px 8px;border-radius:10px;font-weight:500;display:inline-block}
+.badge-e{background:var(--green-bg);color:var(--green-text)}
+.badge-s{background:var(--red-bg);color:var(--red-text)}
+.del-btn{background:none;border:none;cursor:pointer;color:var(--text3);font-size:13px;padding:2px 4px;border-radius:4px}
+.del-btn:hover{color:var(--red-text);background:var(--red-bg)}
 
 /* MODAL */
-.overlay {
-  display: none; position: fixed; inset: 0;
-  background: rgba(0,0,0,0.25);
-  z-index: 200;
-  align-items: center;
-  justify-content: center;
-  backdrop-filter: blur(2px);
-}
-.overlay.open { display: flex; }
-.modal {
-  background: var(--surface);
-  border-radius: 14px;
-  padding: 22px;
-  width: 92%; max-width: 400px;
-  border: 1px solid var(--border);
-  box-shadow: 0 20px 60px rgba(0,0,0,0.12);
-  max-height: 90vh;
-  overflow-y: auto;
-}
-.modal h3 { font-size: 16px; font-weight: 500; margin-bottom: 18px; }
-.field { margin-bottom: 13px; }
-.field label { display: block; font-size: 11px; color: var(--text2); margin-bottom: 5px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.04em; }
-.field input, .field select, .field textarea {
-  width: 100%; padding: 8px 11px;
-  border: 1px solid var(--border2);
-  border-radius: var(--radius-sm);
-  font-size: 13px;
-  background: var(--surface);
-  color: var(--text);
-  font-family: 'DM Sans', sans-serif;
-  outline: none;
-  transition: border-color 0.15s;
-}
-.field input:focus, .field select:focus, .field textarea:focus { border-color: var(--text); }
-.field textarea { height: 64px; resize: vertical; }
-.modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 18px; }
-.sep { height: 1px; background: var(--border); margin: 12px 0; }
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.25);z-index:200;align-items:center;justify-content:center;backdrop-filter:blur(2px)}
+.overlay.open{display:flex}
+.modal{background:var(--surface);border-radius:14px;padding:20px;width:92%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,0.12);max-height:90vh;overflow-y:auto}
+.modal h3{font-size:15px;font-weight:500;margin-bottom:16px}
+.field{margin-bottom:12px}
+.field label{display:block;font-size:11px;color:var(--text2);margin-bottom:4px;font-weight:500;text-transform:uppercase;letter-spacing:.04em}
+.field input,.field select,.field textarea{width:100%;padding:8px 10px;border:1px solid var(--border2);border-radius:var(--radius-sm);font-size:13px;background:var(--surface);color:var(--text);font-family:'DM Sans',sans-serif;outline:none}
+.field input:focus,.field select:focus{border-color:var(--text)}
+.field textarea{height:60px;resize:vertical}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
 
-/* INFO BOX */
-.info-box {
-  background: var(--blue-bg); color: var(--blue-text);
-  border-radius: var(--radius-sm);
-  padding: 10px 14px; font-size: 12px;
-  margin-bottom: 14px;
-  border: 1px solid #c7d9f8;
-}
+/* CUADRE */
+.cuadre-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow);margin-top:14px}
+.cuadre-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-top:10px}
+.ci-label{font-size:11px;color:var(--text2);margin-bottom:3px}
+.ci-val{font-size:18px;font-weight:500;font-family:'DM Mono',monospace}
+.ci-note{font-size:10px;color:var(--text2);margin-top:2px}
 
-/* EVENTOS */
-.ev-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 14px 16px;
-  margin-bottom: 12px;
-  box-shadow: var(--shadow);
-}
-.ev-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  gap: 5px;
-  margin-top: 12px;
-}
-.ev-item {
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 5px 8px; border-radius: 5px;
-  font-size: 11px; cursor: pointer;
-  transition: opacity 0.1s;
-}
-.ev-item:hover { opacity: 0.75; }
-.ev-p { background: var(--green-bg); color: var(--green-text); }
-.ev-d { background: var(--red-bg); color: var(--red-text); }
+/* INFO */
+.info-box{background:var(--blue-bg);color:var(--blue-text);border-radius:var(--radius-sm);padding:10px 14px;font-size:12px;margin-bottom:14px;border:1px solid #c7d9f8}
+.empty{padding:28px;text-align:center;font-size:13px;color:var(--text2)}
+.loading{text-align:center;padding:40px;color:var(--text2);font-size:13px}
+.spinner{width:24px;height:24px;border:2px solid var(--border2);border-top-color:var(--text);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 12px}
+@keyframes spin{to{transform:rotate(360deg)}}
 
-/* VISTA PUBLICA */
-.pub-banner {
-  background: linear-gradient(135deg, #1a5c38, #2d9e5f);
-  border-radius: var(--radius);
-  padding: 20px;
-  text-align: center;
-  margin-bottom: 16px;
-  color: white;
-}
-.pub-banner h2 { font-size: 18px; font-weight: 500; margin-bottom: 4px; }
-.pub-banner p { font-size: 12px; opacity: 0.8; }
-.filter-bar { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
-.filter-btn {
-  padding: 5px 14px;
-  border-radius: 20px;
-  border: 1px solid var(--border2);
-  background: var(--surface);
-  font-size: 12px;
-  cursor: pointer;
-  color: var(--text2);
-  font-family: 'DM Sans', sans-serif;
-  font-weight: 500;
-  transition: all 0.12s;
-}
-.filter-btn.active { background: var(--text); color: white; border-color: transparent; }
-.al-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 12px 14px;
-  margin-bottom: 8px;
-  box-shadow: var(--shadow);
-}
-.al-top {
-  display: flex; justify-content: space-between;
-  align-items: center; margin-bottom: 8px;
-}
-.al-nombre { font-weight: 500; font-size: 13px; }
-.status-badge { font-size: 11px; padding: 3px 9px; border-radius: 10px; font-weight: 500; }
-.s-ok { background: var(--green-bg); color: var(--green-text); }
-.s-debt { background: var(--red-bg); color: var(--red-text); }
-.chips { display: flex; gap: 3px; flex-wrap: wrap; }
-.mc { font-size: 9px; padding: 2px 5px; border-radius: 4px; font-weight: 600; }
-.mc-p { background: var(--green-bg); color: var(--green-text); }
-.mc-d { background: var(--red-bg); color: var(--red-text); }
-
-/* TAG */
-.tag { font-size: 10px; padding: 1px 7px; border-radius: 8px; font-weight: 500; display: inline-block; }
-.tag-active { background: var(--green-bg); color: var(--green-text); }
-.tag-retired { background: var(--red-bg); color: var(--red-text); }
-
-/* EMPTY */
-.empty { padding: 28px; text-align: center; font-size: 13px; color: var(--text2); }
-
-@media (max-width: 600px) {
-  .content { padding: 12px; }
-  .caja-head, .mov-row { grid-template-columns: 75px 1fr 80px 70px; }
-  .caja-head > div:nth-child(5),
-  .caja-head > div:nth-child(6),
-  .mov-row > div:nth-child(5),
-  .mov-row > div:nth-child(6) { display: none; }
+@media(max-width:600px){
+  .mov-head,.mov-row{grid-template-columns:70px 1fr 80px 30px}
+  .mov-head>div:nth-child(4),.mov-head>div:nth-child(5),
+  .mov-row>div:nth-child(4),.mov-row>div:nth-child(5){display:none}
 }
 </style>
 </head>
 <body>
 
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-icon">🔐</div>
+    <h2>Acceso tesorero</h2>
+    <p>Solo tú puedes marcar pagos</p>
+    <input type="password" id="pwd-input" placeholder="••••••" maxlength="20"
+      onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="login-btn" onclick="doLogin()">Entrar</button>
+    <div id="login-error"></div>
+    <button class="login-cancel" onclick="closeLogin()">Cancelar</button>
+  </div>
+</div>
+
+<!-- TOPBAR -->
 <div class="topbar">
   <div class="topbar-left">
     <div class="logo">T</div>
     <div>
       <div class="topbar-title">Tesorería 3° Medio 2026</div>
-      <div class="topbar-sub">Directiva de curso</div>
+      <div class="topbar-sub" id="topbar-sub">Directiva de curso</div>
     </div>
   </div>
   <div class="topbar-right">
-    <span class="chip chip-green" id="hdr-saldo">Saldo: $0</span>
-    <span class="chip chip-blue" id="hdr-alumnos">37 alumnos</span>
-  </div>
-</div>
-
-<div class="tabs-wrap">
-  <button class="tab active" onclick="goTab('cuotas',this)">Cuotas</button>
-  <button class="tab" onclick="goTab('caja-chica',this)">Caja chica</button>
-  <button class="tab" onclick="goTab('eventos',this)">Rifas y eventos</button>
-  <button class="tab" onclick="goTab('caja',this)">Libro de caja</button>
-  <button class="tab" onclick="goTab('banco',this)">Cuenta bancaria</button>
-  <button class="tab" onclick="goTab('alumnos',this)">Lista alumnos</button>
-  <button class="tab" onclick="goTab('publico',this)">Vista pública</button>
-</div>
-
-<div class="content">
-
-<!-- CUOTAS -->
-<div id="tab-cuotas" class="section active">
-  <div class="stats" id="stats-cuotas"></div>
-  <div class="toolbar">
-    <input type="search" id="buscar-c" placeholder="Buscar alumno..." oninput="renderCuotas()">
-    <button class="btn" onclick="marcarMesActual()">Marcar mes actual ✓</button>
-    <button class="btn btn-amber" onclick="openImport()">Importar desde Excel ↗</button>
-  </div>
-  <div class="table-card">
-    <table><thead><tr id="thead-c"></tr></thead><tbody id="tbody-c"></tbody></table>
-  </div>
-</div>
-
-<!-- CAJA CHICA -->
-<div id="tab-caja-chica" class="section">
-  <div class="info-box">Cuota anual única de $10.000 por alumno destinada a gastos varios del curso. Se registra una sola vez al año.</div>
-  <div class="stats" id="stats-cc"></div>
-  <div class="table-card" style="margin-top:14px">
-    <table style="min-width:300px">
-      <thead><tr><th>Alumno</th><th style="text-align:center">Estado</th><th style="text-align:right">Fecha pago</th></tr></thead>
-      <tbody id="tbody-cc"></tbody>
-    </table>
-  </div>
-</div>
-
-<!-- EVENTOS -->
-<div id="tab-eventos" class="section">
-  <div class="toolbar">
-    <button class="btn btn-primary" onclick="openModalEvento()">+ Nuevo evento / rifa</button>
-  </div>
-  <div id="lista-eventos"><div class="empty">Sin eventos aún. Crea rifas, paseos u otros cobros con el botón.</div></div>
-</div>
-
-<!-- LIBRO DE CAJA -->
-<div id="tab-caja" class="section">
-  <div class="stats" id="stats-caja"></div>
-  <div class="toolbar">
-    <button class="btn btn-green" onclick="openMovModal('entrada')">+ Entrada</button>
-    <button class="btn btn-red" onclick="openMovModal('salida')">− Salida</button>
-    <span style="font-size:11px;color:var(--text2)">Registra cada movimiento con su boleta o comprobante</span>
-  </div>
-  <div class="table-card">
-    <div class="caja-head"><div>Fecha</div><div>Descripción</div><div>Tipo</div><div>Monto</div><div>Boleta N°</div><div></div></div>
-    <div id="lista-caja"><div class="empty">Sin movimientos aún.</div></div>
-  </div>
-</div>
-
-<!-- CUENTA BANCARIA -->
-<div id="tab-banco" class="section">
-  <div class="info-box">Registra aquí los movimientos reales de la cuenta bancaria del curso. El saldo se calcula automáticamente y se compara con el libro de caja interno.</div>
-  <div class="stats" id="stats-banco"></div>
-  <div class="toolbar">
-    <button class="btn btn-green" onclick="openBancoModal('deposito')">+ Depósito</button>
-    <button class="btn btn-red" onclick="openBancoModal('retiro')">− Retiro / Gasto</button>
-    <button class="btn" onclick="openBancoModal('transferencia')">⇄ Transferencia</button>
-  </div>
-  <div class="table-card">
-    <div id="caja-head-banco" style="display:grid;grid-template-columns:90px 1fr 110px 90px 90px 32px;gap:8px;padding:9px 14px;background:var(--surface2);border-bottom:1px solid var(--border);font-size:11px;font-weight:500;color:var(--text2);text-transform:uppercase;letter-spacing:0.04em">
-      <div>Fecha</div><div>Descripción</div><div>Tipo</div><div>Monto</div><div>N° Operación</div><div></div>
-    </div>
-    <div id="lista-banco"><div class="empty">Sin movimientos bancarios registrados.</div></div>
-  </div>
-  <div id="balance-compare" style="margin-top:14px"></div>
-</div>
-
-<!-- ALUMNOS -->
-<div id="tab-alumnos" class="section">
-  <div class="info-box">Agrega alumnos nuevos o marca los que se retiraron. Los cambios se reflejan en todas las secciones.</div>
-  <div class="toolbar">
-    <button class="btn btn-primary" onclick="openModalAlumno()">+ Agregar alumno</button>
-  </div>
-  <div class="table-card">
-    <table style="min-width:280px">
-      <thead><tr><th>N°</th><th>Nombre</th><th>Estado</th><th style="text-align:right">Acción</th></tr></thead>
-      <tbody id="tbody-alumnos"></tbody>
-    </table>
+    <span class="chip chip-green" id="hdr-saldo" style="display:none">Saldo: $0</span>
+    <button id="btn-admin" onclick="handleAdminBtn()">Admin</button>
   </div>
 </div>
 
 <!-- VISTA PÚBLICA -->
-<div id="tab-publico" class="section">
-  <div class="pub-banner">
-    <h2>Estado de pagos · 3° Medio 2026</h2>
-    <p id="pub-fecha">Actualizado hoy</p>
+<div id="view-public">
+  <div style="padding:16px;max-width:800px;margin:0 auto">
+    <div class="pub-banner">
+      <h2>Estado de pagos · 3° Medio 2026</h2>
+      <p id="pub-fecha">Cargando...</p>
+    </div>
+    <div class="filter-bar">
+      <button class="filter-btn active" onclick="setFiltro('todos',this)">Todos</button>
+      <button class="filter-btn" onclick="setFiltro('al-dia',this)">Al día</button>
+      <button class="filter-btn" onclick="setFiltro('deuda',this)">Con deuda</button>
+    </div>
+    <div id="pub-loading" class="loading"><div class="spinner"></div>Cargando datos...</div>
+    <div id="lista-publica"></div>
   </div>
-  <div class="filter-bar">
-    <button class="filter-btn active" onclick="setFiltro('todos',this)">Todos</button>
-    <button class="filter-btn" onclick="setFiltro('al-dia',this)">Al día</button>
-    <button class="filter-btn" onclick="setFiltro('deuda',this)">Con deuda</button>
-  </div>
-  <div id="lista-publica"></div>
 </div>
 
-</div><!-- /content -->
+<!-- VISTA ADMIN -->
+<div id="view-admin">
+  <div class="admin-header">
+    <div>
+      <h2>Panel de tesorero</h2>
+      <p>Solo visible para ti — los apoderados ven solo el estado de pagos</p>
+    </div>
+  </div>
+  <div class="admin-tabs">
+    <button class="admin-tab active" onclick="switchTab('cuotas',this)">Cuotas</button>
+    <button class="admin-tab" onclick="switchTab('caja-chica',this)">Caja chica</button>
+    <button class="admin-tab" onclick="switchTab('caja',this)">Libro de caja</button>
+    <button class="admin-tab" onclick="switchTab('banco',this)">Banco</button>
+  </div>
 
-<!-- MODAL MOVIMIENTO CAJA -->
-<div class="overlay" id="modal-mov">
+  <!-- CUOTAS -->
+  <div id="as-cuotas" class="admin-section active">
+    <div class="stats-row" id="stats-cuotas"></div>
+    <div class="info-box">Toca ✓ para marcar pagado, ✗ para desmarcar. Los cambios se guardan automáticamente.</div>
+    <div class="table-wrap">
+      <table><thead><tr id="thead-c"></tr></thead><tbody id="tbody-c"></tbody></table>
+    </div>
+  </div>
+
+  <!-- CAJA CHICA -->
+  <div id="as-caja-chica" class="admin-section">
+    <div class="stats-row" id="stats-cc"></div>
+    <div class="info-box">Cuota anual única $10.000 por alumno.</div>
+    <div class="table-wrap" style="margin-top:12px">
+      <table style="min-width:280px">
+        <thead><tr><th>Alumno</th><th style="text-align:center">Estado</th><th style="text-align:right">Fecha</th></tr></thead>
+        <tbody id="tbody-cc"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- CAJA -->
+  <div id="as-caja" class="admin-section">
+    <div class="stats-row" id="stats-caja"></div>
+    <div class="toolbar">
+      <button class="btn btn-green" onclick="openMovModal('entrada')">+ Entrada</button>
+      <button class="btn btn-red" onclick="openMovModal('salida')">− Salida</button>
+    </div>
+    <div class="table-wrap">
+      <div class="mov-head"><div>Fecha</div><div>Descripción</div><div>Tipo</div><div>Monto</div><div>Boleta</div><div></div></div>
+      <div id="lista-caja"><div class="empty">Sin movimientos.</div></div>
+    </div>
+  </div>
+
+  <!-- BANCO -->
+  <div id="as-banco" class="admin-section">
+    <div class="stats-row" id="stats-banco"></div>
+    <div class="toolbar">
+      <button class="btn btn-green" onclick="openBancoModal('deposito')">+ Depósito</button>
+      <button class="btn btn-red" onclick="openBancoModal('retiro')">− Retiro</button>
+    </div>
+    <div class="table-wrap">
+      <div class="mov-head"><div>Fecha</div><div>Descripción</div><div>Tipo</div><div>Monto</div><div>N° Op.</div><div></div></div>
+      <div id="lista-banco"><div class="empty">Sin movimientos bancarios.</div></div>
+    </div>
+    <div id="cuadre"></div>
+  </div>
+</div>
+
+<!-- MODAL CAJA -->
+<div class="overlay" id="modal-caja">
   <div class="modal">
-    <h3 id="mov-title">Nueva entrada</h3>
-    <div class="field"><label>Fecha</label><input type="date" id="mov-fecha"></div>
-    <div class="field"><label>Descripción</label><input type="text" id="mov-desc" placeholder="Ej: Cuotas marzo recibidas"></div>
-    <div class="field"><label>Monto ($)</label><input type="number" id="mov-monto" placeholder="10000" min="0"></div>
-    <div class="field"><label>N° Boleta / Comprobante</label><input type="text" id="mov-boleta" placeholder="001"></div>
+    <h3 id="caja-title">Nueva entrada</h3>
+    <div class="field"><label>Fecha</label><input type="date" id="c-fecha"></div>
+    <div class="field"><label>Descripción</label><input type="text" id="c-desc" placeholder="Ej: Cuotas marzo"></div>
+    <div class="field"><label>Monto ($)</label><input type="number" id="c-monto" min="0"></div>
+    <div class="field"><label>Boleta N° (opcional)</label><input type="text" id="c-boleta"></div>
     <div class="field"><label>Categoría</label>
-      <select id="mov-cat">
-        <option>Cuotas mensuales</option><option>Caja chica</option><option>Rifa / evento</option>
-        <option>Paseo</option><option>Material escolar</option><option>Actividad curso</option>
-        <option>Gastos administrativos</option><option>Otro</option>
+      <select id="c-cat">
+        <option>Cuotas mensuales</option><option>Caja chica</option>
+        <option>Rifa / evento</option><option>Paseo</option>
+        <option>Material escolar</option><option>Otro</option>
       </select>
     </div>
-    <div class="field"><label>Notas (opcional)</label><textarea id="mov-notas" placeholder="Observaciones..."></textarea></div>
     <div class="modal-actions">
-      <button class="btn" onclick="closeModal('modal-mov')">Cancelar</button>
+      <button class="btn" onclick="closeModal('modal-caja')">Cancelar</button>
       <button class="btn btn-primary" onclick="guardarMov()">Guardar</button>
     </div>
   </div>
@@ -531,12 +293,10 @@ td:first-child { font-weight: 500; }
 <div class="overlay" id="modal-banco">
   <div class="modal">
     <h3 id="banco-title">Nuevo depósito</h3>
-    <div class="field"><label>Fecha</label><input type="date" id="banco-fecha"></div>
-    <div class="field"><label>Descripción</label><input type="text" id="banco-desc" placeholder="Ej: Depósito cuotas marzo"></div>
-    <div class="field"><label>Monto ($)</label><input type="number" id="banco-monto" placeholder="50000" min="0"></div>
-    <div class="field"><label>N° Operación / Comprobante</label><input type="text" id="banco-op" placeholder="202600001"></div>
-    <div class="field"><label>Saldo resultante en cuenta ($) — opcional</label><input type="number" id="banco-saldo" placeholder="150000" min="0"></div>
-    <div class="field"><label>Notas (opcional)</label><textarea id="banco-notas" placeholder="Observaciones..."></textarea></div>
+    <div class="field"><label>Fecha</label><input type="date" id="b-fecha"></div>
+    <div class="field"><label>Descripción</label><input type="text" id="b-desc"></div>
+    <div class="field"><label>Monto ($)</label><input type="number" id="b-monto" min="0"></div>
+    <div class="field"><label>N° Operación (opcional)</label><input type="text" id="b-op"></div>
     <div class="modal-actions">
       <button class="btn" onclick="closeModal('modal-banco')">Cancelar</button>
       <button class="btn btn-primary" onclick="guardarBanco()">Guardar</button>
@@ -544,375 +304,306 @@ td:first-child { font-weight: 500; }
   </div>
 </div>
 
-<!-- MODAL EVENTO -->
-<div class="overlay" id="modal-ev">
-  <div class="modal">
-    <h3>Nuevo evento / rifa</h3>
-    <div class="field"><label>Nombre</label><input type="text" id="ev-nombre" placeholder="Ej: Rifa abril 2026"></div>
-    <div class="field"><label>Monto por alumno ($)</label><input type="number" id="ev-monto" placeholder="3000" min="0"></div>
-    <div class="field"><label>Fecha</label><input type="date" id="ev-fecha"></div>
-    <div class="field"><label>Notas (opcional)</label><textarea id="ev-notas" placeholder="Detalles del evento..."></textarea></div>
-    <div class="modal-actions">
-      <button class="btn" onclick="closeModal('modal-ev')">Cancelar</button>
-      <button class="btn btn-primary" onclick="guardarEvento()">Crear</button>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL ALUMNO -->
-<div class="overlay" id="modal-alumno">
-  <div class="modal">
-    <h3>Agregar alumno</h3>
-    <div class="field"><label>Apellido, Nombre</label><input type="text" id="al-nombre" placeholder="Ej: González, Valentina"></div>
-    <div class="modal-actions">
-      <button class="btn" onclick="closeModal('modal-alumno')">Cancelar</button>
-      <button class="btn btn-primary" onclick="guardarAlumno()">Guardar</button>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL IMPORT -->
-<div class="overlay" id="modal-import">
-  <div class="modal">
-    <h3>Importar pagos</h3>
-    <div class="info-box">Pega la lista de alumnos que pagaron (un apellido por línea). El sistema los buscará y marcará automáticamente.</div>
-    <div class="field"><label>Mes</label>
-      <select id="imp-mes">
-        <option>Mar</option><option>Abr</option><option>May</option><option>Jun</option>
-        <option>Jul</option><option>Ago</option><option>Sep</option><option>Oct</option>
-        <option>Nov</option><option>Dic</option>
-      </select>
-    </div>
-    <div class="field"><label>Tipo de cobro</label>
-      <select id="imp-tipo"><option value="cuota">Cuota mensual</option><option value="cc">Caja chica</option></select>
-    </div>
-    <div class="field"><label>Lista de alumnos que pagaron (uno por línea)</label>
-      <textarea id="imp-lista" style="height:130px" placeholder="Arenas&#10;Gálvez&#10;Lobos&#10;..."></textarea>
-    </div>
-    <div id="imp-resultado" style="font-size:12px;color:var(--text2);min-height:18px"></div>
-    <div class="modal-actions">
-      <button class="btn" onclick="closeModal('modal-import')">Cancelar</button>
-      <button class="btn btn-primary" onclick="procesarImport()">Importar</button>
-    </div>
-  </div>
-</div>
-
 <script>
-const MESES = ['Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic']
-const CUOTA = 10000
-const CUOTA_CC = 10000
-const KEY = 'tesoreria2026'
+// ═══════════════════════════════════════════
+// CONFIGURACIÓN — edita estos dos valores
+// ═══════════════════════════════════════════
+const ADMIN_PASSWORD = 'tesoreria2026';  // ← cambia tu contraseña aquí
+const API_URL = '';                       // ← pega aquí la URL de Apps Script cuando la tengas
+// ═══════════════════════════════════════════
 
-const ALUMNOS_INIT = [
-  'Arenas Arenas, Santiago Andrés',
-  'Arriaza Martínez, Eloísa Consuelo',
-  'Ávila Urra, Carla María',
-  'Ávila Urra, Ricardo Mariano',
-  'Cárcamo Merino, Renata Carolina',
-  'Chávez Silva, Anastasia Antonella',
-  'Córdova González, Agustín Mateo',
-  'Díaz Briones, Diego Iván',
-  'Donoso Ulloa, Agustín Emilio',
-  'Fuenzalida Muñoz, Pía Ignacia',
-  'Gálvez Cofré, Benjamín Ignacio',
-  'Gálvez López, Víctor Ignacio',
-  'Gutiérrez Gutiérrez, Yuliana De Los Ángeles',
-  'Hanus Toro, Diego Gastón',
-  'Lobos Irarrázabal, Matilde Josefa',
-  'Miranda Mora, Máximo Aquiles',
-  'Mita Porco, Karen Nicol',
-  'Mujica Zúñiga, María Ignacia',
-  'Muñoz Aguirre, Bastián Javier',
-  'Núñez González, Tomás Ignacio',
-  'Osorio Lara, Emilia Magdalena',
-  'Osorio Rubio, Josefa Trinidad',
-  'Palominos Donoso, Josefina Ignacia',
-  'Paredes Parra, Franco Julián',
-  'Plaza Muñoz, Sofía Ignacia',
-  'Ramírez Lleuful, Guillermo Nicolás',
-  'Riquelme Rivera, Ary Jesús',
-  'Rivera Orellana, Bruno Ignacio',
-  'Riveros Maulén, Sebastián Felipe',
-  'Rojas Cáceres, Felipe Alonso',
-  'Salazar Lucero, Anastasia De La Paz',
-  'Sánchez Paredes, Emilia Anastasia',
-  'Sepúlveda González, Maximiliano Alfonso',
-  'Tapia Monsalve, Sebastián Antonio',
-  'Ugalde Fuentes, Amanda Lucía',
-  'Urra Riquelme, José Tomás',
-  'Valderrama Garriga, Maximiliano Alexander',
-  'Vergara Licán, Renato Agustín'
-]
+const MESES = ['Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+const CUOTA = 10000, CUOTA_CC = 10000;
+const KEY = 'tres2026';
 
-function initData() {
+let DATA = null, isAdmin = false, filtro = 'todos', movTipo = 'entrada', bancoTipo = 'deposito';
+
+const fmt = n => '$'+Math.round(n).toLocaleString('es-CL');
+const today = () => new Date().toISOString().slice(0,10);
+const fmtD = d => { if(!d) return '—'; const p=d.split('-'); return p[2]+'/'+p[1]+'/'+p[0]; };
+const activos = () => (DATA?.alumnos||[]).filter(a=>a.activo);
+
+function saveLocal(){ try{ localStorage.setItem(KEY,JSON.stringify(DATA)); }catch(e){} }
+function loadLocal(){ try{ const d=localStorage.getItem(KEY); if(d) return JSON.parse(d); }catch(e){} return null; }
+
+function initData(){
   return {
-    alumnos: ALUMNOS_INIT.map(n => ({
-      nombre: n, activo: true,
-      cuotas: Object.fromEntries(MESES.map(m=>[m,false])),
-      cc: false, cc_fecha: null
-    })),
-    caja: [], banco: [], eventos: [], nextEv: 1
+    alumnos:[
+      'Arenas Arenas, Santiago Andrés','Arriaza Martínez, Eloísa Consuelo',
+      'Ávila Urra, Carla María','Ávila Urra, Ricardo Mariano',
+      'Cárcamo Merino, Renata Carolina','Chávez Silva, Anastasia Antonella',
+      'Córdova González, Agustín Mateo','Díaz Briones, Diego Iván',
+      'Donoso Ulloa, Agustín Emilio','Fuenzalida Muñoz, Pía Ignacia',
+      'Gálvez Cofré, Benjamín Ignacio','Gálvez López, Víctor Ignacio',
+      'Gutiérrez Gutiérrez, Yuliana De Los Ángeles','Hanus Toro, Diego Gastón',
+      'Lobos Irarrázabal, Matilde Josefa','Miranda Mora, Máximo Aquiles',
+      'Mita Porco, Karen Nicol','Mujica Zúñiga, María Ignacia',
+      'Muñoz Aguirre, Bastián Javier','Núñez González, Tomás Ignacio',
+      'Osorio Lara, Emilia Magdalena','Osorio Rubio, Josefa Trinidad',
+      'Palominos Donoso, Josefina Ignacia','Paredes Parra, Franco Julián',
+      'Plaza Muñoz, Sofía Ignacia','Ramírez Lleuful, Guillermo Nicolás',
+      'Riquelme Rivera, Ary Jesús','Rivera Orellana, Bruno Ignacio',
+      'Riveros Maulén, Sebastián Felipe','Rojas Cáceres, Felipe Alonso',
+      'Salazar Lucero, Anastasia De La Paz','Sánchez Paredes, Emilia Anastasia',
+      'Sepúlveda González, Maximiliano Alfonso','Tapia Monsalve, Sebastián Antonio',
+      'Ugalde Fuentes, Amanda Lucía','Urra Riquelme, José Tomás',
+      'Valderrama Garriga, Maximiliano Alexander','Vergara Licán, Renato Agustín'
+    ].map(nombre=>({nombre,activo:true,cuotas:Object.fromEntries(MESES.map(m=>[m,false])),cc:false,cc_fecha:null})),
+    caja:[], banco:[]
+  };
+}
+
+async function loadData(){
+  if(API_URL){
+    try{
+      const r = await fetch(API_URL);
+      const j = await r.json();
+      if(j.ok){ DATA=j.data; saveLocal(); return; }
+    }catch(e){ console.log('API no disponible, usando local'); }
+  }
+  DATA = loadLocal() || initData();
+}
+
+// ── LOGIN ──
+function handleAdminBtn(){
+  if(isAdmin){ logoutAdmin(); return; }
+  document.getElementById('pwd-input').value='';
+  document.getElementById('login-error').textContent='';
+  document.getElementById('login-screen').classList.add('show');
+  setTimeout(()=>document.getElementById('pwd-input').focus(),150);
+}
+
+function doLogin(){
+  const pwd = document.getElementById('pwd-input').value;
+  if(pwd === ADMIN_PASSWORD){
+    isAdmin = true;
+    document.getElementById('login-screen').classList.remove('show');
+    document.getElementById('btn-admin').classList.add('active');
+    document.getElementById('btn-admin').textContent='Salir';
+    document.getElementById('view-public').style.display='none';
+    document.getElementById('view-admin').style.display='block';
+    document.getElementById('hdr-saldo').style.display='';
+    document.getElementById('topbar-sub').textContent='Modo administrador 🔐';
+    renderAdmin();
+  } else {
+    document.getElementById('login-error').textContent='Contraseña incorrecta';
+    document.getElementById('pwd-input').value='';
+    document.getElementById('pwd-input').focus();
   }
 }
 
-function load() {
-  try { const d = localStorage.getItem(KEY); if(d) return JSON.parse(d) } catch(e){}
-  return initData()
-}
-function save() { try { localStorage.setItem(KEY, JSON.stringify(DATA)) } catch(e){} }
-
-let DATA = load()
-let filtroPublico = 'todos'
-let movTipo = 'entrada'
-let bancoTipo = 'deposito'
-
-const fmt = n => '$' + Math.round(n).toLocaleString('es-CL')
-const today = () => new Date().toISOString().slice(0,10)
-const fmtDate = d => { if(!d) return '—'; const p=d.split('-'); return p[2]+'/'+p[1]+'/'+p[0] }
-const activos = () => DATA.alumnos.filter(a=>a.activo)
-
-function closeModal(id) { document.getElementById(id).classList.remove('open') }
-document.querySelectorAll('.overlay').forEach(m => m.addEventListener('click', function(e){ if(e.target===this) this.classList.remove('open') }))
-
-function goTab(t, el) {
-  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'))
-  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'))
-  document.getElementById('tab-'+t).classList.add('active')
-  el.classList.add('active')
-  const map = { cuotas:renderCuotas, 'caja-chica':renderCC, eventos:renderEventos, caja:renderCaja, banco:renderBanco, alumnos:renderAlumnos, publico:renderPublico }
-  if(map[t]) map[t]()
+function closeLogin(){
+  document.getElementById('login-screen').classList.remove('show');
 }
 
-function updateHeader() {
-  const e = DATA.caja.filter(m=>m.tipo==='entrada').reduce((s,m)=>s+m.monto,0)
-  const s = DATA.caja.filter(m=>m.tipo==='salida').reduce((s,m)=>s+m.monto,0)
-  document.getElementById('hdr-saldo').textContent = 'Saldo caja: ' + fmt(e-s)
-  document.getElementById('hdr-alumnos').textContent = activos().length + ' alumnos'
+function logoutAdmin(){
+  isAdmin=false;
+  document.getElementById('btn-admin').classList.remove('active');
+  document.getElementById('btn-admin').textContent='Admin';
+  document.getElementById('view-admin').style.display='none';
+  document.getElementById('view-public').style.display='';
+  document.getElementById('hdr-saldo').style.display='none';
+  document.getElementById('topbar-sub').textContent='Directiva de curso';
+  renderPublico();
 }
 
-// ===== CUOTAS =====
-function renderCuotas() {
-  const q = (document.getElementById('buscar-c').value||'').toLowerCase()
-  const lista = activos().filter(a=>a.nombre.toLowerCase().includes(q))
-  document.getElementById('thead-c').innerHTML = '<th>Alumno</th>' +
-    MESES.map(m=>`<th style="text-align:center">${m}</th>`).join('') +
-    '<th style="text-align:right">Pagado</th><th style="text-align:right">Deuda</th>'
-  document.getElementById('tbody-c').innerHTML = lista.map(a => {
-    const idx = DATA.alumnos.indexOf(a)
-    const np = MESES.filter(m=>a.cuotas[m]).length
-    const pagado = np * CUOTA
-    const deuda = (MESES.length - np) * CUOTA
-    return `<tr><td>${a.nombre}</td>` +
-      MESES.map(m=>`<td style="text-align:center"><span class="pill ${a.cuotas[m]?'pill-p':'pill-d'}" onclick="toggleCuota(${idx},'${m}')">${a.cuotas[m]?'✓':'✗'}</span></td>`).join('') +
-      `<td style="text-align:right;color:var(--green-text);font-weight:500">${fmt(pagado)}</td>
-       <td style="text-align:right;color:${deuda>0?'var(--red-text)':'var(--green-text)'}">${deuda>0?fmt(deuda):'—'}</td></tr>`
-  }).join('')
-  const als = activos()
-  const totalPag = als.reduce((s,a)=>s+MESES.filter(m=>a.cuotas[m]).length*CUOTA,0)
-  const totalDeuda = als.reduce((s,a)=>s+MESES.filter(m=>!a.cuotas[m]).length*CUOTA,0)
-  const alDia = als.filter(a=>MESES.every(m=>a.cuotas[m])).length
-  document.getElementById('stats-cuotas').innerHTML = `
-    <div class="stat"><div class="stat-label">Recaudado</div><div class="stat-val val-green">${fmt(totalPag)}</div></div>
-    <div class="stat"><div class="stat-label">Pendiente</div><div class="stat-val val-red">${fmt(totalDeuda)}</div></div>
-    <div class="stat"><div class="stat-label">Al día</div><div class="stat-val val-blue">${alDia} / ${als.length}</div></div>
-    <div class="stat"><div class="stat-label">Cuota mensual</div><div class="stat-val">${fmt(CUOTA)}</div></div>`
-  updateHeader()
-}
-function toggleCuota(idx, mes) { DATA.alumnos[idx].cuotas[mes]=!DATA.alumnos[idx].cuotas[mes]; save(); renderCuotas() }
-function marcarMesActual() {
-  const m = new Date().getMonth()-2
-  if(m>=0&&m<MESES.length){ activos().forEach(a=>{ a.cuotas[MESES[m]]=true }); save(); renderCuotas() }
-  else alert('El mes actual no está en el rango Marzo–Diciembre')
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.overlay').forEach(m=>m.addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');}));
+
+// ── ADMIN ──
+function switchTab(tab, el){
+  document.querySelectorAll('.admin-tab').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.admin-section').forEach(s=>s.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('as-'+tab).classList.add('active');
+  const renders={cuotas:renderCuotas,'caja-chica':renderCC,caja:renderCaja,banco:renderBanco};
+  if(renders[tab]) renders[tab]();
 }
 
-// ===== CAJA CHICA =====
-function renderCC() {
-  const als = activos()
-  const pag = als.filter(a=>a.cc).length
-  document.getElementById('stats-cc').innerHTML = `
-    <div class="stat"><div class="stat-label">Recaudado</div><div class="stat-val val-green">${fmt(pag*CUOTA_CC)}</div></div>
-    <div class="stat"><div class="stat-label">Pendiente</div><div class="stat-val val-red">${fmt((als.length-pag)*CUOTA_CC)}</div></div>
-    <div class="stat"><div class="stat-label">Pagaron</div><div class="stat-val val-blue">${pag} / ${als.length}</div></div>
-    <div class="stat"><div class="stat-label">Cuota única</div><div class="stat-val">${fmt(CUOTA_CC)}</div></div>`
-  document.getElementById('tbody-cc').innerHTML = als.map(a => {
-    const idx = DATA.alumnos.indexOf(a)
+function renderAdmin(){ renderCuotas(); updateSaldo(); }
+
+function updateSaldo(){
+  const e=(DATA.caja||[]).filter(m=>m.tipo==='entrada').reduce((s,m)=>s+m.monto,0);
+  const s=(DATA.caja||[]).filter(m=>m.tipo==='salida').reduce((s,m)=>s+m.monto,0);
+  document.getElementById('hdr-saldo').textContent='Saldo: '+fmt(e-s);
+}
+
+// ── CUOTAS ADMIN ──
+function renderCuotas(){
+  const als = activos();
+  document.getElementById('thead-c').innerHTML =
+    '<th>Alumno</th>'+MESES.map(m=>`<th style="text-align:center">${m}</th>`).join('')+'<th style="text-align:right;min-width:90px">Estado</th>';
+
+  document.getElementById('tbody-c').innerHTML = als.map(a=>{
+    const idx = DATA.alumnos.indexOf(a);
+    const pagados = MESES.filter(m=>a.cuotas[m]).length;
+    const deuda = (MESES.length - pagados)*CUOTA;
+    const celdas = MESES.map(m=>{
+      const p = a.cuotas[m];
+      return `<td style="text-align:center;padding:4px 5px">
+        <button class="pay-btn ${p?'pagado':'pendiente'}" onclick="toggleCuota(${idx},'${m}')" title="${p?'Pagado — toca para desmarcar':'Sin pago — toca para marcar pagado'}">
+          ${p?'✓':'✗'}
+        </button>
+      </td>`;
+    }).join('');
+    return `<tr>
+      <td style="min-width:160px">${a.nombre}</td>
+      ${celdas}
+      <td style="text-align:right;font-size:11px;white-space:nowrap;color:${deuda>0?'var(--red-text)':'var(--green-text)'}">
+        ${deuda>0?'Debe '+fmt(deuda):'✓ Al día'}
+      </td>
+    </tr>`;
+  }).join('');
+
+  const totalPag = als.reduce((s,a)=>s+MESES.filter(m=>a.cuotas[m]).length*CUOTA,0);
+  const totalDeuda = als.reduce((s,a)=>s+MESES.filter(m=>!a.cuotas[m]).length*CUOTA,0);
+  const alDia = als.filter(a=>MESES.every(m=>a.cuotas[m])).length;
+  document.getElementById('stats-cuotas').innerHTML=`
+    <div class="stat-card"><div class="stat-label">Recaudado</div><div class="stat-val val-g">${fmt(totalPag)}</div></div>
+    <div class="stat-card"><div class="stat-label">Pendiente</div><div class="stat-val val-r">${fmt(totalDeuda)}</div></div>
+    <div class="stat-card"><div class="stat-label">Al día</div><div class="stat-val val-b">${alDia}/${als.length}</div></div>
+    <div class="stat-card"><div class="stat-label">Cuota/mes</div><div class="stat-val">${fmt(CUOTA)}</div></div>`;
+}
+
+function toggleCuota(idx, mes){
+  DATA.alumnos[idx].cuotas[mes] = !DATA.alumnos[idx].cuotas[mes];
+  saveLocal(); renderCuotas();
+}
+
+// ── CAJA CHICA ──
+function renderCC(){
+  const als=activos(), pag=als.filter(a=>a.cc).length;
+  document.getElementById('stats-cc').innerHTML=`
+    <div class="stat-card"><div class="stat-label">Recaudado</div><div class="stat-val val-g">${fmt(pag*CUOTA_CC)}</div></div>
+    <div class="stat-card"><div class="stat-label">Pendiente</div><div class="stat-val val-r">${fmt((als.length-pag)*CUOTA_CC)}</div></div>
+    <div class="stat-card"><div class="stat-label">Pagaron</div><div class="stat-val val-b">${pag}/${als.length}</div></div>`;
+  document.getElementById('tbody-cc').innerHTML=als.map(a=>{
+    const idx=DATA.alumnos.indexOf(a);
     return `<tr>
       <td>${a.nombre}</td>
-      <td style="text-align:center"><span class="pill ${a.cc?'pill-p':'pill-d'}" onclick="toggleCC(${idx})">${a.cc?'✓':'✗'}</span></td>
-      <td style="text-align:right;font-size:11px;color:var(--text2)">${a.cc?fmtDate(a.cc_fecha):'Pendiente'}</td></tr>`
-  }).join('')
-}
-function toggleCC(idx) { DATA.alumnos[idx].cc=!DATA.alumnos[idx].cc; DATA.alumnos[idx].cc_fecha=DATA.alumnos[idx].cc?today():null; save(); renderCC() }
-
-// ===== EVENTOS =====
-function renderEventos() {
-  const cont = document.getElementById('lista-eventos')
-  if(!DATA.eventos.length){ cont.innerHTML='<div class="empty">Sin eventos. Crea rifas, paseos u otros cobros con el botón.</div>'; return }
-  cont.innerHTML = DATA.eventos.map(ev => {
-    const als = activos()
-    const pag = als.filter(a=>ev.pagos[a.nombre]).length
-    return `<div class="ev-card">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">
-        <div>
-          <div style="font-weight:500;font-size:14px">${ev.nombre}</div>
-          <div style="font-size:12px;color:var(--text2);margin-top:2px">${fmtDate(ev.fecha)} · ${fmt(ev.monto)} c/u · ${pag}/${als.length} pagaron · ${fmt(pag*ev.monto)} recaudado</div>
-          ${ev.notas?`<div style="font-size:11px;color:var(--text2);margin-top:2px">${ev.notas}</div>`:''}
-        </div>
-        <button class="btn btn-red" style="font-size:11px;padding:3px 9px;flex-shrink:0" onclick="eliminarEvento(${ev.id})">Eliminar</button>
-      </div>
-      <div class="ev-grid">${als.map(a=>`<div class="ev-item ${ev.pagos[a.nombre]?'ev-p':'ev-d'}" onclick="toggleEvPago(${ev.id},'${a.nombre}')"><span>${a.nombre.split(',')[0]}</span><span>${ev.pagos[a.nombre]?'✓':'✗'}</span></div>`).join('')}</div>
-    </div>`
-  }).join('')
-}
-function toggleEvPago(id,n){ const ev=DATA.eventos.find(e=>e.id===id); if(ev){ev.pagos[n]=!ev.pagos[n];save();renderEventos()} }
-function eliminarEvento(id){ if(!confirm('¿Eliminar este evento?'))return; DATA.eventos=DATA.eventos.filter(e=>e.id!==id); save(); renderEventos() }
-function openModalEvento(){ document.getElementById('ev-nombre').value=''; document.getElementById('ev-monto').value=''; document.getElementById('ev-fecha').value=today(); document.getElementById('ev-notas').value=''; document.getElementById('modal-ev').classList.add('open') }
-function guardarEvento(){
-  const nombre=document.getElementById('ev-nombre').value.trim()
-  const monto=parseInt(document.getElementById('ev-monto').value)||0
-  const fecha=document.getElementById('ev-fecha').value
-  const notas=document.getElementById('ev-notas').value.trim()
-  if(!nombre){alert('Ingresa el nombre');return}
-  DATA.eventos.push({id:DATA.nextEv++,nombre,monto,fecha,notas,pagos:Object.fromEntries(activos().map(a=>[a.nombre,false]))})
-  save(); closeModal('modal-ev'); renderEventos()
+      <td style="text-align:center"><button class="pay-btn ${a.cc?'pagado':'pendiente'}" onclick="toggleCC(${idx})">${a.cc?'✓':'✗'}</button></td>
+      <td style="text-align:right;font-size:11px;color:var(--text2)">${a.cc?fmtD(a.cc_fecha):'Pendiente'}</td>
+    </tr>`;
+  }).join('');
 }
 
-// ===== LIBRO DE CAJA =====
-function renderCaja() {
-  const e=DATA.caja.filter(m=>m.tipo==='entrada').reduce((s,m)=>s+m.monto,0)
-  const s=DATA.caja.filter(m=>m.tipo==='salida').reduce((s,m)=>s+m.monto,0)
-  document.getElementById('stats-caja').innerHTML = `
-    <div class="stat"><div class="stat-label">Saldo</div><div class="stat-val ${(e-s)>=0?'val-green':'val-red'}">${fmt(e-s)}</div></div>
-    <div class="stat"><div class="stat-label">Entradas</div><div class="stat-val val-green">${fmt(e)}</div></div>
-    <div class="stat"><div class="stat-label">Salidas</div><div class="stat-val val-red">${fmt(s)}</div></div>
-    <div class="stat"><div class="stat-label">Movimientos</div><div class="stat-val val-blue">${DATA.caja.length}</div></div>`
-  const lista=document.getElementById('lista-caja')
-  if(!DATA.caja.length){lista.innerHTML='<div class="empty">Sin movimientos aún.</div>';return}
-  lista.innerHTML=[...DATA.caja].sort((a,b)=>b.fecha.localeCompare(a.fecha)).map((m,i)=>{
-    const ri=DATA.caja.indexOf(m)
+function toggleCC(idx){
+  DATA.alumnos[idx].cc=!DATA.alumnos[idx].cc;
+  DATA.alumnos[idx].cc_fecha=DATA.alumnos[idx].cc?today():null;
+  saveLocal(); renderCC();
+}
+
+// ── CAJA ──
+function renderCaja(){
+  const caja=DATA.caja||[];
+  const e=caja.filter(m=>m.tipo==='entrada').reduce((s,m)=>s+m.monto,0);
+  const s=caja.filter(m=>m.tipo==='salida').reduce((s,m)=>s+m.monto,0);
+  document.getElementById('stats-caja').innerHTML=`
+    <div class="stat-card"><div class="stat-label">Saldo</div><div class="stat-val ${(e-s)>=0?'val-g':'val-r'}">${fmt(e-s)}</div></div>
+    <div class="stat-card"><div class="stat-label">Entradas</div><div class="stat-val val-g">${fmt(e)}</div></div>
+    <div class="stat-card"><div class="stat-label">Salidas</div><div class="stat-val val-r">${fmt(s)}</div></div>`;
+  const lista=document.getElementById('lista-caja');
+  if(!caja.length){lista.innerHTML='<div class="empty">Sin movimientos.</div>';updateSaldo();return;}
+  lista.innerHTML=[...caja].sort((a,b)=>b.fecha.localeCompare(a.fecha)).map(m=>{
+    const ri=caja.indexOf(m);
     return `<div class="mov-row">
-      <div style="color:var(--text2)">${fmtDate(m.fecha)}</div>
-      <div>${m.desc}<br><span style="font-size:10px;color:var(--text3)">${m.cat}${m.notas?' · '+m.notas:''}</span></div>
-      <div><span class="tipo-badge badge-${m.tipo}">${m.tipo}</span></div>
+      <div style="color:var(--text2);font-size:11px">${fmtD(m.fecha)}</div>
+      <div>${m.desc}<br><span style="font-size:10px;color:var(--text3)">${m.cat||''}</span></div>
+      <div><span class="tipo-badge badge-${m.tipo==='entrada'?'e':'s'}">${m.tipo}</span></div>
       <div style="font-weight:500;color:${m.tipo==='entrada'?'var(--green-text)':'var(--red-text)'}">${m.tipo==='salida'?'−':''}${fmt(m.monto)}</div>
-      <div style="color:var(--text2)">${m.boleta||'—'}</div>
-      <div><button class="del-btn" onclick="eliminarMov(${ri})">✕</button></div></div>`
-  }).join('')
-  updateHeader()
+      <div style="font-size:11px;color:var(--text2)">${m.boleta||'—'}</div>
+      <div><button class="del-btn" onclick="delMov(${ri})">✕</button></div>
+    </div>`;
+  }).join('');
+  updateSaldo();
 }
-function openMovModal(t){ movTipo=t; document.getElementById('mov-title').textContent=t==='entrada'?'Nueva entrada':'Nueva salida'; document.getElementById('mov-fecha').value=today(); ['mov-desc','mov-monto','mov-boleta','mov-notas'].forEach(id=>document.getElementById(id).value=''); document.getElementById('modal-mov').classList.add('open') }
-function guardarMov(){
-  const desc=document.getElementById('mov-desc').value.trim()
-  const monto=parseInt(document.getElementById('mov-monto').value)||0
-  if(!desc||!monto){alert('Completa descripción y monto');return}
-  DATA.caja.push({tipo:movTipo,fecha:document.getElementById('mov-fecha').value,desc,monto,boleta:document.getElementById('mov-boleta').value.trim(),cat:document.getElementById('mov-cat').value,notas:document.getElementById('mov-notas').value.trim()})
-  save(); closeModal('modal-mov'); renderCaja()
-}
-function eliminarMov(i){ if(!confirm('¿Eliminar este movimiento?'))return; DATA.caja.splice(i,1); save(); renderCaja() }
 
-// ===== CUENTA BANCARIA =====
-function renderBanco() {
-  const deps=DATA.banco.filter(m=>m.tipo==='deposito').reduce((s,m)=>s+m.monto,0)
-  const reti=DATA.banco.filter(m=>m.tipo!=='deposito').reduce((s,m)=>s+m.monto,0)
-  const saldoBanco=deps-reti
-  const saldoCaja=DATA.caja.filter(m=>m.tipo==='entrada').reduce((s,m)=>s+m.monto,0)-DATA.caja.filter(m=>m.tipo==='salida').reduce((s,m)=>s+m.monto,0)
-  const diff=saldoBanco-saldoCaja
-  document.getElementById('stats-banco').innerHTML=`
-    <div class="stat"><div class="stat-label">Saldo banco</div><div class="stat-val ${saldoBanco>=0?'val-green':'val-red'}">${fmt(saldoBanco)}</div></div>
-    <div class="stat"><div class="stat-label">Total depósitos</div><div class="stat-val val-green">${fmt(deps)}</div></div>
-    <div class="stat"><div class="stat-label">Total retiros</div><div class="stat-val val-red">${fmt(reti)}</div></div>
-    <div class="stat"><div class="stat-label">Movimientos</div><div class="stat-val val-blue">${DATA.banco.length}</div></div>`
-  const lista=document.getElementById('lista-banco')
-  if(!DATA.banco.length){lista.innerHTML='<div class="empty">Sin movimientos bancarios.</div>'}
-  else {
-    lista.innerHTML=[...DATA.banco].sort((a,b)=>b.fecha.localeCompare(a.fecha)).map((m,i)=>{
-      const ri=DATA.banco.indexOf(m)
-      const esEntrada=m.tipo==='deposito'
-      return `<div class="mov-row" style="grid-template-columns:90px 1fr 110px 90px 90px 32px">
-        <div style="color:var(--text2)">${fmtDate(m.fecha)}</div>
-        <div>${m.desc}${m.notas?`<br><span style="font-size:10px;color:var(--text3)">${m.notas}</span>`:''}</div>
-        <div><span class="tipo-badge ${esEntrada?'badge-entrada':'badge-salida'}">${m.tipo}</span></div>
-        <div style="font-weight:500;color:${esEntrada?'var(--green-text)':'var(--red-text)'}">${esEntrada?'':'-'}${fmt(m.monto)}</div>
-        <div style="color:var(--text2)">${m.op||'—'}</div>
-        <div><button class="del-btn" onclick="eliminarBanco(${ri})">✕</button></div></div>`
-    }).join('')
-  }
-  const bc=document.getElementById('balance-compare')
-  const color=Math.abs(diff)<100?'var(--green-text)':diff>0?'var(--amber-text)':'var(--red-text)'
-  bc.innerHTML=`<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow)">
-    <div style="font-size:12px;font-weight:500;margin-bottom:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.04em">Cuadre de cuentas</div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px">
-      <div><div style="font-size:11px;color:var(--text2)">Saldo libro de caja</div><div style="font-size:18px;font-weight:500;font-family:'DM Mono',monospace;color:${saldoCaja>=0?'var(--green-text)':'var(--red-text)'}">${fmt(saldoCaja)}</div></div>
-      <div><div style="font-size:11px;color:var(--text2)">Saldo banco</div><div style="font-size:18px;font-weight:500;font-family:'DM Mono',monospace;color:${saldoBanco>=0?'var(--green-text)':'var(--red-text)'}">${fmt(saldoBanco)}</div></div>
-      <div><div style="font-size:11px;color:var(--text2)">Diferencia</div><div style="font-size:18px;font-weight:500;font-family:'DM Mono',monospace;color:${color}">${fmt(Math.abs(diff))}</div><div style="font-size:10px;color:var(--text2);margin-top:2px">${Math.abs(diff)<100?'Cuadrado ✓':diff>0?'Banco mayor que caja':'Caja mayor que banco'}</div></div>
-    </div>
-  </div>`
+function openMovModal(tipo){
+  movTipo=tipo;
+  document.getElementById('caja-title').textContent=tipo==='entrada'?'Nueva entrada':'Nueva salida';
+  document.getElementById('c-fecha').value=today();
+  ['c-desc','c-monto','c-boleta'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('modal-caja').classList.add('open');
 }
-function openBancoModal(t){
-  bancoTipo=t
-  const titles={deposito:'Nuevo depósito',retiro:'Nuevo retiro / gasto',transferencia:'Nueva transferencia'}
-  document.getElementById('banco-title').textContent=titles[t]
-  document.getElementById('banco-fecha').value=today()
-  ;['banco-desc','banco-monto','banco-op','banco-saldo','banco-notas'].forEach(id=>document.getElementById(id).value='')
-  document.getElementById('modal-banco').classList.add('open')
+function guardarMov(){
+  const desc=document.getElementById('c-desc').value.trim();
+  const monto=parseInt(document.getElementById('c-monto').value)||0;
+  if(!desc||!monto){alert('Completa descripción y monto');return;}
+  if(!DATA.caja)DATA.caja=[];
+  DATA.caja.push({tipo:movTipo,fecha:document.getElementById('c-fecha').value,desc,monto,boleta:document.getElementById('c-boleta').value.trim(),cat:document.getElementById('c-cat').value});
+  saveLocal();closeModal('modal-caja');renderCaja();
+}
+function delMov(i){if(!confirm('¿Eliminar?'))return;DATA.caja.splice(i,1);saveLocal();renderCaja();}
+
+// ── BANCO ──
+function renderBanco(){
+  const banco=DATA.banco||[], caja=DATA.caja||[];
+  const deps=banco.filter(m=>m.tipo==='deposito').reduce((s,m)=>s+m.monto,0);
+  const reti=banco.filter(m=>m.tipo!=='deposito').reduce((s,m)=>s+m.monto,0);
+  const saldoB=deps-reti;
+  const saldoC=caja.filter(m=>m.tipo==='entrada').reduce((s,m)=>s+m.monto,0)-caja.filter(m=>m.tipo==='salida').reduce((s,m)=>s+m.monto,0);
+  const diff=saldoB-saldoC;
+  document.getElementById('stats-banco').innerHTML=`
+    <div class="stat-card"><div class="stat-label">Saldo banco</div><div class="stat-val ${saldoB>=0?'val-g':'val-r'}">${fmt(saldoB)}</div></div>
+    <div class="stat-card"><div class="stat-label">Depósitos</div><div class="stat-val val-g">${fmt(deps)}</div></div>
+    <div class="stat-card"><div class="stat-label">Retiros</div><div class="stat-val val-r">${fmt(reti)}</div></div>`;
+  const lista=document.getElementById('lista-banco');
+  if(!banco.length){lista.innerHTML='<div class="empty">Sin movimientos bancarios.</div>';}
+  else lista.innerHTML=[...banco].sort((a,b)=>b.fecha.localeCompare(a.fecha)).map(m=>{
+    const ri=banco.indexOf(m);const esE=m.tipo==='deposito';
+    return `<div class="mov-row">
+      <div style="color:var(--text2);font-size:11px">${fmtD(m.fecha)}</div>
+      <div>${m.desc}</div>
+      <div><span class="tipo-badge badge-${esE?'e':'s'}">${m.tipo}</span></div>
+      <div style="font-weight:500;color:${esE?'var(--green-text)':'var(--red-text)'}">${esE?'':'-'}${fmt(m.monto)}</div>
+      <div style="font-size:11px;color:var(--text2)">${m.op||'—'}</div>
+      <div><button class="del-btn" onclick="delBanco(${ri})">✕</button></div>
+    </div>`;
+  }).join('');
+  const color=Math.abs(diff)<100?'var(--green-text)':diff>0?'var(--amber-text)':'var(--red-text)';
+  document.getElementById('cuadre').innerHTML=`
+    <div class="cuadre-box">
+      <div style="font-size:12px;font-weight:500;color:var(--text2);text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px">Cuadre de cuentas</div>
+      <div class="cuadre-grid">
+        <div><div class="ci-label">Libro de caja</div><div class="ci-val" style="color:${saldoC>=0?'var(--green-text)':'var(--red-text)'}">${fmt(saldoC)}</div></div>
+        <div><div class="ci-label">Saldo banco</div><div class="ci-val" style="color:${saldoB>=0?'var(--green-text)':'var(--red-text)'}">${fmt(saldoB)}</div></div>
+        <div><div class="ci-label">Diferencia</div><div class="ci-val" style="color:${color}">${fmt(Math.abs(diff))}</div><div class="ci-note">${Math.abs(diff)<100?'Cuadrado ✓':diff>0?'Banco > Caja':'Caja > Banco'}</div></div>
+      </div>
+    </div>`;
+}
+
+function openBancoModal(tipo){
+  bancoTipo=tipo;
+  document.getElementById('banco-title').textContent=tipo==='deposito'?'Nuevo depósito':'Nuevo retiro';
+  document.getElementById('b-fecha').value=today();
+  ['b-desc','b-monto','b-op'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('modal-banco').classList.add('open');
 }
 function guardarBanco(){
-  const desc=document.getElementById('banco-desc').value.trim()
-  const monto=parseInt(document.getElementById('banco-monto').value)||0
-  if(!desc||!monto){alert('Completa descripción y monto');return}
-  DATA.banco.push({tipo:bancoTipo,fecha:document.getElementById('banco-fecha').value,desc,monto,op:document.getElementById('banco-op').value.trim(),saldo:document.getElementById('banco-saldo').value||null,notas:document.getElementById('banco-notas').value.trim()})
-  save(); closeModal('modal-banco'); renderBanco()
+  const desc=document.getElementById('b-desc').value.trim();
+  const monto=parseInt(document.getElementById('b-monto').value)||0;
+  if(!desc||!monto){alert('Completa descripción y monto');return;}
+  if(!DATA.banco)DATA.banco=[];
+  DATA.banco.push({tipo:bancoTipo,fecha:document.getElementById('b-fecha').value,desc,monto,op:document.getElementById('b-op').value.trim()});
+  saveLocal();closeModal('modal-banco');renderBanco();
 }
-function eliminarBanco(i){ if(!confirm('¿Eliminar?'))return; DATA.banco.splice(i,1); save(); renderBanco() }
+function delBanco(i){if(!confirm('¿Eliminar?'))return;DATA.banco.splice(i,1);saveLocal();renderBanco();}
 
-// ===== ALUMNOS =====
-function renderAlumnos(){
-  document.getElementById('tbody-alumnos').innerHTML=DATA.alumnos.map((a,i)=>`
-    <tr><td style="color:var(--text2)">${i+1}</td>
-    <td>${a.nombre}</td>
-    <td><span class="tag ${a.activo?'tag-active':'tag-retired'}">${a.activo?'Activo':'Retirado'}</span></td>
-    <td style="text-align:right"><button class="btn" style="font-size:11px;padding:3px 9px" onclick="toggleActivo(${i})">${a.activo?'Marcar retirado':'Reactivar'}</button></td></tr>`).join('')
-  updateHeader()
+// ── VISTA PÚBLICA ──
+function setFiltro(f,el){
+  filtro=f;document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');renderPublico();
 }
-function toggleActivo(i){ DATA.alumnos[i].activo=!DATA.alumnos[i].activo; save(); renderAlumnos() }
-function openModalAlumno(){ document.getElementById('al-nombre').value=''; document.getElementById('modal-alumno').classList.add('open') }
-function guardarAlumno(){
-  const nombre=document.getElementById('al-nombre').value.trim()
-  if(!nombre){alert('Ingresa el nombre');return}
-  DATA.alumnos.push({nombre,activo:true,cuotas:Object.fromEntries(MESES.map(m=>[m,false])),cc:false,cc_fecha:null})
-  DATA.eventos.forEach(ev=>{ev.pagos[nombre]=false})
-  save(); closeModal('modal-alumno'); renderAlumnos()
-}
-
-// ===== IMPORT =====
-function openImport(){ document.getElementById('imp-lista').value=''; document.getElementById('imp-resultado').textContent=''; document.getElementById('modal-import').classList.add('open') }
-function procesarImport(){
-  const mes=document.getElementById('imp-mes').value
-  const tipo=document.getElementById('imp-tipo').value
-  const lineas=document.getElementById('imp-lista').value.split('\n').map(l=>l.trim().toLowerCase()).filter(Boolean)
-  let ok=0,nf=[]
-  lineas.forEach(l=>{
-    const al=DATA.alumnos.find(a=>a.activo&&a.nombre.toLowerCase().includes(l))
-    if(al){ if(tipo==='cuota') al.cuotas[mes]=true; else{al.cc=true;if(!al.cc_fecha)al.cc_fecha=today()} ok++ }
-    else nf.push(l)
-  })
-  save()
-  document.getElementById('imp-resultado').textContent=`Marcados: ${ok}.${nf.length?' No encontrados: '+nf.join(', '):' Todo OK ✓'}`
-  if(ok>0&&document.getElementById('tab-cuotas').classList.contains('active')) renderCuotas()
-  if(ok>0&&document.getElementById('tab-caja-chica').classList.contains('active')) renderCC()
-}
-
-// ===== VISTA PÚBLICA =====
-function setFiltro(f,el){ filtroPublico=f; document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active')); el.classList.add('active'); renderPublico() }
 function renderPublico(){
-  document.getElementById('pub-fecha').textContent='Actualizado el '+new Date().toLocaleDateString('es-CL',{day:'numeric',month:'long',year:'numeric'})
-  let als=activos()
-  if(filtroPublico==='al-dia') als=als.filter(a=>MESES.every(m=>a.cuotas[m])&&a.cc)
-  if(filtroPublico==='deuda') als=als.filter(a=>MESES.some(m=>!a.cuotas[m])||!a.cc)
+  if(!DATA)return;
+  document.getElementById('pub-fecha').textContent='Actualizado el '+new Date().toLocaleDateString('es-CL',{day:'numeric',month:'long',year:'numeric'});
+  document.getElementById('pub-loading').style.display='none';
+  let als=activos();
+  if(filtro==='al-dia') als=als.filter(a=>MESES.every(m=>a.cuotas[m])&&a.cc);
+  if(filtro==='deuda') als=als.filter(a=>MESES.some(m=>!a.cuotas[m])||!a.cc);
   document.getElementById('lista-publica').innerHTML=als.map(a=>{
-    const dm=MESES.filter(m=>!a.cuotas[m]).length*CUOTA
-    const dc=a.cc?0:CUOTA_CC
-    const dt=dm+dc
+    const dm=MESES.filter(m=>!a.cuotas[m]).length*CUOTA;
+    const dc=a.cc?0:CUOTA_CC;
+    const dt=dm+dc;
     return `<div class="al-card">
       <div class="al-top">
         <span class="al-nombre">${a.nombre}</span>
@@ -920,14 +611,17 @@ function renderPublico(){
       </div>
       <div class="chips">
         ${MESES.map(m=>`<span class="mc ${a.cuotas[m]?'mc-p':'mc-d'}">${m}</span>`).join('')}
-        <span class="mc ${a.cc?'mc-p':'mc-d'}">Caja chica</span>
-      </div></div>`
-  }).join('')
+        <span class="mc ${a.cc?'mc-p':'mc-d'}">C.Chica</span>
+      </div>
+    </div>`;
+  }).join('')||'<div class="empty">No hay alumnos en esta categoría.</div>';
 }
 
-// Init
-renderCuotas()
-updateHeader()
+// ── INIT ──
+(async()=>{
+  await loadData();
+  renderPublico();
+})();
 </script>
 </body>
 </html>
