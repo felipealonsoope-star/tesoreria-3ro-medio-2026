@@ -47,6 +47,12 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
 #btn-admin:hover{background:var(--surface2)}
 #btn-admin.active{background:var(--text);color:white;border-color:transparent}
 
+/* MÉTRICAS PÚBLICAS */
+.pub-stat{background:rgba(255,255,255,0.15);border-radius:8px;padding:12px 14px;text-align:center}
+.pub-stat-label{font-size:10px;color:rgba(255,255,255,0.75);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;font-weight:500}
+.pub-stat-val{font-size:20px;font-weight:600;color:white;font-family:'DM Mono',monospace}
+.pub-stat-sub{font-size:10px;color:rgba(255,255,255,0.6);margin-top:2px}
+
 /* VISTA PÚBLICA */
 #view-public{padding:16px;max-width:800px;margin:0 auto}
 .pub-banner{background:linear-gradient(135deg,#1a5c38,#2d9e5f);border-radius:var(--radius);padding:18px;text-align:center;margin-bottom:14px;color:white}
@@ -192,7 +198,9 @@ td:first-child{font-size:12px;font-weight:500}
     <div class="pub-banner">
       <h2>Estado de pagos · 3° Medio 2026</h2>
       <p id="pub-fecha">Cargando...</p>
+      <div id="pub-stats" style="display:none;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-top:14px"></div>
     </div>
+
     <div class="filter-bar">
       <button class="filter-btn active" onclick="setFiltro('todos',this)">Todos</button>
       <button class="filter-btn" onclick="setFiltro('al-dia',this)">Al día</button>
@@ -597,24 +605,82 @@ function renderPublico(){
   if(!DATA)return;
   document.getElementById('pub-fecha').textContent='Actualizado el '+new Date().toLocaleDateString('es-CL',{day:'numeric',month:'long',year:'numeric'});
   document.getElementById('pub-loading').style.display='none';
-  let als=activos();
-  if(filtro==='al-dia') als=als.filter(a=>MESES.every(m=>a.cuotas[m])&&a.cc);
-  if(filtro==='deuda') als=als.filter(a=>MESES.some(m=>!a.cuotas[m])||!a.cc);
-  document.getElementById('lista-publica').innerHTML=als.map(a=>{
-    const dm=MESES.filter(m=>!a.cuotas[m]).length*CUOTA;
-    const dc=a.cc?0:CUOTA_CC;
-    const dt=dm+dc;
-    return `<div class="al-card">
-      <div class="al-top">
-        <span class="al-nombre">${a.nombre}</span>
-        <span class="status-badge ${dt===0?'s-ok':'s-debt'}">${dt===0?'Al día':fmt(dt)+' debe'}</span>
-      </div>
-      <div class="chips">
-        ${MESES.map(m=>`<span class="mc ${a.cuotas[m]?'mc-p':'mc-d'}">${m}</span>`).join('')}
-        <span class="mc ${a.cc?'mc-p':'mc-d'}">C.Chica</span>
-      </div>
+
+  // ── MÉTRICAS RESUMEN ──
+  const als = activos();
+  const totalPag = als.reduce((s,a)=>s+MESES.filter(m=>a.cuotas[m]).length*CUOTA,0);
+  const totalDeuda = als.reduce((s,a)=>s+MESES.filter(m=>!a.cuotas[m]).length*CUOTA,0);
+  const alDia = als.filter(a=>MESES.every(m=>a.cuotas[m])&&a.cc).length;
+  const ccPag = als.filter(a=>a.cc).length;
+  const pubStats = document.getElementById('pub-stats');
+  pubStats.style.display = 'grid';
+  pubStats.innerHTML = `
+    <div class="pub-stat">
+      <div class="pub-stat-label">Recaudado</div>
+      <div class="pub-stat-val">${fmt(totalPag)}</div>
+      <div class="pub-stat-sub">cuotas mensuales</div>
+    </div>
+    <div class="pub-stat">
+      <div class="pub-stat-label">Pendiente</div>
+      <div class="pub-stat-val">${fmt(totalDeuda)}</div>
+      <div class="pub-stat-sub">por cobrar</div>
+    </div>
+    <div class="pub-stat">
+      <div class="pub-stat-label">Al día</div>
+      <div class="pub-stat-val">${alDia} / ${als.length}</div>
+      <div class="pub-stat-sub">alumnos</div>
+    </div>
+    <div class="pub-stat">
+      <div class="pub-stat-label">Caja chica</div>
+      <div class="pub-stat-val">${ccPag} / ${als.length}</div>
+      <div class="pub-stat-sub">pagaron</div>
     </div>`;
-  }).join('')||'<div class="empty">No hay alumnos en esta categoría.</div>';
+
+  // ── LISTA ──
+  let lista=als;
+  if(filtro==='al-dia') lista=als.filter(a=>MESES.every(m=>a.cuotas[m])&&a.cc);
+  if(filtro==='deuda') lista=als.filter(a=>MESES.some(m=>!a.cuotas[m])||!a.cc);
+
+  document.getElementById('lista-publica').innerHTML = `
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:auto;box-shadow:var(--shadow)">
+      <table style="width:100%;border-collapse:collapse;min-width:680px">
+        <thead>
+          <tr style="background:var(--surface2)">
+            <th style="padding:9px 12px;text-align:left;font-size:11px;font-weight:500;color:var(--text2);text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid var(--border);white-space:nowrap">Alumno</th>
+            ${MESES.map(m=>`<th style="padding:9px 7px;text-align:center;font-size:11px;font-weight:500;color:var(--text2);text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid var(--border)">${m}</th>`).join('')}
+            <th style="padding:9px 7px;text-align:center;font-size:11px;font-weight:500;color:var(--text2);text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid var(--border)">C.C.</th>
+            <th style="padding:9px 12px;text-align:right;font-size:11px;font-weight:500;color:var(--text2);text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid var(--border)">Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${lista.map(a=>{
+            const dm=MESES.filter(m=>!a.cuotas[m]).length*CUOTA;
+            const dc=a.cc?0:CUOTA_CC;
+            const dt=dm+dc;
+            const meses = MESES.map(m=>`
+              <td style="text-align:center;padding:5px 4px;border-bottom:1px solid var(--border)">
+                <span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:20px;border-radius:4px;font-size:11px;font-weight:600;background:${a.cuotas[m]?'var(--green-bg)':'var(--red-bg)'};color:${a.cuotas[m]?'var(--green-text)':'var(--red-text)'}">
+                  ${a.cuotas[m]?'✓':'✗'}
+                </span>
+              </td>`).join('');
+            return `<tr style="border-bottom:1px solid var(--border)">
+              <td style="padding:7px 12px;font-weight:500;font-size:12px;white-space:nowrap">${a.nombre}</td>
+              ${meses}
+              <td style="text-align:center;padding:5px 4px;border-bottom:1px solid var(--border)">
+                <span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:20px;border-radius:4px;font-size:11px;font-weight:600;background:${a.cc?'var(--green-bg)':'var(--red-bg)'};color:${a.cc?'var(--green-text)':'var(--red-text)'}">
+                  ${a.cc?'✓':'✗'}
+                </span>
+              </td>
+              <td style="text-align:right;padding:7px 12px;white-space:nowrap">
+                <span style="font-size:11px;padding:3px 9px;border-radius:10px;font-weight:500;background:${dt===0?'var(--green-bg)':'var(--red-bg)'};color:${dt===0?'var(--green-text)':'var(--red-text)'}">
+                  ${dt===0?'Al día':fmt(dt)+' debe'}
+                </span>
+              </td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>` || '<div class="empty">No hay alumnos en esta categoría.</div>';
 }
 
 // ── INIT ──
