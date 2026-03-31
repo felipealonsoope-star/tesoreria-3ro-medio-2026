@@ -419,6 +419,16 @@ td:first-child{font-weight:500}
 
   <!-- ADMIN AVISOS -->
   <div id="as-avisos" class="admin-section">
+    <!-- Exportar Excel -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:16px;box-shadow:var(--shadow);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+      <div>
+        <div style="font-size:13px;font-weight:600;margin-bottom:3px">📊 Exportar respaldo Excel</div>
+        <div style="font-size:12px;color:var(--text2)">Descarga todas las hojas: Cuotas, Gira, Ex UF, Libro de caja y Banco.</div>
+      </div>
+      <button onclick="exportarExcel()" class="btn btn-primary" style="font-size:13px;padding:10px 20px;flex-shrink:0">
+        📊 Descargar Excel
+      </button>
+    </div>
     <!-- Configuración saldo anterior -->
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:16px;box-shadow:var(--shadow)">
       <div style="font-size:12px;font-weight:600;margin-bottom:4px">💰 Saldo acumulado años anteriores</div>
@@ -572,9 +582,20 @@ async function loadData(){
       const r = await fetch(API_URL+'?t='+Date.now());
       const j = await r.json();
       if(j.ok){
-        // Mezcla datos del Sheet con eventos/avisos locales (no están en el Sheet aún)
+        // Datos que vienen del Sheet (fuente de verdad)
+        // Datos locales solo para: gira, exuf, eventos, avisos (aún no están en Sheet)
         const local = loadLocal() || {};
-        DATA = { ...j.data, eventos: local.eventos||[], avisos: local.avisos||[], gira: local.gira||[], exuf: local.exuf||[], nextEv: local.nextEv||1, nextAv: local.nextAv||1 };
+        DATA = {
+          alumnos: j.data.alumnos,   // siempre del Sheet
+          caja:    j.data.caja,       // siempre del Sheet
+          banco:   j.data.banco,      // siempre del Sheet
+          gira:    local.gira   || [],
+          exuf:    local.exuf   || [],
+          eventos: local.eventos|| [],
+          avisos:  local.avisos || [],
+          nextEv:  local.nextEv || 1,
+          nextAv:  local.nextAv || 1
+        };
         saveLocal(); return;
       }
     }catch(e){ console.log('API no disponible, usando local'); }
@@ -584,8 +605,15 @@ async function loadData(){
 
 async function api(body){
   if(!API_URL) return;
-  try{ fetch(API_URL,{method:'POST',body:JSON.stringify({key:ADMIN_PASSWORD,...body})}); }
-  catch(e){ console.log('sync error',e); }
+  try{
+    // Apps Script requiere no-cors para POST desde browser externo
+    await fetch(API_URL, {
+      method:'POST',
+      mode:'no-cors',
+      headers:{'Content-Type':'text/plain'},
+      body: JSON.stringify({key:ADMIN_PASSWORD,...body})
+    });
+  } catch(e){ console.log('sync error:',e); }
 }
 
 // ── TABS PÚBLICOS ──
@@ -1246,24 +1274,32 @@ function renderGiraAdmin(){
 
   document.getElementById('tbody-gira').innerHTML=als.map(a=>{
     const g=getGiraAlumno(a.nombre);
-    const idx=DATA.alumnos.indexOf(DATA.alumnos.find(x=>x.nombre===a.nombre));
     const gi=DATA.gira.indexOf(g);
     const mesBtn=MESES_GIRA.map(m=>{
       const dis=!g.inscrito||g.pagoTotal;
+      if(dis){
+        // Muestra píldora visual (no botón) cuando no aplica
+        const color = g.pagoTotal ? 'pill-p' : 'pill-d';
+        const sym   = g.pagoTotal ? '✓' : '—';
+        return `<td style="text-align:center;padding:4px 5px"><span class="pill ${color}" style="opacity:.4">${sym}</span></td>`;
+      }
       return `<td style="text-align:center;padding:4px 5px">
-        <button class="pay-btn ${g.cuotas[m]?'pagado':'pendiente'}" ${dis?'disabled style="opacity:.35;cursor:not-allowed"':''} onclick="toggleGiraCuota(${gi},'${m}')">
+        <button class="pay-btn ${g.cuotas[m]?'pagado':'pendiente'}" onclick="toggleGiraCuota(${gi},'${m}')">
           ${g.cuotas[m]?'✓':'✗'}
         </button></td>`;
     }).join('');
-    const rec=g.pagoTotal?CUOTA_GIRA_TOTAL:MESES_GIRA.filter(m=>g.cuotas[m]).length*CUOTA_GIRA;
     const pend=g.pagoTotal?0:(MESES_GIRA.length-MESES_GIRA.filter(m=>g.cuotas[m]).length)*CUOTA_GIRA;
     return `<tr style="${!g.inscrito?'opacity:.5':''}">
       <td style="min-width:160px">${a.nombre}</td>
       <td style="text-align:center"><button class="pay-btn ${g.inscrito?'pagado':'pendiente'}" onclick="toggleGiraInscrito(${gi})">${g.inscrito?'✓':'✗'}</button></td>
       <td style="text-align:center"><button class="pay-btn ${g.pagoTotal?'pagado':'pendiente'}" ${!g.inscrito?'disabled style="opacity:.35;cursor:not-allowed"':''} onclick="toggleGiraPagoTotal(${gi})">${g.pagoTotal?'✓':'✗'}</button></td>
       ${mesBtn}
-      <td style="text-align:right;font-size:11px;white-space:nowrap;color:${!g.inscrito?'var(--text3)':pend>0?'var(--red-text)':'var(--green-text)'}">
-        ${!g.inscrito?'No inscrito':pend>0?'Debe '+fmt(pend):'✓ Al día'}
+      <td style="text-align:right;padding:6px 10px">
+        ${!g.inscrito
+          ? '<span style="font-size:11px;color:var(--text3)">No inscrito</span>'
+          : pend>0
+            ? `<span class="badge badge-debt">Debe ${fmt(pend)}</span>`
+            : '<span class="badge badge-ok">✓ Al día</span>'}
       </td>
     </tr>`;
   }).join('');
