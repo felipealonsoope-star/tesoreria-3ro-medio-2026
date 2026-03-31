@@ -589,10 +589,10 @@ async function loadData(){
           alumnos: j.data.alumnos,   // siempre del Sheet
           caja:    j.data.caja,       // siempre del Sheet
           banco:   j.data.banco,      // siempre del Sheet
-          gira:    local.gira   || [],
-          exuf:    local.exuf   || [],
-          eventos: local.eventos|| [],
-          avisos:  local.avisos || [],
+          gira:    j.data.gira   || [],  // ahora del Sheet
+          exuf:    j.data.exuf   || [],  // ahora del Sheet
+          eventos: local.eventos|| [],   // aún local
+          avisos:  local.avisos || [],   // aún local
           nextEv:  local.nextEv || 1,
           nextAv:  local.nextAv || 1
         };
@@ -1310,17 +1310,20 @@ function toggleGiraInscrito(gi){
   DATA.gira[gi].inscrito=!DATA.gira[gi].inscrito;
   if(!DATA.gira[gi].inscrito){ DATA.gira[gi].pagoTotal=false; MESES_GIRA.forEach(m=>DATA.gira[gi].cuotas[m]=false); }
   saveLocal(); renderGiraAdmin();
+  api({accion:'toggleGiraInscrito', nombre:DATA.gira[gi].nombre, valor:DATA.gira[gi].inscrito});
 }
 function toggleGiraPagoTotal(gi){
   ensureGira();
   DATA.gira[gi].pagoTotal=!DATA.gira[gi].pagoTotal;
   if(DATA.gira[gi].pagoTotal) MESES_GIRA.forEach(m=>DATA.gira[gi].cuotas[m]=false);
   saveLocal(); renderGiraAdmin();
+  api({accion:'toggleGiraPagoTotal', nombre:DATA.gira[gi].nombre, valor:DATA.gira[gi].pagoTotal});
 }
 function toggleGiraCuota(gi,mes){
   ensureGira();
   DATA.gira[gi].cuotas[mes]=!DATA.gira[gi].cuotas[mes];
   saveLocal(); renderGiraAdmin();
+  api({accion:'toggleGiraCuota', nombre:DATA.gira[gi].nombre, mes, valor:DATA.gira[gi].cuotas[mes]});
 }
 function ensureGira(){ if(!DATA.gira) DATA.gira=[]; }
 
@@ -1401,6 +1404,7 @@ function toggleExUF(ei,mes){
   if(!DATA.exuf) DATA.exuf=[];
   DATA.exuf[ei].cuotas[mes]=!DATA.exuf[ei].cuotas[mes];
   saveLocal(); renderExUFAdmin();
+  api({accion:'toggleExUF', nombre:DATA.exuf[ei].nombre, mes, valor:DATA.exuf[ei].cuotas[mes]});
 }
 
 function renderExUFPublica(){
