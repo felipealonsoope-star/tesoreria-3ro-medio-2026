@@ -248,6 +248,8 @@ td:first-child{font-weight:500}
   <button class="pub-tab active" onclick="setPubTab('pagos',this)">Estado de pagos</button>
   <button class="pub-tab" onclick="setPubTab('caja',this)">Libro de caja</button>
   <button class="pub-tab" onclick="setPubTab('banco',this)">Banco</button>
+  <button class="pub-tab" onclick="setPubTab('gira',this)">Gira de estudios</button>
+  <button class="pub-tab" onclick="setPubTab('exuf',this)">Ex UF</button>
   <button class="pub-tab" onclick="setPubTab('eventos',this)">Rifas y eventos</button>
   <button class="pub-tab" onclick="setPubTab('avisos',this)">Avisos</button>
 </div>
@@ -296,6 +298,23 @@ td:first-child{font-weight:500}
     <div id="pub-eventos-lista"><div class="empty">No hay rifas ni eventos registrados.</div></div>
   </div>
 
+  <div id="pub-gira" class="pub-section">
+    <div class="stats-row" id="pub-gira-stats"></div>
+    <div class="table-wrap" style="margin-top:12px">
+      <table><thead><tr id="thead-gira-pub"></tr></thead><tbody id="tbody-gira-pub"></tbody></table>
+    </div>
+  </div>
+
+  <div id="pub-exuf" class="pub-section">
+    <div class="stats-row" id="pub-exuf-stats"></div>
+    <div class="table-wrap" style="margin-top:12px">
+      <table style="min-width:400px">
+        <thead><tr><th>Alumno</th><th style="text-align:center">Mayo</th><th style="text-align:center">Julio</th><th style="text-align:right">Estado</th></tr></thead>
+        <tbody id="tbody-exuf-pub"></tbody>
+      </table>
+    </div>
+  </div>
+
   <!-- AVISOS PÚBLICOS -->
   <div id="pub-avisos" class="pub-section">
     <div id="pub-avisos-lista"><div class="empty">No hay avisos por ahora.</div></div>
@@ -307,11 +326,14 @@ td:first-child{font-weight:500}
 <div id="view-admin">
   <div class="admin-banner">
     <div><h2>Panel de tesorero 🔐</h2><p>Los apoderados no ven esta vista</p></div>
+    <button onclick="exportarExcel()" style="padding:6px 14px;background:white;color:#1a1917;border:none;border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif">📊 Exportar Excel</button>
     <button class="btn" style="font-size:11px;padding:4px 10px" onclick="logoutAdmin()">Salir</button>
   </div>
   <div class="admin-tabs">
     <button class="admin-tab active" onclick="switchAdminTab('cuotas',this)">Cuotas</button>
     <button class="admin-tab" onclick="switchAdminTab('caja-chica',this)">Caja chica</button>
+    <button class="admin-tab" onclick="switchAdminTab('gira',this)">Gira</button>
+    <button class="admin-tab" onclick="switchAdminTab('exuf',this)">Ex UF</button>
     <button class="admin-tab" onclick="switchAdminTab('caja',this)">Libro caja</button>
     <button class="admin-tab" onclick="switchAdminTab('banco',this)">Banco</button>
     <button class="admin-tab" onclick="switchAdminTab('eventos',this)">Eventos</button>
@@ -358,6 +380,7 @@ td:first-child{font-weight:500}
     <div class="toolbar">
       <button class="btn btn-green" onclick="openBancoModal('deposito')">+ Depósito</button>
       <button class="btn btn-red" onclick="openBancoModal('retiro')">− Retiro</button>
+      <button class="btn" style="background:var(--amber-bg);color:var(--amber-text);border-color:#f5d79e" onclick="openBancoModal('giro')">↗ Giro</button>
     </div>
     <div class="table-card">
       <div class="mov-head"><div>Fecha</div><div>Descripción</div><div>Tipo</div><div>Monto</div><div>N° Op.</div><div></div></div>
@@ -367,7 +390,27 @@ td:first-child{font-weight:500}
   </div>
 
   <!-- ADMIN EVENTOS -->
-  <div id="as-eventos" class="admin-section">
+  <div id="as-gira" class="admin-section">
+    <div class="stats-row" id="stats-gira"></div>
+    <div class="info-box">
+      Gira de estudios — 36 alumnos. Cuota mensual <strong>$12.600</strong> (Mar–Dic) o pago único <strong>$126.000</strong>.
+      Primero marca quién participa (Inscrito), luego registra sus pagos.
+    </div>
+    <div class="table-wrap">
+      <table><thead><tr id="thead-gira"></tr></thead><tbody id="tbody-gira"></tbody></table>
+    </div>
+  </div>
+
+  <div id="as-exuf" class="admin-section">
+    <div class="stats-row" id="stats-exuf"></div>
+    <div class="info-box">Ex UF — todos los 38 alumnos. Dos cuotas de <strong>$9.000</strong> en Mayo y Julio.</div>
+    <div class="table-wrap">
+      <table style="min-width:400px">
+        <thead><tr><th>Alumno</th><th style="text-align:center">Mayo</th><th style="text-align:center">Julio</th><th style="text-align:right">Estado</th></tr></thead>
+        <tbody id="tbody-exuf"></tbody>
+      </table>
+    </div>
+  </div>
     <div class="toolbar">
       <button class="btn btn-primary" onclick="openModalEvento()">+ Nuevo evento / rifa</button>
     </div>
@@ -477,31 +520,50 @@ const activos = () => (DATA?.alumnos||[]).filter(a=>a.activo);
 function saveLocal(){ try{localStorage.setItem(KEY,JSON.stringify(DATA));}catch(e){} }
 function loadLocal(){ try{const d=localStorage.getItem(KEY);if(d)return JSON.parse(d);}catch(e){} return null; }
 
+const MESES_GIRA = ['Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+const CUOTA_GIRA = 12600;
+const CUOTA_GIRA_TOTAL = 126000;
+const MESES_EXUF = ['May','Jul'];
+const CUOTA_EXUF = 9000;
+
 function initData(){
-  return {
-    alumnos:[
-      'Arenas Arenas, Santiago Andrés','Arriaza Martínez, Eloísa Consuelo',
-      'Ávila Urra, Carla María','Ávila Urra, Ricardo Mariano',
-      'Cárcamo Merino, Renata Carolina','Chávez Silva, Anastasia Antonella',
-      'Córdova González, Agustín Mateo','Díaz Briones, Diego Iván',
-      'Donoso Ulloa, Agustín Emilio','Fuenzalida Muñoz, Pía Ignacia',
-      'Gálvez Cofré, Benjamín Ignacio','Gálvez López, Víctor Ignacio',
-      'Gutiérrez Gutiérrez, Yuliana De Los Ángeles','Hanus Toro, Diego Gastón',
-      'Lobos Irarrázabal, Matilde Josefa','Miranda Mora, Máximo Aquiles',
-      'Mita Porco, Karen Nicol','Mujica Zúñiga, María Ignacia',
-      'Muñoz Aguirre, Bastián Javier','Núñez González, Tomás Ignacio',
-      'Osorio Lara, Emilia Magdalena','Osorio Rubio, Josefa Trinidad',
-      'Palominos Donoso, Josefina Ignacia','Paredes Parra, Franco Julián',
-      'Plaza Muñoz, Sofía Ignacia','Ramírez Lleuful, Guillermo Nicolás',
-      'Riquelme Rivera, Ary Jesús','Rivera Orellana, Bruno Ignacio',
-      'Riveros Maulén, Sebastián Felipe','Rojas Cáceres, Felipe Alonso',
-      'Salazar Lucero, Anastasia De La Paz','Sánchez Paredes, Emilia Anastasia',
-      'Sepúlveda González, Maximiliano Alfonso','Tapia Monsalve, Sebastián Antonio',
-      'Ugalde Fuentes, Amanda Lucía','Urra Riquelme, José Tomás',
-      'Valderrama Garriga, Maximiliano Alexander','Vergara Licán, Renato Agustín'
-    ].map(n=>({nombre:n,activo:true,cuotas:Object.fromEntries(MESES.map(m=>[m,false])),cc:false,cc_fecha:null})),
-    caja:[], banco:[], eventos:[], avisos:[], nextEv:1, nextAv:1
-  };
+  const alumnos = [
+    'Arenas Arenas, Santiago Andrés','Arriaza Martínez, Eloísa Consuelo',
+    'Ávila Urra, Carla María','Ávila Urra, Ricardo Mariano',
+    'Cárcamo Merino, Renata Carolina','Chávez Silva, Anastasia Antonella',
+    'Córdova González, Agustín Mateo','Díaz Briones, Diego Iván',
+    'Donoso Ulloa, Agustín Emilio','Fuenzalida Muñoz, Pía Ignacia',
+    'Gálvez Cofré, Benjamín Ignacio','Gálvez López, Víctor Ignacio',
+    'Gutiérrez Gutiérrez, Yuliana De Los Ángeles','Hanus Toro, Diego Gastón',
+    'Lobos Irarrázabal, Matilde Josefa','Miranda Mora, Máximo Aquiles',
+    'Mita Porco, Karen Nicol','Mujica Zúñiga, María Ignacia',
+    'Muñoz Aguirre, Bastián Javier','Núñez González, Tomás Ignacio',
+    'Osorio Lara, Emilia Magdalena','Osorio Rubio, Josefa Trinidad',
+    'Palominos Donoso, Josefina Ignacia','Paredes Parra, Franco Julián',
+    'Plaza Muñoz, Sofía Ignacia','Ramírez Lleuful, Guillermo Nicolás',
+    'Riquelme Rivera, Ary Jesús','Rivera Orellana, Bruno Ignacio',
+    'Riveros Maulén, Sebastián Felipe','Rojas Cáceres, Felipe Alonso',
+    'Salazar Lucero, Anastasia De La Paz','Sánchez Paredes, Emilia Anastasia',
+    'Sepúlveda González, Maximiliano Alfonso','Tapia Monsalve, Sebastián Antonio',
+    'Ugalde Fuentes, Amanda Lucía','Urra Riquelme, José Tomás',
+    'Valderrama Garriga, Maximiliano Alexander','Vergara Licán, Renato Agustín'
+  ].map(n=>({nombre:n,activo:true,cuotas:Object.fromEntries(MESES.map(m=>[m,false])),cc:false,cc_fecha:null}));
+
+  // Gira: todos los alumnos, por defecto ninguno inscrito
+  const gira = alumnos.map(a=>({
+    nombre:a.nombre,
+    inscrito:false,           // si participa en la gira
+    pagoTotal:false,          // pagó de una vez $126.000
+    cuotas:Object.fromEntries(MESES_GIRA.map(m=>[m,false]))
+  }));
+
+  // ExUF: todos los alumnos
+  const exuf = alumnos.map(a=>({
+    nombre:a.nombre,
+    cuotas:Object.fromEntries(MESES_EXUF.map(m=>[m,false]))
+  }));
+
+  return { alumnos, caja:[], banco:[], eventos:[], avisos:[], gira, exuf, nextEv:1, nextAv:1 };
 }
 
 async function loadData(){
@@ -512,7 +574,7 @@ async function loadData(){
       if(j.ok){
         // Mezcla datos del Sheet con eventos/avisos locales (no están en el Sheet aún)
         const local = loadLocal() || {};
-        DATA = { ...j.data, eventos: local.eventos||[], avisos: local.avisos||[], nextEv: local.nextEv||1, nextAv: local.nextAv||1 };
+        DATA = { ...j.data, eventos: local.eventos||[], avisos: local.avisos||[], gira: local.gira||[], exuf: local.exuf||[], nextEv: local.nextEv||1, nextAv: local.nextAv||1 };
         saveLocal(); return;
       }
     }catch(e){ console.log('API no disponible, usando local'); }
@@ -535,6 +597,8 @@ function setPubTab(tab, el){
   if(tab==='pagos') renderPagos();
   if(tab==='caja') renderCajaPublica();
   if(tab==='banco') renderBancoPublico();
+  if(tab==='gira') renderGiraPublica();
+  if(tab==='exuf') renderExUFPublica();
   if(tab==='eventos') renderEventosPublicos();
   if(tab==='avisos') renderAvisosPublicos();
 }
@@ -586,7 +650,7 @@ function switchAdminTab(tab,el){
   document.querySelectorAll('.admin-section').forEach(s=>s.classList.remove('active'));
   el.classList.add('active');
   document.getElementById('as-'+tab).classList.add('active');
-  const m={cuotas:renderCuotas,'caja-chica':renderCC,caja:renderCajaAdmin,banco:renderBancoAdmin,eventos:renderEventosAdmin,avisos:renderAvisosAdmin};
+  const m={cuotas:renderCuotas,'caja-chica':renderCC,gira:renderGiraAdmin,exuf:renderExUFAdmin,caja:renderCajaAdmin,banco:renderBancoAdmin,eventos:renderEventosAdmin,avisos:renderAvisosAdmin};
   if(m[tab]) m[tab]();
 }
 function renderAdmin(){ renderCuotas(); updateSaldo(); }
@@ -642,7 +706,18 @@ function renderPagos(){
     const pagaron = als.filter(a=>ev.pagos&&ev.pagos[a.nombre]).length;
     return s + pagaron * (ev.monto||0);
   }, 0);
-  const totalDisponible = saldoAnterior + cuotasRec + ccRec + rifasRec;
+  // Gira: suma cuotas pagadas + pagos totales
+  const giraRec = (DATA.gira||[]).filter(g=>g.inscrito).reduce((s,g)=>{
+    if(g.pagoTotal) return s + CUOTA_GIRA_TOTAL;
+    return s + MESES_GIRA.filter(m=>g.cuotas[m]).length * CUOTA_GIRA;
+  }, 0);
+  // ExUF: suma cuotas pagadas
+  const exufRec = (DATA.exuf||[]).reduce((s,e)=>{
+    return s + MESES_EXUF.filter(m=>e.cuotas[m]).length * CUOTA_EXUF;
+  }, 0);
+  // Giros bancarios: se descuentan del total
+  const girosBancarios = (DATA.banco||[]).filter(m=>m.tipo==='giro').reduce((s,m)=>s+m.monto,0);
+  const totalDisponible = saldoAnterior + cuotasRec + ccRec + rifasRec + giraRec + exufRec - girosBancarios;
 
   const histEl = document.getElementById('pub-historico');
   if(histEl){
@@ -653,6 +728,9 @@ function renderPagos(){
         <div class="pub-stat"><div class="pub-stat-label">Cuotas 2026</div><div class="pub-stat-val">${fmt(cuotasRec)}</div><div class="pub-stat-sub">recaudado</div></div>
         <div class="pub-stat"><div class="pub-stat-label">Caja chica</div><div class="pub-stat-val">${fmt(ccRec)}</div><div class="pub-stat-sub">recaudado</div></div>
         ${rifasRec>0?`<div class="pub-stat"><div class="pub-stat-label">Rifas/eventos</div><div class="pub-stat-val">${fmt(rifasRec)}</div><div class="pub-stat-sub">recaudado</div></div>`:''}
+        ${giraRec>0?`<div class="pub-stat"><div class="pub-stat-label">Gira estudios</div><div class="pub-stat-val">${fmt(giraRec)}</div><div class="pub-stat-sub">recaudado</div></div>`:''}
+        ${exufRec>0?`<div class="pub-stat"><div class="pub-stat-label">Ex UF</div><div class="pub-stat-val">${fmt(exufRec)}</div><div class="pub-stat-sub">recaudado</div></div>`:''}
+        ${girosBancarios>0?`<div class="pub-stat" style="background:rgba(253,236,234,0.4)"><div class="pub-stat-label">↗ Giros banco</div><div class="pub-stat-val" style="font-size:16px;color:#ffccc4">−${fmt(girosBancarios)}</div><div class="pub-stat-sub">retirado</div></div>`:''}
         <div class="pub-stat" style="background:rgba(255,255,255,0.22)"><div class="pub-stat-label">💰 Total disponible</div><div class="pub-stat-val" style="font-size:${totalDisponible>=1000000?'17px':'22px'}">${fmt(totalDisponible)}</div><div class="pub-stat-sub">fondo total del curso</div></div>
       </div>`;
   }
@@ -1001,7 +1079,8 @@ function renderBancoAdmin(){
 }
 function openBancoModal(tipo){
   bancoTipo=tipo;
-  document.getElementById('banco-title').textContent=tipo==='deposito'?'Nuevo depósito':'Nuevo retiro';
+  const titulos={deposito:'Nuevo depósito',retiro:'Nuevo retiro',giro:'Nuevo giro bancario'};
+  document.getElementById('banco-title').textContent=titulos[tipo]||'Nuevo movimiento';
   document.getElementById('b-fecha').value=today();
   ['b-desc','b-monto','b-op'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('modal-banco').classList.add('open');
@@ -1130,6 +1209,269 @@ function eliminarAviso(id){
   if(!confirm('¿Eliminar este aviso?'))return;
   DATA.avisos=DATA.avisos.filter(a=>a.id!==id);
   saveLocal();renderAvisosAdmin();
+}
+
+// ══════════════════════════════════════════
+// ══════════════════════════════════════════
+// GIRA DE ESTUDIOS
+// ══════════════════════════════════════════
+function getGiraAlumno(nombre){
+  if(!DATA.gira) DATA.gira=[];
+  let g=DATA.gira.find(x=>x.nombre===nombre);
+  if(!g){
+    g={nombre,inscrito:false,pagoTotal:false,cuotas:Object.fromEntries(MESES_GIRA.map(m=>[m,false]))};
+    DATA.gira.push(g);
+  }
+  return g;
+}
+
+function renderGiraAdmin(){
+  const als=activos();
+  const giraData=als.map(a=>getGiraAlumno(a.nombre));
+  const inscritos=giraData.filter(g=>g.inscrito);
+  const recTotal=inscritos.filter(g=>g.pagoTotal).length*CUOTA_GIRA_TOTAL;
+  const recMensual=inscritos.filter(g=>!g.pagoTotal).reduce((s,g)=>s+MESES_GIRA.filter(m=>g.cuotas[m]).length*CUOTA_GIRA,0);
+  const rec=recTotal+recMensual;
+  const pendTotal=inscritos.filter(g=>!g.pagoTotal).reduce((s,g)=>s+(MESES_GIRA.length-MESES_GIRA.filter(m=>g.cuotas[m]).length)*CUOTA_GIRA,0);
+
+  document.getElementById('stats-gira').innerHTML=`
+    <div class="stat-card"><div class="stat-label">Inscritos</div><div class="stat-val val-b">${inscritos.length}/${als.length}</div></div>
+    <div class="stat-card"><div class="stat-label">Recaudado</div><div class="stat-val val-g">${fmt(rec)}</div></div>
+    <div class="stat-card"><div class="stat-label">Pendiente</div><div class="stat-val val-r">${fmt(pendTotal)}</div></div>
+    <div class="stat-card"><div class="stat-label">Cuota</div><div class="stat-val">${fmt(CUOTA_GIRA)}/mes</div></div>`;
+
+  const thead=document.getElementById('thead-gira');
+  thead.innerHTML='<th>Alumno</th><th style="text-align:center">Inscrito</th><th style="text-align:center">Pago total<br><small style="font-weight:400;color:var(--text2)">$126.000</small></th>'
+    +MESES_GIRA.map(m=>`<th style="text-align:center">${m}</th>`).join('')+'<th style="text-align:right">Estado</th>';
+
+  document.getElementById('tbody-gira').innerHTML=als.map(a=>{
+    const g=getGiraAlumno(a.nombre);
+    const idx=DATA.alumnos.indexOf(DATA.alumnos.find(x=>x.nombre===a.nombre));
+    const gi=DATA.gira.indexOf(g);
+    const mesBtn=MESES_GIRA.map(m=>{
+      const dis=!g.inscrito||g.pagoTotal;
+      return `<td style="text-align:center;padding:4px 5px">
+        <button class="pay-btn ${g.cuotas[m]?'pagado':'pendiente'}" ${dis?'disabled style="opacity:.35;cursor:not-allowed"':''} onclick="toggleGiraCuota(${gi},'${m}')">
+          ${g.cuotas[m]?'✓':'✗'}
+        </button></td>`;
+    }).join('');
+    const rec=g.pagoTotal?CUOTA_GIRA_TOTAL:MESES_GIRA.filter(m=>g.cuotas[m]).length*CUOTA_GIRA;
+    const pend=g.pagoTotal?0:(MESES_GIRA.length-MESES_GIRA.filter(m=>g.cuotas[m]).length)*CUOTA_GIRA;
+    return `<tr style="${!g.inscrito?'opacity:.5':''}">
+      <td style="min-width:160px">${a.nombre}</td>
+      <td style="text-align:center"><button class="pay-btn ${g.inscrito?'pagado':'pendiente'}" onclick="toggleGiraInscrito(${gi})">${g.inscrito?'✓':'✗'}</button></td>
+      <td style="text-align:center"><button class="pay-btn ${g.pagoTotal?'pagado':'pendiente'}" ${!g.inscrito?'disabled style="opacity:.35;cursor:not-allowed"':''} onclick="toggleGiraPagoTotal(${gi})">${g.pagoTotal?'✓':'✗'}</button></td>
+      ${mesBtn}
+      <td style="text-align:right;font-size:11px;white-space:nowrap;color:${!g.inscrito?'var(--text3)':pend>0?'var(--red-text)':'var(--green-text)'}">
+        ${!g.inscrito?'No inscrito':pend>0?'Debe '+fmt(pend):'✓ Al día'}
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function toggleGiraInscrito(gi){
+  ensureGira();
+  DATA.gira[gi].inscrito=!DATA.gira[gi].inscrito;
+  if(!DATA.gira[gi].inscrito){ DATA.gira[gi].pagoTotal=false; MESES_GIRA.forEach(m=>DATA.gira[gi].cuotas[m]=false); }
+  saveLocal(); renderGiraAdmin();
+}
+function toggleGiraPagoTotal(gi){
+  ensureGira();
+  DATA.gira[gi].pagoTotal=!DATA.gira[gi].pagoTotal;
+  if(DATA.gira[gi].pagoTotal) MESES_GIRA.forEach(m=>DATA.gira[gi].cuotas[m]=false);
+  saveLocal(); renderGiraAdmin();
+}
+function toggleGiraCuota(gi,mes){
+  ensureGira();
+  DATA.gira[gi].cuotas[mes]=!DATA.gira[gi].cuotas[mes];
+  saveLocal(); renderGiraAdmin();
+}
+function ensureGira(){ if(!DATA.gira) DATA.gira=[]; }
+
+function renderGiraPublica(){
+  if(!DATA) return;
+  const als=activos();
+  const giraData=als.map(a=>getGiraAlumno(a.nombre));
+  const inscritos=giraData.filter(g=>g.inscrito);
+  const rec=inscritos.filter(g=>g.pagoTotal).length*CUOTA_GIRA_TOTAL
+           +inscritos.filter(g=>!g.pagoTotal).reduce((s,g)=>s+MESES_GIRA.filter(m=>g.cuotas[m]).length*CUOTA_GIRA,0);
+  const pend=inscritos.filter(g=>!g.pagoTotal).reduce((s,g)=>s+(MESES_GIRA.length-MESES_GIRA.filter(m=>g.cuotas[m]).length)*CUOTA_GIRA,0);
+  const alDia=inscritos.filter(g=>g.pagoTotal||MESES_GIRA.every(m=>g.cuotas[m])).length;
+
+  document.getElementById('pub-gira-stats').innerHTML=`
+    <div class="stat-card"><div class="stat-label">Inscritos</div><div class="stat-val val-b">${inscritos.length}/${als.length}</div></div>
+    <div class="stat-card"><div class="stat-label">Recaudado</div><div class="stat-val val-g">${fmt(rec)}</div></div>
+    <div class="stat-card"><div class="stat-label">Pendiente</div><div class="stat-val val-r">${fmt(pend)}</div></div>
+    <div class="stat-card"><div class="stat-label">Al día</div><div class="stat-val val-b">${alDia}/${inscritos.length}</div></div>`;
+
+  document.getElementById('thead-gira-pub').innerHTML=
+    '<th>Alumno</th>'+MESES_GIRA.map(m=>`<th style="text-align:center">${m}</th>`).join('')+'<th style="text-align:right">Estado</th>';
+
+  document.getElementById('tbody-gira-pub').innerHTML=als.map(a=>{
+    const g=getGiraAlumno(a.nombre);
+    if(!g.inscrito) return `<tr style="opacity:.4"><td style="min-width:150px">${a.nombre}</td>${MESES_GIRA.map(()=>'<td></td>').join('')}<td style="text-align:right;font-size:11px;color:var(--text3)">No inscrito</td></tr>`;
+    const pend=(g.pagoTotal?0:(MESES_GIRA.length-MESES_GIRA.filter(m=>g.cuotas[m]).length)*CUOTA_GIRA);
+    return `<tr>
+      <td style="min-width:150px;white-space:nowrap">${a.nombre}</td>
+      ${g.pagoTotal
+        ? `<td colspan="${MESES_GIRA.length}" style="text-align:center"><span style="background:var(--green-bg);color:var(--green-text);padding:2px 10px;border-radius:8px;font-size:11px;font-weight:600">✓ Pago total $126.000</span></td>`
+        : MESES_GIRA.map(m=>`<td style="text-align:center;padding:5px 4px"><span class="pill ${g.cuotas[m]?'pill-p':'pill-d'}">${g.cuotas[m]?'✓':'✗'}</span></td>`).join('')}
+      <td style="text-align:right;padding:6px 10px"><span class="badge ${pend===0?'badge-ok':'badge-debt'}">${pend===0?'Al día':fmt(pend)+' debe'}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════
+// EX UF
+// ══════════════════════════════════════════
+function getExUFAlumno(nombre){
+  if(!DATA.exuf) DATA.exuf=[];
+  let e=DATA.exuf.find(x=>x.nombre===nombre);
+  if(!e){
+    e={nombre,cuotas:Object.fromEntries(MESES_EXUF.map(m=>[m,false]))};
+    DATA.exuf.push(e);
+  }
+  return e;
+}
+
+function renderExUFAdmin(){
+  const als=activos();
+  const pagMay=als.filter(a=>getExUFAlumno(a.nombre).cuotas['May']).length;
+  const pagJul=als.filter(a=>getExUFAlumno(a.nombre).cuotas['Jul']).length;
+  const rec=(pagMay+pagJul)*CUOTA_EXUF;
+  const pend=((als.length-pagMay)+(als.length-pagJul))*CUOTA_EXUF;
+
+  document.getElementById('stats-exuf').innerHTML=`
+    <div class="stat-card"><div class="stat-label">Recaudado</div><div class="stat-val val-g">${fmt(rec)}</div></div>
+    <div class="stat-card"><div class="stat-label">Pendiente</div><div class="stat-val val-r">${fmt(pend)}</div></div>
+    <div class="stat-card"><div class="stat-label">Mayo pagaron</div><div class="stat-val val-b">${pagMay}/${als.length}</div></div>
+    <div class="stat-card"><div class="stat-label">Julio pagaron</div><div class="stat-val val-b">${pagJul}/${als.length}</div></div>`;
+
+  document.getElementById('tbody-exuf').innerHTML=als.map(a=>{
+    const eu=getExUFAlumno(a.nombre);
+    const ei=DATA.exuf.indexOf(eu);
+    const pend=MESES_EXUF.filter(m=>!eu.cuotas[m]).length*CUOTA_EXUF;
+    return `<tr>
+      <td>${a.nombre}</td>
+      ${MESES_EXUF.map(m=>`<td style="text-align:center"><button class="pay-btn ${eu.cuotas[m]?'pagado':'pendiente'}" onclick="toggleExUF(${ei},'${m}')">${eu.cuotas[m]?'✓':'✗'}</button></td>`).join('')}
+      <td style="text-align:right;font-size:11px;color:${pend>0?'var(--red-text)':'var(--green-text)'}">
+        ${pend>0?'Debe '+fmt(pend):'✓ Al día'}
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function toggleExUF(ei,mes){
+  if(!DATA.exuf) DATA.exuf=[];
+  DATA.exuf[ei].cuotas[mes]=!DATA.exuf[ei].cuotas[mes];
+  saveLocal(); renderExUFAdmin();
+}
+
+function renderExUFPublica(){
+  if(!DATA) return;
+  const als=activos();
+  const pagMay=als.filter(a=>getExUFAlumno(a.nombre).cuotas['May']).length;
+  const pagJul=als.filter(a=>getExUFAlumno(a.nombre).cuotas['Jul']).length;
+  const rec=(pagMay+pagJul)*CUOTA_EXUF;
+
+  document.getElementById('pub-exuf-stats').innerHTML=`
+    <div class="stat-card"><div class="stat-label">Recaudado</div><div class="stat-val val-g">${fmt(rec)}</div></div>
+    <div class="stat-card"><div class="stat-label">Mayo pagaron</div><div class="stat-val val-b">${pagMay}/${als.length}</div></div>
+    <div class="stat-card"><div class="stat-label">Julio pagaron</div><div class="stat-val val-b">${pagJul}/${als.length}</div></div>
+    <div class="stat-card"><div class="stat-label">Cuota</div><div class="stat-val">${fmt(CUOTA_EXUF)}</div></div>`;
+
+  document.getElementById('tbody-exuf-pub').innerHTML=als.map(a=>{
+    const eu=getExUFAlumno(a.nombre);
+    const pend=MESES_EXUF.filter(m=>!eu.cuotas[m]).length*CUOTA_EXUF;
+    return `<tr>
+      <td style="min-width:150px;white-space:nowrap">${a.nombre}</td>
+      ${MESES_EXUF.map(m=>`<td style="text-align:center;padding:5px 4px"><span class="pill ${eu.cuotas[m]?'pill-p':'pill-d'}">${eu.cuotas[m]?'✓':'✗'}</span></td>`).join('')}
+      <td style="text-align:right;padding:6px 10px"><span class="badge ${pend===0?'badge-ok':'badge-debt'}">${pend===0?'Al día':fmt(pend)+' debe'}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════
+// EXPORTAR EXCEL
+// ══════════════════════════════════════════
+function exportarExcel(){
+  if(!DATA){ alert('No hay datos para exportar.'); return; }
+  const als=activos();
+
+  // Hoja 1: Cuotas mensuales
+  const h1=[ ['Alumno','Activo',...MESES,'Caja Chica','Fecha CC','Pagado','Deuda'] ];
+  als.forEach(a=>{
+    const pagM=MESES.filter(m=>a.cuotas[m]).length;
+    h1.push([a.nombre,a.activo?'Sí':'No',...MESES.map(m=>a.cuotas[m]?'✓':'✗'),a.cc?'✓':'✗',a.cc_fecha||'',
+      pagM*CUOTA+(a.cc?CUOTA_CC:0),(MESES.length-pagM)*CUOTA+(a.cc?0:CUOTA_CC)]);
+  });
+
+  // Hoja 2: Gira de estudios
+  const h2=[ ['Alumno','Inscrito','Pago Total',...MESES_GIRA,'Pagado','Debe'] ];
+  als.forEach(a=>{
+    const g=getGiraAlumno(a.nombre);
+    const pagG=g.pagoTotal?CUOTA_GIRA_TOTAL:MESES_GIRA.filter(m=>g.cuotas[m]).length*CUOTA_GIRA;
+    const debG=g.pagoTotal?0:(MESES_GIRA.length-MESES_GIRA.filter(m=>g.cuotas[m]).length)*CUOTA_GIRA;
+    h2.push([a.nombre,g.inscrito?'Sí':'No',g.pagoTotal?'Sí':'No',...MESES_GIRA.map(m=>g.cuotas[m]?'✓':'✗'),pagG,g.inscrito?debG:'No inscrito']);
+  });
+
+  // Hoja 3: Ex UF
+  const h3=[ ['Alumno',...MESES_EXUF,'Pagado','Debe'] ];
+  als.forEach(a=>{
+    const eu=getExUFAlumno(a.nombre);
+    const pagE=MESES_EXUF.filter(m=>eu.cuotas[m]).length*CUOTA_EXUF;
+    h3.push([a.nombre,...MESES_EXUF.map(m=>eu.cuotas[m]?'✓':'✗'),pagE,(MESES_EXUF.length-MESES_EXUF.filter(m=>eu.cuotas[m]).length)*CUOTA_EXUF]);
+  });
+
+  // Hoja 4: Libro de caja
+  const h4=[ ['Fecha','Descripción','Tipo','Monto','Boleta','Categoría'] ];
+  (DATA.caja||[]).sort((a,b)=>a.fecha.localeCompare(b.fecha)).forEach(m=>{
+    h4.push([m.fecha,m.desc,m.tipo,m.monto,m.boleta||'',m.cat||'']);
+  });
+
+  // Hoja 5: Banco
+  const h5=[ ['Fecha','Descripción','Tipo','Monto','N° Operación'] ];
+  (DATA.banco||[]).sort((a,b)=>a.fecha.localeCompare(b.fecha)).forEach(m=>{
+    h5.push([m.fecha,m.desc,m.tipo,m.monto,m.op||'']);
+  });
+
+  // Generar CSV múltiple en un HTML descargable con sheets simulados
+  // Usamos formato CSV con separador por hoja
+  const hojas=[
+    {nombre:'Cuotas mensuales', datos:h1},
+    {nombre:'Gira de estudios', datos:h2},
+    {nombre:'Ex UF', datos:h3},
+    {nombre:'Libro de caja', datos:h4},
+    {nombre:'Banco', datos:h5},
+  ];
+
+  // Generar un archivo HTML que simula Excel con múltiples hojas
+  let html=`<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+<head><meta charset="utf-8"><meta name=ProgId content=Excel.Sheet><meta name=Generator content="Microsoft Excel 11">
+<style>td{border:1px solid #ccc;padding:4px 8px;font-size:12px}th{background:#e8f5e2;font-weight:bold;border:1px solid #999;padding:4px 8px}
+.hoja{margin-bottom:30px}.titulo{font-size:16px;font-weight:bold;margin-bottom:8px;color:#1a5c38}</style></head><body>`;
+
+  hojas.forEach(h=>{
+    html+=`<div class="hoja"><div class="titulo">${h.nombre}</div><table>`;
+    h.datos.forEach((fila,i)=>{
+      html+='<tr>';
+      fila.forEach(c=>{
+        const tag=i===0?'th':'td';
+        html+=`<${tag}>${c}</${tag}>`;
+      });
+      html+='</tr>';
+    });
+    html+='</table></div>';
+  });
+  html+='</body></html>';
+
+  const blob=new Blob([html],{type:'application/vnd.ms-excel;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download=`Tesoreria_3ro_Medio_${new Date().toISOString().slice(0,10)}.xls`;
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
 // ══════════════════════════════════════════
