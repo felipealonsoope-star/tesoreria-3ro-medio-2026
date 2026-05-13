@@ -61,10 +61,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
 .pub-banner h2{font-size:16px;font-weight:500;margin-bottom:3px}
 .pub-banner p{font-size:12px;opacity:.8}
 .pub-stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-top:14px}
-.pub-stat{background:rgba(255,255,255,0.15);border-radius:8px;padding:12px 10px;text-align:center}
-.pub-stat-label{font-size:10px;color:rgba(255,255,255,0.75);text-transform:uppercase;letter-spacing:.05em;font-weight:500;margin-bottom:4px}
-.pub-stat-val{font-size:20px;font-weight:600;color:white;font-family:'DM Mono',monospace}
-.pub-stat-sub{font-size:10px;color:rgba(255,255,255,0.6);margin-top:2px}
+.pub-stat{background:rgba(255,255,255,0.15);border-radius:8px;padding:10px 8px;text-align:center;overflow:hidden;min-width:0}
+.pub-stat-label{font-size:10px;color:rgba(255,255,255,0.75);text-transform:uppercase;letter-spacing:.05em;font-weight:500;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pub-stat-val{font-size:18px;font-weight:600;color:white;font-family:'DM Mono',monospace;word-break:break-all;line-height:1.1}
+.pub-stat-sub{font-size:10px;color:rgba(255,255,255,0.6);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
 /* FILTROS */
 .filter-bar{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
@@ -737,61 +737,54 @@ function renderPagos(){
   document.getElementById('lista-pagos').style.display='';
 
   const als = activos();
-  // Stats
+  // ── KPIs fila 1: cuotas ──
   const totalPag = als.reduce((s,a)=>s+MESES.filter(m=>a.cuotas[m]).length*CUOTA,0);
   const totalDeuda = als.reduce((s,a)=>s+MESES.filter(m=>!a.cuotas[m]).length*CUOTA,0);
   const alDia = als.filter(a=>MESES.every(m=>a.cuotas[m])&&a.cc).length;
   const ccPag = als.filter(a=>a.cc).length;
+
+  // ── Saldos bancarios reales ──
+  const banco = DATA.banco||[];
+  const rutMovs = banco.filter(m=>(m.cuenta||'rut')==='rut');
+  const bipMovs = banco.filter(m=>m.cuenta==='bipersonal');
+  const saldoRutB = rutMovs.filter(m=>m.tipo==='deposito').reduce((s,m)=>s+m.monto,0)
+                 - rutMovs.filter(m=>m.tipo!=='deposito').reduce((s,m)=>s+m.monto,0);
+  const saldoBipB = bipMovs.filter(m=>m.tipo==='deposito').reduce((s,m)=>s+m.monto,0)
+                 - bipMovs.filter(m=>m.tipo!=='deposito').reduce((s,m)=>s+m.monto,0);
+  const totalBancoReal = saldoRutB + saldoBipB;
+
+  // ── Recaudado por categoría ──
+  const cuotasRec = totalPag;
+  const ccRec     = ccPag * CUOTA_CC;
+  const rifasRec  = (DATA.eventos||[]).reduce((s,ev)=>s+als.filter(a=>ev.pagos&&ev.pagos[a.nombre]).length*(ev.monto||0),0);
+  const giraRec   = (DATA.gira||[]).filter(g=>g.inscrito).reduce((s,g)=>g.pagoTotal?s+CUOTA_GIRA_TOTAL:s+MESES_GIRA.filter(m=>g.cuotas[m]).length*CUOTA_GIRA,0);
+  const exufRec   = (DATA.exuf||[]).reduce((s,e)=>s+MESES_EXUF.filter(m=>e.cuotas[m]).length*CUOTA_EXUF,0);
+  const totalDisponible = totalBancoReal > 0 ? totalBancoReal : cuotasRec+ccRec+rifasRec+giraRec+exufRec;
+  const fsize = v => v>=10000000?'12px':v>=1000000?'14px':v>=100000?'16px':'18px';
+
+  // ── Fila 1: estado de cuotas ──
   const ps = document.getElementById('pub-stats');
   ps.style.display='grid';
   ps.innerHTML=`
-    <div class="pub-stat"><div class="pub-stat-label">Recaudado</div><div class="pub-stat-val">${fmt(totalPag)}</div><div class="pub-stat-sub">cuotas mensuales</div></div>
-    <div class="pub-stat"><div class="pub-stat-label">Pendiente</div><div class="pub-stat-val">${fmt(totalDeuda)}</div><div class="pub-stat-sub">por cobrar</div></div>
+    <div class="pub-stat"><div class="pub-stat-label">Cuotas recaudadas</div><div class="pub-stat-val" style="font-size:${fsize(cuotasRec)}">${fmt(cuotasRec)}</div><div class="pub-stat-sub">cuotas mensuales</div></div>
+    <div class="pub-stat"><div class="pub-stat-label">Pendiente cuotas</div><div class="pub-stat-val" style="font-size:${fsize(totalDeuda)}">${fmt(totalDeuda)}</div><div class="pub-stat-sub">por cobrar</div></div>
     <div class="pub-stat"><div class="pub-stat-label">Al día</div><div class="pub-stat-val">${alDia}/${als.length}</div><div class="pub-stat-sub">alumnos</div></div>
     <div class="pub-stat"><div class="pub-stat-label">Caja chica</div><div class="pub-stat-val">${ccPag}/${als.length}</div><div class="pub-stat-sub">pagaron</div></div>`;
 
-  // Cuadro saldo total histórico — siempre visible
-  // Saldo anterior = busca en banco Y en caja (donde sea que esté registrado)
-  const banco = DATA.banco||[];
-  const caja = DATA.caja||[];
-  const esAnterior = m => (m.desc||'').toLowerCase().includes('anterior');
-  const saldoAntBanco = banco.filter(m=>m.tipo==='deposito' && esAnterior(m)).reduce((s,m)=>s+m.monto,0);
-  const saldoAntCaja  = caja.filter(m=>m.tipo==='entrada' && esAnterior(m)).reduce((s,m)=>s+m.monto,0);
-  const saldoAntLocal = parseInt(localStorage.getItem('tres2026_saldo_ant')||'0')||0;
-  const saldoAnterior = saldoAntBanco + saldoAntCaja || saldoAntLocal || SALDO_ANTERIOR;
-
-  const cuotasRec = als.reduce((s,a)=>s+MESES.filter(m=>a.cuotas[m]).length*CUOTA, 0);
-  const ccRec     = als.filter(a=>a.cc).length * CUOTA_CC;
-  const rifasRec  = (DATA.eventos||[]).reduce((s,ev)=>{
-    const pagaron = als.filter(a=>ev.pagos&&ev.pagos[a.nombre]).length;
-    return s + pagaron * (ev.monto||0);
-  }, 0);
-  // Gira: suma cuotas pagadas + pagos totales
-  const giraRec = (DATA.gira||[]).filter(g=>g.inscrito).reduce((s,g)=>{
-    if(g.pagoTotal) return s + CUOTA_GIRA_TOTAL;
-    return s + MESES_GIRA.filter(m=>g.cuotas[m]).length * CUOTA_GIRA;
-  }, 0);
-  // ExUF: suma cuotas pagadas
-  const exufRec = (DATA.exuf||[]).reduce((s,e)=>{
-    return s + MESES_EXUF.filter(m=>e.cuotas[m]).length * CUOTA_EXUF;
-  }, 0);
-  // Giros bancarios: se descuentan del total
-  const girosBancarios = (DATA.banco||[]).filter(m=>m.tipo==='giro').reduce((s,m)=>s+m.monto,0);
-  const totalDisponible = saldoAnterior + cuotasRec + ccRec + rifasRec + giraRec + exufRec - girosBancarios;
-
+  // ── Fila 2: fondo total ──
   const histEl = document.getElementById('pub-historico');
   if(histEl){
     histEl.style.display='block';
     histEl.innerHTML=`
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px">
-        ${saldoAnterior>0?`<div class="pub-stat"><div class="pub-stat-label">Años anteriores</div><div class="pub-stat-val">${fmt(saldoAnterior)}</div><div class="pub-stat-sub">acumulado</div></div>`:''}
-        <div class="pub-stat"><div class="pub-stat-label">Cuotas 2026</div><div class="pub-stat-val">${fmt(cuotasRec)}</div><div class="pub-stat-sub">recaudado</div></div>
-        <div class="pub-stat"><div class="pub-stat-label">Caja chica</div><div class="pub-stat-val">${fmt(ccRec)}</div><div class="pub-stat-sub">recaudado</div></div>
-        ${rifasRec>0?`<div class="pub-stat"><div class="pub-stat-label">Rifas/eventos</div><div class="pub-stat-val">${fmt(rifasRec)}</div><div class="pub-stat-sub">recaudado</div></div>`:''}
-        ${giraRec>0?`<div class="pub-stat"><div class="pub-stat-label">Gira estudios</div><div class="pub-stat-val">${fmt(giraRec)}</div><div class="pub-stat-sub">recaudado</div></div>`:''}
-        ${exufRec>0?`<div class="pub-stat"><div class="pub-stat-label">Ex UF</div><div class="pub-stat-val">${fmt(exufRec)}</div><div class="pub-stat-sub">recaudado</div></div>`:''}
-        ${girosBancarios>0?`<div class="pub-stat" style="background:rgba(253,236,234,0.4)"><div class="pub-stat-label">↗ Giros banco</div><div class="pub-stat-val" style="font-size:16px;color:#ffccc4">−${fmt(girosBancarios)}</div><div class="pub-stat-sub">retirado</div></div>`:''}
-        <div class="pub-stat" style="background:rgba(255,255,255,0.22)"><div class="pub-stat-label">💰 Total disponible</div><div class="pub-stat-val" style="font-size:${totalDisponible>=1000000?'17px':'22px'}">${fmt(totalDisponible)}</div><div class="pub-stat-sub">fondo total del curso</div></div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:8px">
+        ${totalBancoReal>0?`
+          <div class="pub-stat"><div class="pub-stat-label">💳 CuentaRUT</div><div class="pub-stat-val" style="font-size:${fsize(saldoRutB)}">${fmt(saldoRutB)}</div><div class="pub-stat-sub">operaciones</div></div>
+          <div class="pub-stat"><div class="pub-stat-label">🏦 Bipersonal</div><div class="pub-stat-val" style="font-size:${fsize(saldoBipB)}">${fmt(saldoBipB)}</div><div class="pub-stat-sub">fondo acumulado</div></div>
+        `:''}
+        ${giraRec>0?`<div class="pub-stat"><div class="pub-stat-label">Gira</div><div class="pub-stat-val" style="font-size:${fsize(giraRec)}">${fmt(giraRec)}</div><div class="pub-stat-sub">recaudado</div></div>`:''}
+        ${exufRec>0?`<div class="pub-stat"><div class="pub-stat-label">Ex UF</div><div class="pub-stat-val" style="font-size:${fsize(exufRec)}">${fmt(exufRec)}</div><div class="pub-stat-sub">recaudado</div></div>`:''}
+        ${rifasRec>0?`<div class="pub-stat"><div class="pub-stat-label">Rifas</div><div class="pub-stat-val" style="font-size:${fsize(rifasRec)}">${fmt(rifasRec)}</div><div class="pub-stat-sub">recaudado</div></div>`:''}
+        <div class="pub-stat" style="background:rgba(255,255,255,0.25)"><div class="pub-stat-label">💰 Total disponible</div><div class="pub-stat-val" style="font-size:${fsize(totalDisponible)}">${fmt(totalDisponible)}</div><div class="pub-stat-sub">saldo en banco</div></div>
       </div>`;
   }
 
