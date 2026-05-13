@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Tesorería 3° Medio 2026</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 :root{
   --bg:#f7f6f3;--surface:#fff;--surface2:#f0efe9;
@@ -247,7 +246,6 @@ td:first-child{font-weight:500}
 <!-- TABS PÚBLICOS -->
 <div class="pub-tabs" id="pub-tabs-bar">
   <button class="pub-tab active" onclick="setPubTab('pagos',this)">Estado de pagos</button>
-  <button class="pub-tab" onclick="setPubTab('resumen',this)">📊 Resumen</button>
   <button class="pub-tab" onclick="setPubTab('caja',this)">Libro de caja</button>
   <button class="pub-tab" onclick="setPubTab('banco',this)">Banco</button>
   <button class="pub-tab" onclick="setPubTab('gira',this)">Gira de estudios</button>
@@ -260,29 +258,6 @@ td:first-child{font-weight:500}
 <div class="pub-content" id="view-public">
 
   <!-- PAGOS -->
-  <div id="pub-resumen" class="pub-section">
-    <div style="padding:16px;max-width:900px;margin:0 auto">
-      <!-- KPIs resumen -->
-      <div class="stats-row" id="resumen-kpis"></div>
-      <!-- Gráfico barras recaudación por mes -->
-      <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);margin-bottom:14px">
-        <div style="font-size:13px;font-weight:500;margin-bottom:14px">Recaudación por mes — Cuotas mensuales</div>
-        <canvas id="chart-cuotas" style="width:100%;max-height:220px"></canvas>
-      </div>
-      <!-- Gráfico dona distribución del fondo -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
-        <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow)">
-          <div style="font-size:13px;font-weight:500;margin-bottom:14px">Composición del fondo</div>
-          <canvas id="chart-dona" style="max-height:200px"></canvas>
-        </div>
-        <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow)">
-          <div style="font-size:13px;font-weight:500;margin-bottom:14px">Estado de pagos del curso</div>
-          <canvas id="chart-estado" style="max-height:200px"></canvas>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <div id="pub-pagos" class="pub-section active">
     <div class="pub-banner">
       <h2>Estado de pagos · 3° Medio 2026</h2>
@@ -654,7 +629,6 @@ function setPubTab(tab, el){
   el.classList.add('active');
   document.getElementById('pub-'+tab).classList.add('active');
   if(tab==='pagos') renderPagos();
-  if(tab==='resumen') renderResumen();
   if(tab==='caja') renderCajaPublica();
   if(tab==='banco') renderBancoPublico();
   if(tab==='gira') renderGiraPublica();
@@ -1579,117 +1553,6 @@ function exportarExcel(){
   a.download=`Tesoreria_3ro_Medio_${new Date().toISOString().slice(0,10)}.xls`;
   a.click();
   URL.revokeObjectURL(url);
-}
-
-// ══════════════════════════════════════════
-// RESUMEN CON GRÁFICOS
-// ══════════════════════════════════════════
-let _charts = {};
-function destroyChart(id){ if(_charts[id]){ _charts[id].destroy(); delete _charts[id]; } }
-
-function renderResumen(){
-  if(!DATA) return;
-  const als = activos();
-  const giraData = als.map(a=>getGiraAlumno(a.nombre));
-  const exufData = als.map(a=>getExUFAlumno(a.nombre));
-
-  // Calcular valores
-  const cuotasRec = als.reduce((s,a)=>s+MESES.filter(m=>a.cuotas[m]).length*CUOTA,0);
-  const ccRec     = als.filter(a=>a.cc).length*CUOTA_CC;
-  const giraRec   = giraData.filter(g=>g.inscrito).reduce((s,g)=>g.pagoTotal?s+CUOTA_GIRA_TOTAL:s+MESES_GIRA.filter(m=>g.cuotas[m]).length*CUOTA_GIRA,0);
-  const exufRec   = exufData.reduce((s,e)=>s+MESES_EXUF.filter(m=>e.cuotas[m]).length*CUOTA_EXUF,0);
-  const rifasRec  = (DATA.eventos||[]).reduce((s,ev)=>s+als.filter(a=>ev.pagos&&ev.pagos[a.nombre]).length*(ev.monto||0),0);
-
-  const esAnt = m=>(m.desc||'').toLowerCase().includes('anterior');
-  const banco = DATA.banco||[], caja = DATA.caja||[];
-  const saldoAnt = banco.filter(m=>m.tipo==='deposito'&&esAnt(m)).reduce((s,m)=>s+m.monto,0)
-                 + caja.filter(m=>m.tipo==='entrada'&&esAnt(m)).reduce((s,m)=>s+m.monto,0);
-  const giros = banco.filter(m=>m.tipo==='giro').reduce((s,m)=>s+m.monto,0);
-  const total = saldoAnt+cuotasRec+ccRec+giraRec+exufRec+rifasRec-giros;
-  const alDia = als.filter(a=>MESES.every(m=>a.cuotas[m])&&a.cc).length;
-
-  // KPIs
-  document.getElementById('resumen-kpis').innerHTML=`
-    <div class="stat-card"><div class="stat-label">💰 Total disponible</div><div class="stat-val val-g" style="font-size:18px">${fmt(total)}</div></div>
-    <div class="stat-card"><div class="stat-label">📋 Cuotas recaudadas</div><div class="stat-val val-g">${fmt(cuotasRec)}</div></div>
-    <div class="stat-card"><div class="stat-label">🎒 Gira recaudada</div><div class="stat-val val-g">${fmt(giraRec)}</div></div>
-    <div class="stat-card"><div class="stat-label">✅ Alumnos al día</div><div class="stat-val val-b">${alDia}/${als.length}</div></div>
-    ${giros>0?`<div class="stat-card"><div class="stat-label">↗ Giros banco</div><div class="stat-val val-r">−${fmt(giros)}</div></div>`:''}`;
-
-  // Gráfico 1: Barras por mes — cuántos alumnos pagaron cada mes
-  destroyChart('cuotas');
-  const ctx1 = document.getElementById('chart-cuotas');
-  if(ctx1){
-    const pagadosPorMes = MESES.map(m=>als.filter(a=>a.cuotas[m]).length);
-    const montoPorMes   = MESES.map(m=>als.filter(a=>a.cuotas[m]).length*CUOTA);
-    _charts['cuotas'] = new Chart(ctx1, {
-      type:'bar',
-      data:{
-        labels: MESES,
-        datasets:[
-          { label:'Alumnos que pagaron', data:pagadosPorMes, backgroundColor:'rgba(45,107,31,0.7)', borderColor:'rgba(45,107,31,1)', borderWidth:1, borderRadius:4, yAxisID:'y' },
-          { label:'Monto recaudado ($)', data:montoPorMes, type:'line', borderColor:'#1d4ed8', backgroundColor:'rgba(29,78,216,0.08)', tension:0.3, fill:true, yAxisID:'y1', pointRadius:4, pointBackgroundColor:'#1d4ed8' }
-        ]
-      },
-      options:{
-        responsive:true, maintainAspectRatio:false,
-        interaction:{mode:'index',intersect:false},
-        plugins:{legend:{position:'bottom',labels:{font:{family:'DM Sans',size:11},boxWidth:12}}},
-        scales:{
-          y:{position:'left',title:{display:true,text:'Alumnos',font:{size:10}},min:0,max:als.length,grid:{color:'rgba(0,0,0,0.05)'}},
-          y1:{position:'right',title:{display:true,text:'Monto ($)',font:{size:10}},grid:{drawOnChartArea:false},ticks:{callback:v=>v>=1000000?'$'+(v/1000000).toFixed(1)+'M':'$'+(v/1000).toFixed(0)+'K'}}
-        }
-      }
-    });
-    ctx1.style.height='220px';
-  }
-
-  // Gráfico 2: Dona — composición del fondo
-  destroyChart('dona');
-  const ctx2 = document.getElementById('chart-dona');
-  if(ctx2){
-    const donaData = [saldoAnt,cuotasRec,ccRec,giraRec,exufRec,rifasRec].filter((_,i)=>[saldoAnt,cuotasRec,ccRec,giraRec,exufRec,rifasRec][i]>0);
-    const donaLabels = ['Años ant.','Cuotas','Caja chica','Gira','Ex UF','Rifas'].filter((_,i)=>[saldoAnt,cuotasRec,ccRec,giraRec,exufRec,rifasRec][i]>0);
-    _charts['dona'] = new Chart(ctx2, {
-      type:'doughnut',
-      data:{
-        labels:donaLabels,
-        datasets:[{data:donaData,backgroundColor:['#1d4ed8','#2d6b1f','#92400e','#0891b2','#7c3aed','#be185d'],borderWidth:2,borderColor:'#fff',hoverOffset:6}]
-      },
-      options:{
-        responsive:true, maintainAspectRatio:false,
-        plugins:{
-          legend:{position:'bottom',labels:{font:{family:'DM Sans',size:10},boxWidth:10,padding:8}},
-          tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${fmt(ctx.raw)}`}}
-        }
-      }
-    });
-    ctx2.style.height='200px';
-  }
-
-  // Gráfico 3: Barra horizontal — alumnos al día vs con deuda por mes
-  destroyChart('estado');
-  const ctx3 = document.getElementById('chart-estado');
-  if(ctx3){
-    const conDeuda = als.filter(a=>MESES.some(m=>!a.cuotas[m])||!a.cc).length;
-    const alDiaCC  = als.filter(a=>MESES.every(m=>a.cuotas[m])&&a.cc).length;
-    const parcial  = als.length - alDiaCC - conDeuda;
-    _charts['estado'] = new Chart(ctx3, {
-      type:'doughnut',
-      data:{
-        labels:['Al día (todo pagado)','Con deuda'],
-        datasets:[{data:[alDiaCC, als.length-alDiaCC],backgroundColor:['#2d6b1f','#8b2020'],borderWidth:2,borderColor:'#fff',hoverOffset:6}]
-      },
-      options:{
-        responsive:true, maintainAspectRatio:false,
-        plugins:{
-          legend:{position:'bottom',labels:{font:{family:'DM Sans',size:10},boxWidth:10,padding:8}},
-          tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.raw} alumnos`}}
-        }
-      }
-    });
-    ctx3.style.height='200px';
-  }
 }
 
 // ══════════════════════════════════════════
