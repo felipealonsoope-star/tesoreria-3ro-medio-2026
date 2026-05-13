@@ -477,6 +477,12 @@ td:first-child{font-weight:500}
 <div class="overlay" id="modal-banco">
   <div class="modal">
     <h3 id="banco-title">Nuevo depósito</h3>
+    <div class="field"><label>Cuenta</label>
+      <select id="b-cuenta" style="font-weight:500">
+        <option value="rut">CuentaRUT (operaciones diarias)</option>
+        <option value="bipersonal">Bipersonal / Ahorro (fondo acumulado)</option>
+      </select>
+    </div>
     <div class="field"><label>Fecha</label><input type="date" id="b-fecha"></div>
     <div class="field"><label>Descripción</label><input type="text" id="b-desc"></div>
     <div class="field"><label>Monto ($)</label><input type="number" id="b-monto" min="0"></div>
@@ -832,34 +838,46 @@ function verBoletaPub(ri){
 function renderBancoPublico(){
   if(!DATA) return;
   const banco=DATA.banco||[], caja=DATA.caja||[];
-  const esAnt = m=>(m.desc||'').toLowerCase().includes('anterior');
-  const antMonto = banco.filter(m=>m.tipo==='deposito'&&esAnt(m)).reduce((s,m)=>s+m.monto,0)
-                 + caja.filter(m=>m.tipo==='entrada'&&esAnt(m)).reduce((s,m)=>s+m.monto,0);
-  const deps=banco.filter(m=>m.tipo==='deposito').reduce((s,m)=>s+m.monto,0);
-  const reti=banco.filter(m=>m.tipo!=='deposito').reduce((s,m)=>s+m.monto,0);
-  const saldoB=deps-reti;
+  const rut = banco.filter(m=>(m.cuenta||'rut')==='rut');
+  const bip = banco.filter(m=>(m.cuenta||'rut')==='bipersonal');
+  const saldoRut = rut.filter(m=>m.tipo==='deposito').reduce((s,m)=>s+m.monto,0)
+                 - rut.filter(m=>m.tipo!=='deposito').reduce((s,m)=>s+m.monto,0);
+  const saldoBip = bip.filter(m=>m.tipo==='deposito').reduce((s,m)=>s+m.monto,0)
+                 - bip.filter(m=>m.tipo!=='deposito').reduce((s,m)=>s+m.monto,0);
+  const saldoTotal = saldoRut + saldoBip;
+  const girosTotal = banco.filter(m=>m.tipo==='giro').reduce((s,m)=>s+m.monto,0);
   const saldoC=caja.filter(m=>m.tipo==='entrada').reduce((s,m)=>s+m.monto,0)-caja.filter(m=>m.tipo==='salida').reduce((s,m)=>s+m.monto,0);
+
   document.getElementById('pub-banco-stats').innerHTML=`
-    ${antMonto>0?`<div class="stat-card"><div class="stat-label">Años anteriores</div><div class="stat-val val-b">${fmt(antMonto)}</div></div>`:''}
-    <div class="stat-card"><div class="stat-label">Saldo banco</div><div class="stat-val ${saldoB>=0?'val-g':'val-r'}">${fmt(saldoB)}</div></div>
-    <div class="stat-card"><div class="stat-label">Total depósitos</div><div class="stat-val val-g">${fmt(deps)}</div></div>
-    <div class="stat-card"><div class="stat-label">Total retiros</div><div class="stat-val val-r">${fmt(reti)}</div></div>`;
+    <div class="stat-card"><div class="stat-label">💳 CuentaRUT</div><div class="stat-val ${saldoRut>=0?'val-g':'val-r'}">${fmt(saldoRut)}</div><div class="ci-note">operaciones diarias</div></div>
+    <div class="stat-card"><div class="stat-label">🏦 Bipersonal</div><div class="stat-val ${saldoBip>=0?'val-g':'val-r'}">${fmt(saldoBip)}</div><div class="ci-note">fondo acumulado</div></div>
+    <div class="stat-card" style="border-color:var(--green-border)"><div class="stat-label">Total banco</div><div class="stat-val val-g">${fmt(saldoTotal)}</div></div>
+    ${girosTotal>0?`<div class="stat-card" style="border-color:#f5d79e"><div class="stat-label">↗ Giros</div><div class="stat-val val-r">−${fmt(girosTotal)}</div></div>`:''}`;
+
   const lista=document.getElementById('pub-banco-lista');
   if(!banco.length){lista.innerHTML='<div class="empty">Sin movimientos bancarios.</div>';}
-  else lista.innerHTML=[...banco].sort((a,b)=>b.fecha.localeCompare(a.fecha)).map(m=>`
-    <div class="mov-item">
+  else lista.innerHTML=[...banco].sort((a,b)=>b.fecha.localeCompare(a.fecha)).map(m=>{
+    const esE=m.tipo==='deposito'; const esG=m.tipo==='giro';
+    const tag=m.cuenta==='bipersonal'
+      ? '<span style="font-size:9px;background:#e8f0fd;color:#1d4ed8;padding:1px 5px;border-radius:6px;font-weight:600">BIPERSONAL</span>'
+      : '<span style="font-size:9px;background:#e8f5e2;color:#2d6b1f;padding:1px 5px;border-radius:6px;font-weight:600">RUT</span>';
+    return `<div class="mov-item">
       <div><div class="mov-fecha">${fmtD(m.fecha)}</div><span class="tipo-badge t-${m.tipo}">${m.tipo}</span></div>
-      <div><div class="mov-desc">${m.desc}</div></div>
-      <div class="mov-monto" style="color:${m.tipo==='deposito'?'var(--green-text)':'var(--amber-text)'}">${m.tipo!=='deposito'?'−':''}${fmt(m.monto)}</div>
-    </div>`).join('');
-  const diff=saldoB-saldoC;
+      <div><div class="mov-desc">${m.desc}</div><div class="mov-cat">${tag}</div></div>
+      <div class="mov-monto" style="color:${esE?'var(--green-text)':esG?'var(--amber-text)':'var(--red-text)'}">${esE?'':'−'}${fmt(m.monto)}</div>
+    </div>`;
+  }).join('');
+
+  const diff=saldoTotal-saldoC;
   const color=Math.abs(diff)<100?'var(--green-text)':diff>0?'var(--amber-text)':'var(--red-text)';
   document.getElementById('pub-cuadre').innerHTML=`
     <div class="cuadre-box" style="margin-top:14px">
       <div style="font-size:12px;font-weight:500;color:var(--text2);text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px">Cuadre de cuentas</div>
       <div class="cuadre-grid">
+        <div><div class="ci-label">💳 CuentaRUT</div><div class="ci-val" style="color:${saldoRut>=0?'var(--green-text)':'var(--red-text)'}">${fmt(saldoRut)}</div></div>
+        <div><div class="ci-label">🏦 Bipersonal</div><div class="ci-val" style="color:${saldoBip>=0?'var(--green-text)':'var(--red-text)'}">${fmt(saldoBip)}</div></div>
+        <div><div class="ci-label">Total banco</div><div class="ci-val val-g">${fmt(saldoTotal)}</div></div>
         <div><div class="ci-label">Libro de caja</div><div class="ci-val" style="color:${saldoC>=0?'var(--green-text)':'var(--red-text)'}">${fmt(saldoC)}</div></div>
-        <div><div class="ci-label">Saldo banco</div><div class="ci-val" style="color:${saldoB>=0?'var(--green-text)':'var(--red-text)'}">${fmt(saldoB)}</div></div>
         <div><div class="ci-label">Diferencia</div><div class="ci-val" style="color:${color}">${fmt(Math.abs(diff))}</div><div class="ci-note">${Math.abs(diff)<100?'✓ Cuadrado':diff>0?'Banco mayor':'Caja mayor'}</div></div>
       </div>
     </div>`;
@@ -1068,40 +1086,62 @@ function delMov(i){if(!confirm('¿Eliminar?'))return; api({accion:'delCaja',fila
 // ══════════════════════════════════════════
 function renderBancoAdmin(){
   const banco=DATA.banco||[], caja=DATA.caja||[];
-  const esAnt = m=>(m.desc||'').toLowerCase().includes('anterior');
-  const antMonto = banco.filter(m=>m.tipo==='deposito'&&esAnt(m)).reduce((s,m)=>s+m.monto,0)
-                 + caja.filter(m=>m.tipo==='entrada'&&esAnt(m)).reduce((s,m)=>s+m.monto,0);
-  const deps=banco.filter(m=>m.tipo==='deposito').reduce((s,m)=>s+m.monto,0);
-  const reti=banco.filter(m=>m.tipo!=='deposito').reduce((s,m)=>s+m.monto,0);
-  const saldoB=deps-reti;
-  const saldoC=caja.filter(m=>m.tipo==='entrada').reduce((s,m)=>s+m.monto,0)-caja.filter(m=>m.tipo==='salida').reduce((s,m)=>s+m.monto,0);
-  const diff=saldoB-saldoC;
+
+  // Separar por cuenta (movimientos viejos sin cuenta van a 'rut' por defecto)
+  const rut  = banco.filter(m=>(m.cuenta||'rut')==='rut');
+  const bip  = banco.filter(m=>(m.cuenta||'rut')==='bipersonal');
+
+  // Saldos por cuenta
+  const saldoRut = rut.filter(m=>m.tipo==='deposito').reduce((s,m)=>s+m.monto,0)
+                 - rut.filter(m=>m.tipo!=='deposito').reduce((s,m)=>s+m.monto,0);
+  const saldoBip = bip.filter(m=>m.tipo==='deposito').reduce((s,m)=>s+m.monto,0)
+                 - bip.filter(m=>m.tipo!=='deposito').reduce((s,m)=>s+m.monto,0);
+  const saldoTotal = saldoRut + saldoBip;
+
+  // Giros (se muestran aparte)
+  const girosTotal = banco.filter(m=>m.tipo==='giro').reduce((s,m)=>s+m.monto,0);
+  const antMonto = banco.filter(m=>m.tipo==='deposito'&&(m.desc||'').toLowerCase().includes('anterior')).reduce((s,m)=>s+m.monto,0)
+                 + caja.filter(m=>m.tipo==='entrada'&&(m.desc||'').toLowerCase().includes('anterior')).reduce((s,m)=>s+m.monto,0);
+
   document.getElementById('stats-banco').innerHTML=`
-    ${antMonto>0?`<div class="stat-card"><div class="stat-label">Años anteriores</div><div class="stat-val val-b">${fmt(antMonto)}</div></div>`:''}
-    <div class="stat-card"><div class="stat-label">Saldo banco</div><div class="stat-val ${saldoB>=0?'val-g':'val-r'}">${fmt(saldoB)}</div></div>
-    <div class="stat-card"><div class="stat-label">Depósitos</div><div class="stat-val val-g">${fmt(deps)}</div></div>
-    <div class="stat-card"><div class="stat-label">Retiros</div><div class="stat-val val-r">${fmt(reti)}</div></div>`;
+    <div class="stat-card"><div class="stat-label">💳 CuentaRUT</div><div class="stat-val ${saldoRut>=0?'val-g':'val-r'}">${fmt(saldoRut)}</div><div class="ci-note">operaciones diarias</div></div>
+    <div class="stat-card"><div class="stat-label">🏦 Bipersonal</div><div class="stat-val ${saldoBip>=0?'val-g':'val-r'}">${fmt(saldoBip)}</div><div class="ci-note">fondo acumulado</div></div>
+    <div class="stat-card" style="border-color:var(--green-border)"><div class="stat-label">Total banco</div><div class="stat-val val-g">${fmt(saldoTotal)}</div></div>
+    ${girosTotal>0?`<div class="stat-card" style="border-color:#f5d79e"><div class="stat-label">↗ Giros</div><div class="stat-val val-r">−${fmt(girosTotal)}</div><div class="ci-note">descontado del total</div></div>`:''}`;
+
+  // Lista unificada ordenada por fecha
   const lista=document.getElementById('lista-banco');
-  if(!banco.length){lista.innerHTML='<div class="empty">Sin movimientos.</div>';}
-  else lista.innerHTML=[...banco].sort((a,b)=>b.fecha.localeCompare(a.fecha)).map(m=>{
-    const ri=banco.indexOf(m);const esE=m.tipo==='deposito';
+  if(!banco.length){lista.innerHTML='<div class="empty">Sin movimientos. Agrega depósitos, retiros o giros.</div>';}
+  else lista.innerHTML=[...banco].sort((a,b)=>b.fecha.localeCompare(a.fecha)).map((m,i)=>{
+    const ri=banco.indexOf(m);
+    const esE=m.tipo==='deposito';
+    const esG=m.tipo==='giro';
+    const cuentaTag=m.cuenta==='bipersonal'
+      ? '<span style="font-size:9px;background:#e8f0fd;color:#1d4ed8;padding:1px 6px;border-radius:8px;font-weight:600">BIPERSONAL</span>'
+      : '<span style="font-size:9px;background:#e8f5e2;color:#2d6b1f;padding:1px 6px;border-radius:8px;font-weight:600">RUT</span>';
     return `<div class="mov-row">
       <div style="color:var(--text2);font-size:11px">${fmtD(m.fecha)}</div>
-      <div>${m.desc}</div>
+      <div>${m.desc}<br>${cuentaTag}</div>
       <div><span class="tipo-badge t-${m.tipo}">${m.tipo}</span></div>
-      <div style="font-weight:600;color:${esE?'var(--green-text)':'var(--amber-text)'}">${esE?'':'-'}${fmt(m.monto)}</div>
+      <div style="font-weight:600;color:${esE?'var(--green-text)':esG?'var(--amber-text)':'var(--red-text)'}">${esE?'':'-'}${fmt(m.monto)}</div>
       <div style="font-size:11px;color:var(--text2)">${m.op||'—'}</div>
       <div><button class="del-btn" onclick="delBanco(${ri})">✕</button></div>
     </div>`;
   }).join('');
-  const color=Math.abs(diff)<100?'var(--green-text)':diff>0?'var(--amber-text)':'var(--red-text)';
+
+  // Cuadre de cuentas
+  const saldoC=caja.filter(m=>m.tipo==='entrada').reduce((s,m)=>s+m.monto,0)
+              -caja.filter(m=>m.tipo==='salida').reduce((s,m)=>s+m.monto,0);
+  const color=Math.abs(saldoTotal-saldoC)<100?'var(--green-text)':saldoTotal>saldoC?'var(--amber-text)':'var(--red-text)';
   document.getElementById('cuadre-admin').innerHTML=`
     <div class="cuadre-box">
       <div style="font-size:12px;font-weight:500;color:var(--text2);text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px">Cuadre de cuentas</div>
       <div class="cuadre-grid">
+        <div><div class="ci-label">💳 CuentaRUT</div><div class="ci-val" style="color:${saldoRut>=0?'var(--green-text)':'var(--red-text)'}">${fmt(saldoRut)}</div></div>
+        <div><div class="ci-label">🏦 Bipersonal</div><div class="ci-val" style="color:${saldoBip>=0?'var(--green-text)':'var(--red-text)'}">${fmt(saldoBip)}</div></div>
+        <div><div class="ci-label">Total banco</div><div class="ci-val val-g">${fmt(saldoTotal)}</div></div>
         <div><div class="ci-label">Libro de caja</div><div class="ci-val" style="color:${saldoC>=0?'var(--green-text)':'var(--red-text)'}">${fmt(saldoC)}</div></div>
-        <div><div class="ci-label">Saldo banco</div><div class="ci-val" style="color:${saldoB>=0?'var(--green-text)':'var(--red-text)'}">${fmt(saldoB)}</div></div>
-        <div><div class="ci-label">Diferencia</div><div class="ci-val" style="color:${color}">${fmt(Math.abs(diff))}</div><div class="ci-note">${Math.abs(diff)<100?'✓ Cuadrado':diff>0?'Banco > Caja':'Caja > Banco'}</div></div>
+        <div><div class="ci-label">Diferencia</div><div class="ci-val" style="color:${color}">${fmt(Math.abs(saldoTotal-saldoC))}</div><div class="ci-note">${Math.abs(saldoTotal-saldoC)<100?'✓ Cuadrado':saldoTotal>saldoC?'Banco > Caja':'Caja > Banco'}</div></div>
       </div>
     </div>`;
 }
@@ -1111,6 +1151,8 @@ function openBancoModal(tipo){
   document.getElementById('banco-title').textContent=titulos[tipo]||'Nuevo movimiento';
   document.getElementById('b-fecha').value=today();
   ['b-desc','b-monto','b-op'].forEach(id=>document.getElementById(id).value='');
+  // Giros siempre van a bipersonal por defecto
+  document.getElementById('b-cuenta').value = tipo==='giro' ? 'bipersonal' : 'rut';
   document.getElementById('modal-banco').classList.add('open');
 }
 function guardarBanco(){
@@ -1118,7 +1160,13 @@ function guardarBanco(){
   const monto=parseInt(document.getElementById('b-monto').value)||0;
   if(!desc||!monto){alert('Completa descripción y monto');return;}
   if(!DATA.banco)DATA.banco=[];
-  const mov={tipo:bancoTipo,fecha:document.getElementById('b-fecha').value,desc,monto,op:document.getElementById('b-op').value.trim()};
+  const mov={
+    tipo:bancoTipo,
+    cuenta:document.getElementById('b-cuenta').value||'rut',
+    fecha:document.getElementById('b-fecha').value,
+    desc, monto,
+    op:document.getElementById('b-op').value.trim()
+  };
   DATA.banco.push(mov);
   saveLocal();closeModal('modal-banco');renderBancoAdmin();
   api({accion:'addBanco',...mov});
