@@ -682,12 +682,24 @@ document.querySelectorAll('.overlay').forEach(m=>m.addEventListener('click',func
 function switchAdminTab(tab,el){
   document.querySelectorAll('.admin-tab').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('.admin-section').forEach(s=>s.classList.remove('active'));
-  el.classList.add('active');
-  document.getElementById('as-'+tab).classList.add('active');
+  if(el) el.classList.add('active');
+  else { const t=[...document.querySelectorAll('.admin-tab')].find(b=>b.textContent.trim().toLowerCase().includes(tab.replace('-',' '))); if(t) t.classList.add('active'); }
+  const sec=document.getElementById('as-'+tab); if(sec) sec.classList.add('active');
   const m={cuotas:renderCuotas,'caja-chica':renderCC,gira:renderGiraAdmin,exuf:renderExUFAdmin,caja:renderCajaAdmin,banco:renderBancoAdmin,eventos:renderEventosAdmin,avisos:renderAvisosAdmin};
   if(m[tab]) m[tab]();
 }
-function renderAdmin(){ renderCuotas(); updateSaldo(); }
+function renderAdmin(){
+  // Si no hay eventos en DATA, buscar en localStorage
+  if((!DATA.eventos||DATA.eventos.length===0)){
+    const local=loadLocal();
+    if(local&&local.eventos&&local.eventos.length>0){
+      DATA.eventos=local.eventos;
+      DATA.nextEv=local.nextEv||local.eventos.length+1;
+    }
+  }
+  renderCuotas();
+  updateSaldo();
+}
 function updateSaldo(){
   const e=(DATA.caja||[]).filter(m=>m.tipo==='entrada').reduce((s,m)=>s+m.monto,0);
   const sa=(DATA.caja||[]).filter(m=>m.tipo==='salida').reduce((s,m)=>s+m.monto,0);
