@@ -589,17 +589,17 @@ async function loadData(){
       const j = await r.json();
       if(j.ok){
         // Datos que vienen del Sheet (fuente de verdad)
-        // Datos locales solo para: gira, exuf, eventos, avisos (aún no están en Sheet)
+        // Datos locales solo para: avisos
         const local = loadLocal() || {};
         DATA = {
-          alumnos: j.data.alumnos,   // siempre del Sheet
-          caja:    j.data.caja,       // siempre del Sheet
-          banco:   j.data.banco,      // siempre del Sheet
-          gira:    j.data.gira   || [],  // ahora del Sheet
-          exuf:    j.data.exuf   || [],  // ahora del Sheet
-          eventos: local.eventos|| [],   // aún local
-          avisos:  local.avisos || [],   // aún local
-          nextEv:  local.nextEv || 1,
+          alumnos: j.data.alumnos,
+          caja:    j.data.caja,
+          banco:   j.data.banco,
+          gira:    j.data.gira   || [],
+          exuf:    j.data.exuf   || [],
+          eventos: j.data.eventos || local.eventos || [],  // ahora del Sheet
+          avisos:  local.avisos || [],
+          nextEv:  j.data.nextEv || local.nextEv || 1,
           nextAv:  local.nextAv || 1
         };
         saveLocal(); return;
@@ -1206,22 +1206,26 @@ function guardarEvento(){
   if(!nombre){alert('Ingresa el nombre');return;}
   if(!DATA.eventos)DATA.eventos=[];
   if(!DATA.nextEv)DATA.nextEv=1;
-  DATA.eventos.push({
+  const ev={
     id:DATA.nextEv++, nombre, monto,
     fecha:document.getElementById('ev-fecha').value,
     desc:document.getElementById('ev-desc').value.trim(),
     pagos:Object.fromEntries(activos().map(a=>[a.nombre,false]))
-  });
+  };
+  DATA.eventos.push(ev);
   saveLocal();closeModal('modal-evento');renderEventosAdmin();
+  api({accion:'saveEventos', eventos:DATA.eventos, nextEv:DATA.nextEv});
 }
 function eliminarEvento(id){
   if(!confirm('¿Eliminar este evento?'))return;
   DATA.eventos=DATA.eventos.filter(e=>e.id!==id);
   saveLocal();renderEventosAdmin();
+  api({accion:'saveEventos', eventos:DATA.eventos, nextEv:DATA.nextEv});
 }
 function toggleEvPago(id,nombre){
   const ev=DATA.eventos.find(e=>e.id===id);
-  if(ev){if(!ev.pagos)ev.pagos={};ev.pagos[nombre]=!ev.pagos[nombre];saveLocal();renderEventosAdmin();}
+  if(ev){if(!ev.pagos)ev.pagos={};ev.pagos[nombre]=!ev.pagos[nombre];saveLocal();renderEventosAdmin();
+  api({accion:'saveEventos', eventos:DATA.eventos, nextEv:DATA.nextEv});}
 }
 
 // ══════════════════════════════════════════
