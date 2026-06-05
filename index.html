@@ -250,6 +250,7 @@ td:first-child{font-weight:500}
   <button class="pub-tab" onclick="setPubTab('banco',this)">Banco</button>
   <button class="pub-tab" onclick="setPubTab('gira',this)">Gira de estudios</button>
   <button class="pub-tab" onclick="setPubTab('exuf',this)">Ex UF</button>
+  <button class="pub-tab" onclick="setPubTab('completos',this)">🌭 Completos</button>
   <button class="pub-tab" onclick="setPubTab('eventos',this)">Rifas y eventos</button>
   <button class="pub-tab" onclick="setPubTab('avisos',this)">Avisos</button>
 </div>
@@ -273,6 +274,7 @@ td:first-child{font-weight:500}
       <button class="filter-btn" onclick="setFiltro('deuda',this)">Con deuda</button>
     </div>
     <div id="pub-loading" class="loading"><div class="spinner"></div>Cargando datos...</div>
+    <div id="pub-pagos-cards" style="padding:0 4px"></div>
     <div id="lista-pagos" class="table-card" style="display:none">
       <table><thead><tr id="thead-pub"></tr></thead><tbody id="tbody-pub"></tbody></table>
     </div>
@@ -294,6 +296,13 @@ td:first-child{font-weight:500}
   </div>
 
   <!-- EVENTOS PÚBLICOS -->
+  <div id="pub-completos" class="pub-section">
+    <div style="padding:16px;max-width:800px;margin:0 auto">
+      <div class="stats-row" id="pub-comp-stats"></div>
+      <div id="pub-comp-lista"><div class="empty">Sin ventas registradas.</div></div>
+    </div>
+  </div>
+
   <div id="pub-eventos" class="pub-section">
     <div id="pub-eventos-lista"><div class="empty">No hay rifas ni eventos registrados.</div></div>
   </div>
@@ -679,6 +688,7 @@ function setPubTab(tab, el){
   if(tab==='pagos') renderPagos();
   if(tab==='caja') renderCajaPublica();
   if(tab==='banco') renderBancoPublico();
+  if(tab==='completos') renderCompletosPublico();
   if(tab==='gira') renderGiraPublica();
   if(tab==='exuf') renderExUFPublica();
   if(tab==='eventos') renderEventosPublicos();
@@ -827,20 +837,57 @@ function renderPagos(){
   if(filtro==='al-dia') lista=als.filter(a=>MESES.every(m=>a.cuotas[m])&&a.cc);
   if(filtro==='deuda') lista=als.filter(a=>MESES.some(m=>!a.cuotas[m])||!a.cc);
 
-  document.getElementById('thead-pub').innerHTML =
-    '<th>Alumno</th>'+MESES.map(m=>`<th style="text-align:center">${m}</th>`).join('')+'<th style="text-align:center">C.C.</th><th style="text-align:right">Estado</th>';
+  // Desktop: tabla completa. Mobile vertical: cards compactas
+  const isMobile = window.innerWidth < 640;
 
-  document.getElementById('tbody-pub').innerHTML = lista.map(a=>{
-    const dm=MESES.filter(m=>!a.cuotas[m]).length*CUOTA;
-    const dc=a.cc?0:CUOTA_CC;
-    const dt=dm+dc;
-    return `<tr>
-      <td style="min-width:150px;white-space:nowrap">${a.nombre}</td>
-      ${MESES.map(m=>`<td style="text-align:center;padding:5px 4px"><span class="pill ${a.cuotas[m]?'pill-p':'pill-d'}">${a.cuotas[m]?'✓':'✗'}</span></td>`).join('')}
-      <td style="text-align:center;padding:5px 4px"><span class="pill ${a.cc?'pill-p':'pill-d'}">${a.cc?'✓':'✗'}</span></td>
-      <td style="text-align:right;padding:6px 10px"><span class="badge ${dt===0?'badge-ok':'badge-debt'}">${dt===0?'Al día':fmt(dt)+' debe'}</span></td>
-    </tr>`;
-  }).join('')||'<tr><td colspan="13" class="empty">No hay alumnos en esta categoría.</td></tr>';
+  if(isMobile){
+    // Cards para celular vertical
+    document.getElementById('thead-pub').innerHTML = '';
+    document.getElementById('tbody-pub').innerHTML = '';
+    document.querySelector('#pub-pagos .table-wrap').style.display = 'none';
+
+    const container = document.getElementById('pub-pagos-cards');
+    if(container){
+      container.innerHTML = lista.map(a=>{
+        const dm=MESES.filter(m=>!a.cuotas[m]).length*CUOTA;
+        const dc=a.cc?0:CUOTA_CC;
+        const dt=dm+dc;
+        const pagados = MESES.filter(m=>a.cuotas[m]);
+        const deudas  = MESES.filter(m=>!a.cuotas[m]);
+        return `<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin-bottom:8px;box-shadow:var(--shadow)">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <span style="font-weight:500;font-size:13px">${a.nombre}</span>
+            <span class="badge ${dt===0?'badge-ok':'badge-debt'}">${dt===0?'Al día':fmt(dt)+' debe'}</span>
+          </div>
+          <div style="display:flex;gap:4px;flex-wrap:wrap">
+            ${MESES.map(m=>`<span class="pill ${a.cuotas[m]?'pill-p':'pill-d'}" style="font-size:10px;padding:2px 6px">${m}</span>`).join('')}
+            <span class="pill ${a.cc?'pill-p':'pill-d'}" style="font-size:10px;padding:2px 6px">C.C.</span>
+          </div>
+        </div>`;
+      }).join('')||'<div class="empty">No hay alumnos en esta categoría.</div>';
+    }
+  } else {
+    // Tabla para desktop/horizontal
+    const wrap = document.querySelector('#pub-pagos .table-wrap');
+    if(wrap) wrap.style.display = '';
+    const cards = document.getElementById('pub-pagos-cards');
+    if(cards) cards.innerHTML = '';
+
+    document.getElementById('thead-pub').innerHTML =
+      '<th>Alumno</th>'+MESES.map(m=>`<th style="text-align:center">${m}</th>`).join('')+'<th style="text-align:center">C.C.</th><th style="text-align:right">Estado</th>';
+
+    document.getElementById('tbody-pub').innerHTML = lista.map(a=>{
+      const dm=MESES.filter(m=>!a.cuotas[m]).length*CUOTA;
+      const dc=a.cc?0:CUOTA_CC;
+      const dt=dm+dc;
+      return `<tr>
+        <td style="min-width:150px;white-space:nowrap">${a.nombre}</td>
+        ${MESES.map(m=>`<td style="text-align:center;padding:5px 4px"><span class="pill ${a.cuotas[m]?'pill-p':'pill-d'}">${a.cuotas[m]?'✓':'✗'}</span></td>`).join('')}
+        <td style="text-align:center;padding:5px 4px"><span class="pill ${a.cc?'pill-p':'pill-d'}">${a.cc?'✓':'✗'}</span></td>
+        <td style="text-align:right;padding:6px 10px"><span class="badge ${dt===0?'badge-ok':'badge-debt'}">${dt===0?'Al día':fmt(dt)+' debe'}</span></td>
+      </tr>`;
+    }).join('')||'<tr><td colspan="13" class="empty">No hay alumnos en esta categoría.</td></tr>';
+  }
 }
 
 // ══════════════════════════════════════════
@@ -1620,6 +1667,43 @@ function exportarExcel(){
 }
 
 // ══════════════════════════════════════════
+// VISTA PÚBLICA — COMPLETOS
+// ══════════════════════════════════════════
+function renderCompletosPublico(){
+  if(!DATA) return;
+  const comp = DATA.completos||[];
+  const totalMonto  = comp.reduce((s,c)=>s+c.monto,0);
+  const totalVentas = comp.reduce((s,c)=>s+c.cant,0);
+  const solos   = comp.filter(c=>c.tipo==='solo').reduce((s,c)=>s+c.cant,0);
+  const bebidas = comp.filter(c=>c.tipo==='bebida').reduce((s,c)=>s+c.cant,0);
+
+  document.getElementById('pub-comp-stats').innerHTML=`
+    <div class="stat-card"><div class="stat-label">Total recaudado</div><div class="stat-val val-g">${fmt(totalMonto)}</div></div>
+    <div class="stat-card"><div class="stat-label">Completos vendidos</div><div class="stat-val val-b">${totalVentas}</div></div>
+    <div class="stat-card"><div class="stat-label">🌭 Solo</div><div class="stat-val">${solos}</div><div class="ci-note">${fmt(solos*1500)}</div></div>
+    <div class="stat-card"><div class="stat-label">🥤 Con bebida</div><div class="stat-val">${bebidas}</div><div class="ci-note">${fmt(bebidas*2000)}</div></div>`;
+
+  if(!comp.length){ document.getElementById('pub-comp-lista').innerHTML='<div class="empty">Sin ventas registradas.</div>'; return; }
+
+  // Cards responsive — se ven bien en vertical en celular
+  document.getElementById('pub-comp-lista').innerHTML = [...comp]
+    .sort((a,b)=>b.fecha.localeCompare(a.fecha))
+    .map(c=>`
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin-bottom:8px;box-shadow:var(--shadow);display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+        <div style="flex:1;min-width:150px">
+          <div style="font-weight:500;font-size:13px">${c.nombre}</div>
+          <div style="font-size:11px;color:var(--text2);margin-top:2px">${fmtD(c.fecha)}${c.nota?' · '+c.nota:''}</div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <span style="font-size:11px;padding:3px 10px;border-radius:10px;font-weight:500;background:${c.tipo==='bebida'?'var(--blue-bg)':'var(--green-bg)'};color:${c.tipo==='bebida'?'var(--blue-text)':'var(--green-text)'}">
+            ${c.tipo==='solo'?'🌭 Solo':c.tipo==='bebida'?'🥤 Con bebida':'🌭+🥤 Mixto'} × ${c.cant}
+          </span>
+          <span style="font-weight:600;font-size:14px;color:var(--green-text);font-family:'DM Mono',monospace">${fmt(c.monto)}</span>
+        </div>
+      </div>`).join('');
+}
+
+// ══════════════════════════════════════════
 // VENTA DE COMPLETOS
 // ══════════════════════════════════════════
 const PRECIO_COMPLETO = {solo:1500, bebida:2000, mixto:0};
@@ -1705,11 +1789,12 @@ function renderCompletosAdmin(){
 (async()=>{
   await loadData();
   renderPagos();
+  // Re-render al girar el celular
+  window.addEventListener('resize', ()=>{ if(!isAdmin) renderPagos(); });
   // Refresca datos públicos cada 60 segundos
   setInterval(async()=>{
     if(!isAdmin){
       await loadData();
-      // Refresca la tab activa
       const activeTab=document.querySelector('.pub-tab.active');
       if(activeTab) activeTab.click();
     }
