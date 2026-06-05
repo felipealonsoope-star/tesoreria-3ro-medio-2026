@@ -334,6 +334,7 @@ td:first-child{font-weight:500}
     <button class="admin-tab" onclick="switchAdminTab('caja-chica',this)">Caja chica</button>
     <button class="admin-tab" onclick="switchAdminTab('gira',this)">Gira</button>
     <button class="admin-tab" onclick="switchAdminTab('exuf',this)">Ex UF</button>
+    <button class="admin-tab" onclick="switchAdminTab('completos',this)">🌭 Completos</button>
     <button class="admin-tab" onclick="switchAdminTab('caja',this)">Libro caja</button>
     <button class="admin-tab" onclick="switchAdminTab('banco',this)">Banco</button>
     <button class="admin-tab" onclick="switchAdminTab('eventos',this)">Eventos</button>
@@ -418,6 +419,24 @@ td:first-child{font-weight:500}
   </div>
 
   <!-- ADMIN AVISOS -->
+  <!-- COMPLETOS -->
+  <div id="as-completos" class="admin-section">
+    <div class="stats-row" id="stats-completos"></div>
+    <div class="info-box">
+      Registra cada venta de completos. Precio: <strong>$1.500</strong> solo · <strong>$2.000</strong> con bebida.
+      Puedes registrar ventas a cualquier persona, no solo apoderados del curso.
+    </div>
+    <div class="toolbar">
+      <button class="btn btn-primary" onclick="openModalCompleto()">+ Nueva venta</button>
+    </div>
+    <div class="table-wrap">
+      <div style="display:grid;grid-template-columns:85px 1fr 120px 80px 80px 30px;gap:8px;padding:8px 12px;background:var(--surface2);border-bottom:1px solid var(--border);font-size:11px;font-weight:500;color:var(--text2);text-transform:uppercase;letter-spacing:.04em">
+        <div>Fecha</div><div>Nombre / Referencia</div><div>Tipo</div><div>Cant.</div><div>Monto</div><div></div>
+      </div>
+      <div id="lista-completos"><div class="empty">Sin ventas registradas.</div></div>
+    </div>
+  </div>
+
   <div id="as-avisos" class="admin-section">
     <!-- Exportar Excel -->
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:16px;box-shadow:var(--shadow);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
@@ -515,6 +534,34 @@ td:first-child{font-weight:500}
   </div>
 </div>
 
+<div class="overlay" id="modal-completo">
+  <div class="modal">
+    <h3>🌭 Nueva venta de completos</h3>
+    <div class="field"><label>Fecha</label><input type="date" id="comp-fecha"></div>
+    <div class="field"><label>Nombre / Referencia</label><input type="text" id="comp-nombre" placeholder="Ej: Juan Pérez, Apoderado Gálvez..."></div>
+    <div class="field"><label>Tipo</label>
+      <select id="comp-tipo" onchange="calcMontoCompleto()">
+        <option value="solo">🌭 Solo completo — $1.500 c/u</option>
+        <option value="bebida">🥤 Con bebida — $2.000 c/u</option>
+        <option value="mixto">🌭+🥤 Mixto (ingresa monto manual)</option>
+      </select>
+    </div>
+    <div class="field"><label>Cantidad</label>
+      <input type="number" id="comp-cant" min="1" value="1" oninput="calcMontoCompleto()">
+    </div>
+    <div class="field"><label>Monto total ($)</label>
+      <input type="number" id="comp-monto" min="0" placeholder="Se calcula automáticamente">
+    </div>
+    <div class="field"><label>Nota (opcional)</label>
+      <input type="text" id="comp-nota" placeholder="Ej: Pagó por transferencia, debe vuelto...">
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('modal-completo')">Cancelar</button>
+      <button class="btn btn-primary" onclick="guardarCompleto()">Guardar</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // ═══════════════════════════════════════
 const ADMIN_PASSWORD = 'tesoreria2026';
@@ -579,7 +626,7 @@ function initData(){
     cuotas:Object.fromEntries(MESES_EXUF.map(m=>[m,false]))
   }));
 
-  return { alumnos, caja:[], banco:[], eventos:[], avisos:[], gira, exuf, nextEv:1, nextAv:1 };
+  return { alumnos, caja:[], banco:[], eventos:[], avisos:[], gira, exuf, completos:[], nextEv:1, nextAv:1 };
 }
 
 async function loadData(){
@@ -599,6 +646,7 @@ async function loadData(){
           exuf:    j.data.exuf   || [],
           eventos: j.data.eventos || local.eventos || [],  // ahora del Sheet
           avisos:  local.avisos || [],
+          completos: j.data.completos || local.completos || [],
           nextEv:  j.data.nextEv || local.nextEv || 1,
           nextAv:  local.nextAv || 1
         };
@@ -685,7 +733,7 @@ function switchAdminTab(tab,el){
   if(el) el.classList.add('active');
   else { const t=[...document.querySelectorAll('.admin-tab')].find(b=>b.textContent.trim().toLowerCase().includes(tab.replace('-',' '))); if(t) t.classList.add('active'); }
   const sec=document.getElementById('as-'+tab); if(sec) sec.classList.add('active');
-  const m={cuotas:renderCuotas,'caja-chica':renderCC,gira:renderGiraAdmin,exuf:renderExUFAdmin,caja:renderCajaAdmin,banco:renderBancoAdmin,eventos:renderEventosAdmin,avisos:renderAvisosAdmin};
+  const m={cuotas:renderCuotas,'caja-chica':renderCC,gira:renderGiraAdmin,exuf:renderExUFAdmin,completos:renderCompletosAdmin,caja:renderCajaAdmin,banco:renderBancoAdmin,eventos:renderEventosAdmin,avisos:renderAvisosAdmin};
   if(m[tab]) m[tab]();
 }
 function renderAdmin(){
@@ -1569,6 +1617,86 @@ function exportarExcel(){
   a.download=`Tesoreria_3ro_Medio_${new Date().toISOString().slice(0,10)}.xls`;
   a.click();
   URL.revokeObjectURL(url);
+}
+
+// ══════════════════════════════════════════
+// VENTA DE COMPLETOS
+// ══════════════════════════════════════════
+const PRECIO_COMPLETO = {solo:1500, bebida:2000, mixto:0};
+
+function calcMontoCompleto(){
+  const tipo = document.getElementById('comp-tipo').value;
+  const cant = parseInt(document.getElementById('comp-cant').value)||1;
+  if(tipo !== 'mixto') document.getElementById('comp-monto').value = PRECIO_COMPLETO[tipo] * cant;
+}
+
+function openModalCompleto(){
+  document.getElementById('comp-fecha').value = today();
+  ['comp-nombre','comp-nota'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('comp-cant').value = '1';
+  document.getElementById('comp-tipo').value = 'solo';
+  calcMontoCompleto();
+  document.getElementById('modal-completo').classList.add('open');
+}
+
+function guardarCompleto(){
+  const nombre = document.getElementById('comp-nombre').value.trim();
+  const monto  = parseInt(document.getElementById('comp-monto').value)||0;
+  const cant   = parseInt(document.getElementById('comp-cant').value)||1;
+  if(!nombre){ alert('Ingresa el nombre o referencia'); return; }
+  if(!monto){  alert('Ingresa el monto'); return; }
+  if(!DATA.completos) DATA.completos = [];
+  const venta = {
+    id: Date.now(),
+    fecha: document.getElementById('comp-fecha').value,
+    nombre, cant, monto,
+    tipo: document.getElementById('comp-tipo').value,
+    nota: document.getElementById('comp-nota').value.trim()
+  };
+  DATA.completos.push(venta);
+  saveLocal(); closeModal('modal-completo'); renderCompletosAdmin();
+  api({accion:'saveCompletos', completos:DATA.completos});
+}
+
+function eliminarCompleto(id){
+  if(!confirm('¿Eliminar esta venta?')) return;
+  DATA.completos = DATA.completos.filter(c=>c.id!==id);
+  saveLocal(); renderCompletosAdmin();
+  api({accion:'saveCompletos', completos:DATA.completos});
+}
+
+function renderCompletosAdmin(){
+  const comp = DATA.completos||[];
+  const totalVentas  = comp.reduce((s,c)=>s+c.cant,0);
+  const totalMonto   = comp.reduce((s,c)=>s+c.monto,0);
+  const solos        = comp.filter(c=>c.tipo==='solo').reduce((s,c)=>s+c.cant,0);
+  const bebidas      = comp.filter(c=>c.tipo==='bebida').reduce((s,c)=>s+c.cant,0);
+
+  document.getElementById('stats-completos').innerHTML=`
+    <div class="stat-card"><div class="stat-label">Total recaudado</div><div class="stat-val val-g">${fmt(totalMonto)}</div></div>
+    <div class="stat-card"><div class="stat-label">Completos vendidos</div><div class="stat-val val-b">${totalVentas}</div></div>
+    <div class="stat-card"><div class="stat-label">🌭 Solo</div><div class="stat-val">${solos} × ${fmt(1500)}</div></div>
+    <div class="stat-card"><div class="stat-label">🥤 Con bebida</div><div class="stat-val">${bebidas} × ${fmt(2000)}</div></div>`;
+
+  const lista = document.getElementById('lista-completos');
+  if(!comp.length){ lista.innerHTML='<div class="empty">Sin ventas registradas.</div>'; return; }
+
+  lista.innerHTML = [...comp].sort((a,b)=>b.fecha.localeCompare(a.fecha)).map(c=>`
+    <div class="mov-row" style="grid-template-columns:85px 1fr 120px 80px 80px 30px">
+      <div style="color:var(--text2);font-size:11px">${fmtD(c.fecha)}</div>
+      <div>
+        <div style="font-weight:500">${c.nombre}</div>
+        ${c.nota?`<div style="font-size:11px;color:var(--text2)">${c.nota}</div>`:''}
+      </div>
+      <div>
+        <span class="tipo-badge ${c.tipo==='solo'?'badge-e':c.tipo==='bebida'?'':'t-giro'}" style="${c.tipo==='bebida'?'background:var(--blue-bg);color:var(--blue-text)':''}">
+          ${c.tipo==='solo'?'🌭 Solo':c.tipo==='bebida'?'🥤 Con bebida':'🌭+🥤 Mixto'}
+        </span>
+      </div>
+      <div style="text-align:center;font-weight:500">${c.cant}</div>
+      <div style="font-weight:600;color:var(--green-text)">${fmt(c.monto)}</div>
+      <div><button class="del-btn" onclick="eliminarCompleto(${c.id})">✕</button></div>
+    </div>`).join('');
 }
 
 // ══════════════════════════════════════════
