@@ -86,19 +86,6 @@ td:first-child{font-weight:500}
 .badge-ok{background:var(--green-bg);color:var(--green-text)}
 .badge-debt{background:var(--red-bg);color:var(--red-text)}
 
-/* TARJETAS DE PAGOS (MÓVIL) */
-.pagos-cards{display:none;flex-direction:column;gap:10px}
-.pago-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 14px;box-shadow:var(--shadow)}
-.pago-card-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
-.pago-card-name{font-size:13px;font-weight:600;color:var(--text);line-height:1.2}
-.pago-card-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:5px}
-.mes-cell{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:5px 2px;border-radius:7px}
-.mes-cell .mes-lbl{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.02em;opacity:.75}
-.mes-cell .mes-ico{font-size:12px;font-weight:700;line-height:1}
-.mes-p{background:var(--green-bg);color:var(--green-text)}
-.mes-d{background:var(--red-bg);color:var(--red-text)}
-.mes-cc{grid-column:span 1}
-
 /* SECCIÓN CAJA PÚBLICA */
 .section-title{font-size:13px;font-weight:500;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px}
 .stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:16px}
@@ -223,9 +210,6 @@ td:first-child{font-weight:500}
   .mov-head,.mov-row{grid-template-columns:70px 1fr 75px 30px}
   .mov-head>div:nth-child(4),.mov-head>div:nth-child(5),
   .mov-row>div:nth-child(4),.mov-row>div:nth-child(5){display:none}
-  /* Pagos: tabla oculta, tarjetas visibles */
-  #lista-pagos{display:none!important}
-  .pagos-cards{display:flex}
 }
 </style>
 </head>
@@ -266,6 +250,7 @@ td:first-child{font-weight:500}
   <button class="pub-tab" onclick="setPubTab('banco',this)">Banco</button>
   <button class="pub-tab" onclick="setPubTab('gira',this)">Gira de estudios</button>
   <button class="pub-tab" onclick="setPubTab('exuf',this)">Ex UF</button>
+  <button class="pub-tab" onclick="setPubTab('completos',this)">🌭 Completos</button>
   <button class="pub-tab" onclick="setPubTab('eventos',this)">Rifas y eventos</button>
   <button class="pub-tab" onclick="setPubTab('avisos',this)">Avisos</button>
 </div>
@@ -289,10 +274,10 @@ td:first-child{font-weight:500}
       <button class="filter-btn" onclick="setFiltro('deuda',this)">Con deuda</button>
     </div>
     <div id="pub-loading" class="loading"><div class="spinner"></div>Cargando datos...</div>
+    <div id="pub-pagos-cards" style="padding:0 4px"></div>
     <div id="lista-pagos" class="table-card" style="display:none">
       <table><thead><tr id="thead-pub"></tr></thead><tbody id="tbody-pub"></tbody></table>
     </div>
-    <div id="lista-pagos-cards" class="pagos-cards"></div>
   </div>
 
   <!-- CAJA PÚBLICA -->
@@ -311,6 +296,13 @@ td:first-child{font-weight:500}
   </div>
 
   <!-- EVENTOS PÚBLICOS -->
+  <div id="pub-completos" class="pub-section">
+    <div style="padding:16px;max-width:800px;margin:0 auto">
+      <div class="stats-row" id="pub-comp-stats"></div>
+      <div id="pub-comp-lista"><div class="empty">Sin ventas registradas.</div></div>
+    </div>
+  </div>
+
   <div id="pub-eventos" class="pub-section">
     <div id="pub-eventos-lista"><div class="empty">No hay rifas ni eventos registrados.</div></div>
   </div>
@@ -351,6 +343,7 @@ td:first-child{font-weight:500}
     <button class="admin-tab" onclick="switchAdminTab('caja-chica',this)">Caja chica</button>
     <button class="admin-tab" onclick="switchAdminTab('gira',this)">Gira</button>
     <button class="admin-tab" onclick="switchAdminTab('exuf',this)">Ex UF</button>
+    <button class="admin-tab" onclick="switchAdminTab('completos',this)">🌭 Completos</button>
     <button class="admin-tab" onclick="switchAdminTab('caja',this)">Libro caja</button>
     <button class="admin-tab" onclick="switchAdminTab('banco',this)">Banco</button>
     <button class="admin-tab" onclick="switchAdminTab('eventos',this)">Eventos</button>
@@ -399,14 +392,6 @@ td:first-child{font-weight:500}
       <button class="btn btn-red" onclick="openBancoModal('retiro')">− Retiro</button>
       <button class="btn" style="background:var(--amber-bg);color:var(--amber-text);border-color:#f5d79e" onclick="openBancoModal('giro')">↗ Giro</button>
     </div>
-    <div id="import-cartola-card" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:14px;box-shadow:var(--shadow)">
-      <div style="font-size:13px;font-weight:600;margin-bottom:3px">⬆️ Cargar movimientos reales de CuentaRUT</div>
-      <div style="font-size:12px;color:var(--text2);margin-bottom:10px">Reemplaza los movimientos aproximados de CuentaRUT por el detalle real: las 3 cartolas (10/04 al 08/06) + el tramo 08/06 al 13/07 desde los últimos movimientos. Deja el saldo en <strong>$349.760</strong> (el real de hoy). No toca los movimientos Bipersonal. <strong>Antes descarga el respaldo Excel</strong> por si acaso.</div>
-      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-        <button class="btn btn-primary" id="btn-import-cartola" onclick="importarCartolas()">Cargar movimientos reales</button>
-        <span id="import-cartola-status" style="font-size:12px;color:var(--text2)"></span>
-      </div>
-    </div>
     <div class="table-card">
       <div class="mov-head"><div>Fecha</div><div>Descripción</div><div>Tipo</div><div>Monto</div><div>N° Op.</div><div></div></div>
       <div id="lista-banco"><div class="empty">Sin movimientos.</div></div>
@@ -443,6 +428,24 @@ td:first-child{font-weight:500}
   </div>
 
   <!-- ADMIN AVISOS -->
+  <!-- COMPLETOS -->
+  <div id="as-completos" class="admin-section">
+    <div class="stats-row" id="stats-completos"></div>
+    <div class="info-box">
+      Registra cada venta de completos. Precio: <strong>$1.500</strong> solo · <strong>$2.000</strong> con bebida.
+      Puedes registrar ventas a cualquier persona, no solo apoderados del curso.
+    </div>
+    <div class="toolbar">
+      <button class="btn btn-primary" onclick="openModalCompleto()">+ Nueva venta</button>
+    </div>
+    <div class="table-wrap">
+      <div style="display:grid;grid-template-columns:85px 1fr 120px 80px 80px 30px;gap:8px;padding:8px 12px;background:var(--surface2);border-bottom:1px solid var(--border);font-size:11px;font-weight:500;color:var(--text2);text-transform:uppercase;letter-spacing:.04em">
+        <div>Fecha</div><div>Nombre / Referencia</div><div>Tipo</div><div>Cant.</div><div>Monto</div><div></div>
+      </div>
+      <div id="lista-completos"><div class="empty">Sin ventas registradas.</div></div>
+    </div>
+  </div>
+
   <div id="as-avisos" class="admin-section">
     <!-- Exportar Excel -->
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:16px;box-shadow:var(--shadow);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
@@ -540,6 +543,34 @@ td:first-child{font-weight:500}
   </div>
 </div>
 
+<div class="overlay" id="modal-completo">
+  <div class="modal">
+    <h3>🌭 Nueva venta de completos</h3>
+    <div class="field"><label>Fecha</label><input type="date" id="comp-fecha"></div>
+    <div class="field"><label>Nombre / Referencia</label><input type="text" id="comp-nombre" placeholder="Ej: Juan Pérez, Apoderado Gálvez..."></div>
+    <div class="field"><label>Tipo</label>
+      <select id="comp-tipo" onchange="calcMontoCompleto()">
+        <option value="solo">🌭 Solo completo — $1.500 c/u</option>
+        <option value="bebida">🥤 Con bebida — $2.000 c/u</option>
+        <option value="mixto">🌭+🥤 Mixto (ingresa monto manual)</option>
+      </select>
+    </div>
+    <div class="field"><label>Cantidad</label>
+      <input type="number" id="comp-cant" min="1" value="1" oninput="calcMontoCompleto()">
+    </div>
+    <div class="field"><label>Monto total ($)</label>
+      <input type="number" id="comp-monto" min="0" placeholder="Se calcula automáticamente">
+    </div>
+    <div class="field"><label>Nota (opcional)</label>
+      <input type="text" id="comp-nota" placeholder="Ej: Pagó por transferencia, debe vuelto...">
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('modal-completo')">Cancelar</button>
+      <button class="btn btn-primary" onclick="guardarCompleto()">Guardar</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // ═══════════════════════════════════════
 const ADMIN_PASSWORD = 'tesoreria2026';
@@ -576,7 +607,7 @@ function initData(){
     'Donoso Ulloa, Agustín Emilio','Fuenzalida Muñoz, Pía Ignacia',
     'Gálvez Cofré, Benjamín Ignacio','Gálvez López, Víctor Ignacio',
     'Gutiérrez Gutiérrez, Yuliana De Los Ángeles','Hanus Toro, Diego Gastón',
-    'Lobos Irarrázabal, Matilde Josefa','Miranda Mora, Máximo Aquiles',
+    'Díaz Irarrázabal, Matilde Josefa','Miranda Mora, Máximo Aquiles',
     'Mita Porco, Karen Nicol','Mujica Zúñiga, María Ignacia',
     'Muñoz Aguirre, Bastián Javier','Núñez González, Tomás Ignacio',
     'Osorio Lara, Emilia Magdalena','Osorio Rubio, Josefa Trinidad',
@@ -604,7 +635,7 @@ function initData(){
     cuotas:Object.fromEntries(MESES_EXUF.map(m=>[m,false]))
   }));
 
-  return { alumnos, caja:[], banco:[], eventos:[], avisos:[], gira, exuf, nextEv:1, nextAv:1 };
+  return { alumnos, caja:[], banco:[], eventos:[], avisos:[], gira, exuf, completos:[], nextEv:1, nextAv:1 };
 }
 
 async function loadData(){
@@ -614,17 +645,18 @@ async function loadData(){
       const j = await r.json();
       if(j.ok){
         // Datos que vienen del Sheet (fuente de verdad)
-        // Datos locales solo para: gira, exuf, eventos, avisos (aún no están en Sheet)
+        // Datos locales solo para: avisos
         const local = loadLocal() || {};
         DATA = {
-          alumnos: j.data.alumnos,   // siempre del Sheet
-          caja:    j.data.caja,       // siempre del Sheet
-          banco:   j.data.banco,      // siempre del Sheet
-          gira:    j.data.gira   || [],  // ahora del Sheet
-          exuf:    j.data.exuf   || [],  // ahora del Sheet
-          eventos: local.eventos|| [],   // aún local
-          avisos:  local.avisos || [],   // aún local
-          nextEv:  local.nextEv || 1,
+          alumnos: j.data.alumnos,
+          caja:    j.data.caja,
+          banco:   j.data.banco,
+          gira:    j.data.gira   || [],
+          exuf:    j.data.exuf   || [],
+          eventos: j.data.eventos || local.eventos || [],  // ahora del Sheet
+          avisos:  local.avisos || [],
+          completos: j.data.completos || local.completos || [],
+          nextEv:  j.data.nextEv || local.nextEv || 1,
           nextAv:  local.nextAv || 1
         };
         saveLocal(); return;
@@ -656,6 +688,7 @@ function setPubTab(tab, el){
   if(tab==='pagos') renderPagos();
   if(tab==='caja') renderCajaPublica();
   if(tab==='banco') renderBancoPublico();
+  if(tab==='completos') renderCompletosPublico();
   if(tab==='gira') renderGiraPublica();
   if(tab==='exuf') renderExUFPublica();
   if(tab==='eventos') renderEventosPublicos();
@@ -707,12 +740,24 @@ document.querySelectorAll('.overlay').forEach(m=>m.addEventListener('click',func
 function switchAdminTab(tab,el){
   document.querySelectorAll('.admin-tab').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('.admin-section').forEach(s=>s.classList.remove('active'));
-  el.classList.add('active');
-  document.getElementById('as-'+tab).classList.add('active');
-  const m={cuotas:renderCuotas,'caja-chica':renderCC,gira:renderGiraAdmin,exuf:renderExUFAdmin,caja:renderCajaAdmin,banco:renderBancoAdmin,eventos:renderEventosAdmin,avisos:renderAvisosAdmin};
+  if(el) el.classList.add('active');
+  else { const t=[...document.querySelectorAll('.admin-tab')].find(b=>b.textContent.trim().toLowerCase().includes(tab.replace('-',' '))); if(t) t.classList.add('active'); }
+  const sec=document.getElementById('as-'+tab); if(sec) sec.classList.add('active');
+  const m={cuotas:renderCuotas,'caja-chica':renderCC,gira:renderGiraAdmin,exuf:renderExUFAdmin,completos:renderCompletosAdmin,caja:renderCajaAdmin,banco:renderBancoAdmin,eventos:renderEventosAdmin,avisos:renderAvisosAdmin};
   if(m[tab]) m[tab]();
 }
-function renderAdmin(){ renderCuotas(); updateSaldo(); }
+function renderAdmin(){
+  // Si no hay eventos en DATA, buscar en localStorage
+  if((!DATA.eventos||DATA.eventos.length===0)){
+    const local=loadLocal();
+    if(local&&local.eventos&&local.eventos.length>0){
+      DATA.eventos=local.eventos;
+      DATA.nextEv=local.nextEv||local.eventos.length+1;
+    }
+  }
+  renderCuotas();
+  updateSaldo();
+}
 function updateSaldo(){
   const e=(DATA.caja||[]).filter(m=>m.tipo==='entrada').reduce((s,m)=>s+m.monto,0);
   const sa=(DATA.caja||[]).filter(m=>m.tipo==='salida').reduce((s,m)=>s+m.monto,0);
@@ -792,38 +837,56 @@ function renderPagos(){
   if(filtro==='al-dia') lista=als.filter(a=>MESES.every(m=>a.cuotas[m])&&a.cc);
   if(filtro==='deuda') lista=als.filter(a=>MESES.some(m=>!a.cuotas[m])||!a.cc);
 
-  document.getElementById('thead-pub').innerHTML =
-    '<th>Alumno</th>'+MESES.map(m=>`<th style="text-align:center">${m}</th>`).join('')+'<th style="text-align:center">C.C.</th><th style="text-align:right">Estado</th>';
+  // Desktop: tabla completa. Mobile vertical: cards compactas
+  const isMobile = window.innerWidth < 640;
 
-  document.getElementById('tbody-pub').innerHTML = lista.map(a=>{
-    const dm=MESES.filter(m=>!a.cuotas[m]).length*CUOTA;
-    const dc=a.cc?0:CUOTA_CC;
-    const dt=dm+dc;
-    return `<tr>
-      <td style="min-width:150px;white-space:nowrap">${a.nombre}</td>
-      ${MESES.map(m=>`<td style="text-align:center;padding:5px 4px"><span class="pill ${a.cuotas[m]?'pill-p':'pill-d'}">${a.cuotas[m]?'✓':'✗'}</span></td>`).join('')}
-      <td style="text-align:center;padding:5px 4px"><span class="pill ${a.cc?'pill-p':'pill-d'}">${a.cc?'✓':'✗'}</span></td>
-      <td style="text-align:right;padding:6px 10px"><span class="badge ${dt===0?'badge-ok':'badge-debt'}">${dt===0?'Al día':fmt(dt)+' debe'}</span></td>
-    </tr>`;
-  }).join('')||'<tr><td colspan="13" class="empty">No hay alumnos en esta categoría.</td></tr>';
+  if(isMobile){
+    // Cards para celular vertical
+    document.getElementById('thead-pub').innerHTML = '';
+    document.getElementById('tbody-pub').innerHTML = '';
+    document.querySelector('#pub-pagos .table-wrap').style.display = 'none';
 
-  // ── Tarjetas por alumno (se muestran solo en móvil vía CSS) ──
-  const cardsCont = document.getElementById('lista-pagos-cards');
-  if(cardsCont){
-    cardsCont.innerHTML = lista.map(a=>{
+    const container = document.getElementById('pub-pagos-cards');
+    if(container){
+      container.innerHTML = lista.map(a=>{
+        const dm=MESES.filter(m=>!a.cuotas[m]).length*CUOTA;
+        const dc=a.cc?0:CUOTA_CC;
+        const dt=dm+dc;
+        const pagados = MESES.filter(m=>a.cuotas[m]);
+        const deudas  = MESES.filter(m=>!a.cuotas[m]);
+        return `<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin-bottom:8px;box-shadow:var(--shadow)">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <span style="font-weight:500;font-size:13px">${a.nombre}</span>
+            <span class="badge ${dt===0?'badge-ok':'badge-debt'}">${dt===0?'Al día':fmt(dt)+' debe'}</span>
+          </div>
+          <div style="display:flex;gap:4px;flex-wrap:wrap">
+            ${MESES.map(m=>`<span class="pill ${a.cuotas[m]?'pill-p':'pill-d'}" style="font-size:10px;padding:2px 6px">${m}</span>`).join('')}
+            <span class="pill ${a.cc?'pill-p':'pill-d'}" style="font-size:10px;padding:2px 6px">C.C.</span>
+          </div>
+        </div>`;
+      }).join('')||'<div class="empty">No hay alumnos en esta categoría.</div>';
+    }
+  } else {
+    // Tabla para desktop/horizontal
+    const wrap = document.querySelector('#pub-pagos .table-wrap');
+    if(wrap) wrap.style.display = '';
+    const cards = document.getElementById('pub-pagos-cards');
+    if(cards) cards.innerHTML = '';
+
+    document.getElementById('thead-pub').innerHTML =
+      '<th>Alumno</th>'+MESES.map(m=>`<th style="text-align:center">${m}</th>`).join('')+'<th style="text-align:center">C.C.</th><th style="text-align:right">Estado</th>';
+
+    document.getElementById('tbody-pub').innerHTML = lista.map(a=>{
       const dm=MESES.filter(m=>!a.cuotas[m]).length*CUOTA;
       const dc=a.cc?0:CUOTA_CC;
       const dt=dm+dc;
-      const meses = MESES.map(m=>`<div class="mes-cell ${a.cuotas[m]?'mes-p':'mes-d'}"><span class="mes-lbl">${m}</span><span class="mes-ico">${a.cuotas[m]?'✓':'✗'}</span></div>`).join('');
-      const cc = `<div class="mes-cell mes-cc ${a.cc?'mes-p':'mes-d'}"><span class="mes-lbl">C.C.</span><span class="mes-ico">${a.cc?'✓':'✗'}</span></div>`;
-      return `<div class="pago-card">
-        <div class="pago-card-top">
-          <div class="pago-card-name">${a.nombre}</div>
-          <span class="badge ${dt===0?'badge-ok':'badge-debt'}">${dt===0?'Al día':fmt(dt)+' debe'}</span>
-        </div>
-        <div class="pago-card-grid">${meses}${cc}</div>
-      </div>`;
-    }).join('') || '<div class="empty">No hay alumnos en esta categoría.</div>';
+      return `<tr>
+        <td style="min-width:150px;white-space:nowrap">${a.nombre}</td>
+        ${MESES.map(m=>`<td style="text-align:center;padding:5px 4px"><span class="pill ${a.cuotas[m]?'pill-p':'pill-d'}">${a.cuotas[m]?'✓':'✗'}</span></td>`).join('')}
+        <td style="text-align:center;padding:5px 4px"><span class="pill ${a.cc?'pill-p':'pill-d'}">${a.cc?'✓':'✗'}</span></td>
+        <td style="text-align:right;padding:6px 10px"><span class="badge ${dt===0?'badge-ok':'badge-debt'}">${dt===0?'Al día':fmt(dt)+' debe'}</span></td>
+      </tr>`;
+    }).join('')||'<tr><td colspan="13" class="empty">No hay alumnos en esta categoría.</td></tr>';
   }
 }
 
@@ -1210,172 +1273,6 @@ function guardarBanco(){
 }
 function delBanco(i){if(!confirm('¿Eliminar?'))return; api({accion:'delBanco',fila:i}); DATA.banco.splice(i,1);saveLocal();renderBancoAdmin();}
 
-// ── Importación de movimientos desde cartolas + puente (reemplaza CuentaRUT) ──
-const MOVIMIENTOS_CARTOLA = [
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-04-10',desc:'Saldo anterior (al 10/04/2026)',monto:332400,op:''},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-04-10',desc:'Tef De Juan Manuel Munoz Neira',monto:126000,op:'5174111'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-04-10',desc:'Transferencia De Orellana Moran Mari',monto:126000,op:'7016916'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-04-10',desc:'Transferencia De Martinez Celis Caro',monto:26000,op:'7066117'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-04-14',desc:'Tef De Patricia Belen Gonzalez Saave',monto:126000,op:'8013921'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-04-14',desc:'Transferencia De Riveros Bustos Seba',monto:126000,op:'7071011'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-04-14',desc:'Transferencia De Riveros Bustos Seba',monto:2000,op:'7094416'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-04-15',desc:'Tef De Francisca Nicole Lopez Galvez',monto:146000,op:'3715408'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-04-17',desc:'Tef De Luis Erasmo Riquelme Ruminaus',monto:176000,op:'7021343'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-04-20',desc:'Transferencia De Paredes Moya Marili',monto:126000,op:'7070804'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-04-20',desc:'Transferencia De Riveros Bustos Seba',monto:126000,op:'7007401'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-04-23',desc:'Deposito En Efectivo Crc:4499D165',monto:1280000,op:'8029889'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-05-04',desc:'Tef De Alejandra Del Carmen Gutierre',monto:126000,op:'7299901'},
-  {tipo:'retiro',cuenta:'rut',fecha:'2026-05-04',desc:'Tef A Mi Cuenta Ahorro 38960792782',monto:2500000,op:'8026203'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-05-04',desc:'Transferencia Bancoestado App',monto:20000,op:'0777467'},
-  {tipo:'retiro',cuenta:'rut',fecha:'2026-05-11',desc:'Tef A Carolina Estefania Garriga Gen',monto:12000,op:'8100734'},
-  {tipo:'retiro',cuenta:'rut',fecha:'2026-05-11',desc:'Tef A Maria Raquel Donoso Yanez',monto:51460,op:'8006055'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-05-12',desc:'Tef De Susy Dayan Arenas Llanos',monto:9000,op:'8007138'},
-  {tipo:'retiro',cuenta:'rut',fecha:'2026-05-14',desc:'Tef A Emerita Isabel Orellana Bustam',monto:48000,op:'8053892'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-05-14',desc:'Tef De Tatiana Agustina Gonzalez Con',monto:30000,op:'7104678'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-05-15',desc:'Tef De Rosa Juana Lleuful Lauquen',monto:18000,op:'8089435'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-05-18',desc:'Tef De Francisca Nicole Lopez Galvez',monto:19000,op:'5069716'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-05-20',desc:'Tef De Luis Erasmo Riquelme Ruminaus',monto:18000,op:'5052949'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-05-25',desc:'Tef De Caterin Andrea Lucero Acevedo',monto:18000,op:'0043938'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-05-26',desc:'Transferencia De Orellana Moran Mari',monto:39000,op:'7070416'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-05-27',desc:'Tef De Natalia Alejandra Riquelme Ga',monto:9000,op:'8048365'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-05-27',desc:'Tef De Claudio Mita Aguilar',monto:18000,op:'8029849'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-05-27',desc:'Transferencia De Chavez Perez Jose F',monto:18000,op:'7033957'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-05-28',desc:'Tef De Gonzalo Eduardo Diaz Reyes',monto:9000,op:'8028045'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-05-28',desc:'Tef De Mariana Andrea Irarrazabal Os',monto:110000,op:'0121624'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-05-28',desc:'Tef De Mariana Andrea Irarrazabal Os',monto:126000,op:'8092271'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-05-28',desc:'Transferencia De Martinez Celis Caro',monto:18000,op:'7048200'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-05-28',desc:'Tef De Tatiana Agustina Gonzalez Con',monto:9000,op:'4483220'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-05-28',desc:'Tef De Carmen Adriana Merino Cordova',monto:18000,op:'8051060'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-05-29',desc:'Tef De Elizabeth Andrea Lican Gallar',monto:18000,op:'8047264'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-05-29',desc:'Tef De Elizabeth Andrea Lican Gallar',monto:20000,op:'8078308'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-05-29',desc:'Tef De Elizabeth Andrea Lican Gallar',monto:5200,op:'8012996'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-06-01',desc:'Tef De Jaime Antonio Galvez Figueroa',monto:18000,op:'5393230'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-06-01',desc:'Tef De Jaime Antonio Galvez Figueroa',monto:40000,op:'5399611'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-06-01',desc:'Transferencia De Miranda Figueroa Pa',monto:9000,op:'8041106'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-06-01',desc:'Dep En Efectivo Caja Vecina',monto:18000,op:'8088778'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-06-01',desc:'Transferencia De Lara Henriquez Pame',monto:18000,op:'7059829'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-06-01',desc:'Tef De Nestor Axcel Hanus Barrios',monto:18000,op:'7430390'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-06-01',desc:'Transferencia De Urra Merino Maria C',monto:78000,op:'7048786'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-06-01',desc:'Transferencia De Briones Gaete Yohan',monto:18000,op:'7057485'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-06-02',desc:'Transferencia De Mora Alarcon Paula',monto:128000,op:'7019600'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-06-02',desc:'Tef De Carmen Adriana Merino Cordova',monto:5000,op:'8096339'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-06-02',desc:'Tef De Elizabeth Andrea Lican Gallar',monto:5000,op:'8033898'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-06-02',desc:'Transferencia De Ulloa Cabello Victo',monto:23000,op:'7001886'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-06-02',desc:'Transferencia De Martinez Celis Caro',monto:5000,op:'7003436'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-06-02',desc:'Transferencia De Urra Merino Maria C',monto:5000,op:'7012096'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-06-02',desc:'Transferencia De Diaz Valdes Daniel',monto:5000,op:'7039061'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-06-02',desc:'Tef De Tatiana Agustina Gonzalez Con',monto:9500,op:'3225975'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-06-02',desc:'Tef De Claudia Del Carmen Parra Diaz',monto:5000,op:'8075938'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-06-02',desc:'Tef De Caterin Andrea Lucero Acevedo',monto:5000,op:'7479100'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-06-02',desc:'Tef De Patricia Belen Gonzalez Saave',monto:5000,op:'8062839'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-06-02',desc:'Tef De Jose Fernando Chavez Perez',monto:5000,op:'8069694'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-06-03',desc:'Tef De Nestor Axcel Hanus Barrios',monto:5000,op:'5207830'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-06-03',desc:'Transferencia De Mita Aguilar Claudi',monto:5000,op:'7077353'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-06-03',desc:'Tef De Rosa Juana Lleuful Lauquen',monto:5000,op:'8013105'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-06-03',desc:'Tef De Francisca Nicole Lopez Galvez',monto:5000,op:'8013631'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-06-03',desc:'Tef De Paula Cristina Mora Alarcon',monto:5000,op:'8099725'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-06-03',desc:'Tef De Felipe Alonso Osorio Perez',monto:49500,op:'2305569'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-06-03',desc:'Tef De Patricio Eugenio Saldana Pino',monto:9500,op:'8088484'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-06-03',desc:'Tef De Marcelo Alejandro Rivera Avil',monto:5000,op:'8014140'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-06-03',desc:'Tef De Maria Eugenia Fuentes Cofre',monto:33000,op:'8027334'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-06-03',desc:'Tef De Jaime Antonio Galvez Figueroa',monto:9500,op:'9013377'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-06-03',desc:'Tef De Pamela Jesus Alvarado Gonzale',monto:5000,op:'1968391'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-06-03',desc:'Tef De Luis Erasmo Riquelme Ruminaus',monto:5000,op:'8512017'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-06-03',desc:'Tef De Claudia Isabel Munoz Toledo',monto:18500,op:'3184719'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-06-03',desc:'Dep En Efectivo Caja Vecina',monto:5000,op:'8062069'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-06-03',desc:'Tef De Natalia Alejandra Riquelme Ga',monto:5000,op:'8009675'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-06-03',desc:'Transferencia De Lara Henriquez Pame',monto:45000,op:'7063054'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-06-03',desc:'Transferencia De Riveros Bustos Seba',monto:5000,op:'7000607'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-06-03',desc:'Transferencia De Chavez Perez Jose F',monto:4500,op:'7073033'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-06-03',desc:'Tef De Paula Cristina Mora Alarcon',monto:4500,op:'8099052'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-06-03',desc:'Tef De Alejandra Del Carmen Gutierre',monto:5000,op:'8008508'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-06-03',desc:'Tef De Nestor Axcel Hanus Barrios',monto:4500,op:'7423240'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-06-03',desc:'Tef De Alejandra Del Carmen Gutierre',monto:4500,op:'8041521'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-06-03',desc:'Tef De Katherine Rocio Munoz Roman',monto:4500,op:'1625392'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-06-03',desc:'Tef De Gonzalo Eduardo Diaz Reyes',monto:9500,op:'8093032'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-06-03',desc:'Tef De Jhon Leandro Ulises Valderram',monto:9500,op:'8094206'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-06-03',desc:'Tef De Caterin Andrea Lucero Acevedo',monto:4500,op:'1834221'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-06-04',desc:'Tef De Melisa Andrea Osorio Perez',monto:15000,op:'8056547'},
-  {tipo:'retiro',cuenta:'rut',fecha:'2026-06-04',desc:'Tef A Felipe Ignacio Valenzuela Rive',monto:18500,op:'8047033'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-06-04',desc:'Tef De Mariela Del Carmen Gonzalez G',monto:5000,op:'8046327'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-06-05',desc:'Transferencia De Miranda Figueroa Pa',monto:9500,op:'8069080'},
-  {tipo:'retiro',cuenta:'rut',fecha:'2026-06-05',desc:'Tef A Jhon Leandro Ulises Valderrama',monto:67340,op:'8027109'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-06-05',desc:'Tef De Jaqueline Del Carmen Donoso Z',monto:15000,op:'8091117'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-06-05',desc:'Transferencia De Paredes Moya Marili',monto:9500,op:'7052327'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-06-05',desc:'Tef De Elizabeth Andrea Lican Gallar',monto:4500,op:'8040387'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-06-05',desc:'Transferencia De Mita Aguilar Claudi',monto:4500,op:'7017344'},
-  {tipo:'retiro',cuenta:'rut',fecha:'2026-06-05',desc:'Tef A Jose Fernando Chavez Perez',monto:40000,op:'8002774'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-06-05',desc:'Tef De Luis Erasmo Riquelme Ruminaus',monto:4500,op:'9183937'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-06-05',desc:'Tef De Claudia Del Carmen Parra Diaz',monto:4500,op:'8045460'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-06-05',desc:'Transferencia De Martinez Celis Caro',monto:4500,op:'7042795'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-06-05',desc:'Transferencia De Ulloa Cabello Victo',monto:20000,op:'7099156'},
-  {tipo:'retiro',cuenta:'rut',fecha:'2026-06-05',desc:'Tef A Jose Fernando Chavez Perez',monto:92170,op:'8010355'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-06-05',desc:'Tef De Claudia Del Carmen Parra Diaz',monto:1500,op:'8070935'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-06-05',desc:'Tef De David Absalom Pino Urra',monto:3500,op:'8066067'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-06-05',desc:'Tef De Victor Ignacio Lucas Galvez L',monto:3500,op:'8072701'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-06-05',desc:'Tef De Sebastian Ignacio Castillo Es',monto:2000,op:'8097113'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-06-05',desc:'Transferencia De Peralta Rubio Eliza',monto:9000,op:'7049059'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-06-05',desc:'Tef De Maria De Las Mercedes Riquelm',monto:4500,op:'8070341'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-06-05',desc:'Tef De Ana Caren Jimenez Jerez',monto:4000,op:'8041906'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-06-08',desc:'Tef De Maria Eugenia Fuentes Cofre',monto:7500,op:'8086916'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-06-08',desc:'Tef De Manuel Ignacio Avila Rubio',monto:6000,op:'8078430'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-06-08',desc:'Tef De Francheska Nicol Nunez Jimene',monto:6000,op:'8088878'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-06-08',desc:'Tef De Carla Estefany Caceres Rojas',monto:4500,op:'8098773'},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-06-08',desc:'Tef De Rosa Juana Lleuful Lauquen',monto:20000,op:''},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-07-08',desc:'Tef De Rosa Juana Lleuful Lauquen',monto:20000,op:''},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-07-09',desc:'Tef De Felipe Alonso Osorio Perez',monto:18000,op:''},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-07-09',desc:'Tef De Katherine Rocio Munoz Roman',monto:18000,op:''},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-07-09',desc:'Tef De Susy Dayan Arenas Llanos',monto:9000,op:''},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-07-09',desc:'Tef De Gonzalo Eduardo Diaz Reyes',monto:9000,op:''},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-07-09',desc:'Tef De Natalia Alejandra Riquelme Ga',monto:9000,op:''},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-07-10',desc:'Tef De Marcelo Alejandro Rivera Avil',monto:9000,op:''},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-07-11',desc:'Tef De Francisca Nicole Lopez Galvez',monto:19000,op:''},
-  {tipo:'deposito',cuenta:'rut',fecha:'2026-06-30',desc:'Ajuste cuadre CuentaRUT (mov. 08/06-13/07 sin detalle en cartola)',monto:348450,op:''},
-  {tipo:'retiro',cuenta:'rut',fecha:'2026-06-12',desc:'Tef A Mi Cuenta Ahorro 38960792782 - Traslado a Bipersonal',monto:1474580,op:''},
-  {tipo:'retiro',cuenta:'rut',fecha:'2026-06-18',desc:'Tef A Carolina Estefania Garriga',monto:61240,op:''},
-];
-
-async function importarCartolas(){
-  if(!isAdmin){alert('Solo el tesorero puede importar.');return;}
-  if(!confirm('Esto REEMPLAZA todos los movimientos de CuentaRUT por el detalle real de las cartolas (10/04 al 08/06) mas el tramo 08/06-13/07.\n\nLos movimientos Bipersonal NO se tocan.\n\nRecomendacion: descarga primero el respaldo Excel.\n\nPuede tardar 2-3 minutos. No cierres la pagina. ¿Continuar?')) return;
-  const btn=document.getElementById('btn-import-cartola');
-  const st=document.getElementById('import-cartola-status');
-  if(btn) btn.disabled=true;
-  if(st) st.textContent='Sincronizando con el Sheet...';
-  await loadData();
-  if(!DATA.banco) DATA.banco=[];
-
-  // 1) Borrar movimientos CuentaRUT existentes (mayor indice primero para no desalinear)
-  const rutIdx = DATA.banco.map((m,i)=>({m,i})).filter(x=>(x.m.cuenta||'rut')==='rut').map(x=>x.i);
-  rutIdx.sort((a,b)=>b-a);
-  for(let k=0;k<rutIdx.length;k++){
-    const i=rutIdx[k];
-    await api({accion:'delBanco',fila:i});
-    DATA.banco.splice(i,1);
-    if(st) st.textContent='Limpiando CuentaRUT anterior... ('+(k+1)+'/'+rutIdx.length+')';
-  }
-
-  // 2) Cargar el set completo real
-  const total=MOVIMIENTOS_CARTOLA.length;
-  for(let j=0;j<total;j++){
-    const mov=MOVIMIENTOS_CARTOLA[j];
-    DATA.banco.push(mov);
-    await api({accion:'addBanco',...mov});
-    if(st) st.textContent='Cargando movimientos reales... ('+(j+1)+'/'+total+')';
-  }
-
-  saveLocal();
-  const rut=(DATA.banco||[]).filter(m=>(m.cuenta||'rut')==='rut');
-  const saldoRut=rut.filter(m=>m.tipo==='deposito').reduce((s,m)=>s+m.monto,0)
-               -rut.filter(m=>m.tipo!=='deposito').reduce((s,m)=>s+m.monto,0);
-  if(st) st.innerHTML='&#10003; Listo. CuentaRUT ahora: <b>'+fmt(saldoRut)+'</b> (real hoy: $349.760). Si se interrumpio, vuelve a apretar el boton.';
-  if(btn) btn.textContent='Importado \u2713';
-  renderBancoAdmin();
-  renderPagos();
-}
-
-
-
 // ══════════════════════════════════════════
 // ADMIN — EVENTOS
 // ══════════════════════════════════════════
@@ -1416,22 +1313,26 @@ function guardarEvento(){
   if(!nombre){alert('Ingresa el nombre');return;}
   if(!DATA.eventos)DATA.eventos=[];
   if(!DATA.nextEv)DATA.nextEv=1;
-  DATA.eventos.push({
+  const ev={
     id:DATA.nextEv++, nombre, monto,
     fecha:document.getElementById('ev-fecha').value,
     desc:document.getElementById('ev-desc').value.trim(),
     pagos:Object.fromEntries(activos().map(a=>[a.nombre,false]))
-  });
+  };
+  DATA.eventos.push(ev);
   saveLocal();closeModal('modal-evento');renderEventosAdmin();
+  api({accion:'saveEventos', eventos:DATA.eventos, nextEv:DATA.nextEv});
 }
 function eliminarEvento(id){
   if(!confirm('¿Eliminar este evento?'))return;
   DATA.eventos=DATA.eventos.filter(e=>e.id!==id);
   saveLocal();renderEventosAdmin();
+  api({accion:'saveEventos', eventos:DATA.eventos, nextEv:DATA.nextEv});
 }
 function toggleEvPago(id,nombre){
   const ev=DATA.eventos.find(e=>e.id===id);
-  if(ev){if(!ev.pagos)ev.pagos={};ev.pagos[nombre]=!ev.pagos[nombre];saveLocal();renderEventosAdmin();}
+  if(ev){if(!ev.pagos)ev.pagos={};ev.pagos[nombre]=!ev.pagos[nombre];saveLocal();renderEventosAdmin();
+  api({accion:'saveEventos', eventos:DATA.eventos, nextEv:DATA.nextEv});}
 }
 
 // ══════════════════════════════════════════
@@ -1766,16 +1667,134 @@ function exportarExcel(){
 }
 
 // ══════════════════════════════════════════
+// VISTA PÚBLICA — COMPLETOS
+// ══════════════════════════════════════════
+function renderCompletosPublico(){
+  if(!DATA) return;
+  const comp = DATA.completos||[];
+  const totalMonto  = comp.reduce((s,c)=>s+c.monto,0);
+  const totalVentas = comp.reduce((s,c)=>s+c.cant,0);
+  const solos   = comp.filter(c=>c.tipo==='solo').reduce((s,c)=>s+c.cant,0);
+  const bebidas = comp.filter(c=>c.tipo==='bebida').reduce((s,c)=>s+c.cant,0);
+
+  document.getElementById('pub-comp-stats').innerHTML=`
+    <div class="stat-card"><div class="stat-label">Total recaudado</div><div class="stat-val val-g">${fmt(totalMonto)}</div></div>
+    <div class="stat-card"><div class="stat-label">Completos vendidos</div><div class="stat-val val-b">${totalVentas}</div></div>
+    <div class="stat-card"><div class="stat-label">🌭 Solo</div><div class="stat-val">${solos}</div><div class="ci-note">${fmt(solos*1500)}</div></div>
+    <div class="stat-card"><div class="stat-label">🥤 Con bebida</div><div class="stat-val">${bebidas}</div><div class="ci-note">${fmt(bebidas*2000)}</div></div>`;
+
+  if(!comp.length){ document.getElementById('pub-comp-lista').innerHTML='<div class="empty">Sin ventas registradas.</div>'; return; }
+
+  // Cards responsive — se ven bien en vertical en celular
+  document.getElementById('pub-comp-lista').innerHTML = [...comp]
+    .sort((a,b)=>b.fecha.localeCompare(a.fecha))
+    .map(c=>`
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin-bottom:8px;box-shadow:var(--shadow);display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+        <div style="flex:1;min-width:150px">
+          <div style="font-weight:500;font-size:13px">${c.nombre}</div>
+          <div style="font-size:11px;color:var(--text2);margin-top:2px">${fmtD(c.fecha)}${c.nota?' · '+c.nota:''}</div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <span style="font-size:11px;padding:3px 10px;border-radius:10px;font-weight:500;background:${c.tipo==='bebida'?'var(--blue-bg)':'var(--green-bg)'};color:${c.tipo==='bebida'?'var(--blue-text)':'var(--green-text)'}">
+            ${c.tipo==='solo'?'🌭 Solo':c.tipo==='bebida'?'🥤 Con bebida':'🌭+🥤 Mixto'} × ${c.cant}
+          </span>
+          <span style="font-weight:600;font-size:14px;color:var(--green-text);font-family:'DM Mono',monospace">${fmt(c.monto)}</span>
+        </div>
+      </div>`).join('');
+}
+
+// ══════════════════════════════════════════
+// VENTA DE COMPLETOS
+// ══════════════════════════════════════════
+const PRECIO_COMPLETO = {solo:1500, bebida:2000, mixto:0};
+
+function calcMontoCompleto(){
+  const tipo = document.getElementById('comp-tipo').value;
+  const cant = parseInt(document.getElementById('comp-cant').value)||1;
+  if(tipo !== 'mixto') document.getElementById('comp-monto').value = PRECIO_COMPLETO[tipo] * cant;
+}
+
+function openModalCompleto(){
+  document.getElementById('comp-fecha').value = today();
+  ['comp-nombre','comp-nota'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('comp-cant').value = '1';
+  document.getElementById('comp-tipo').value = 'solo';
+  calcMontoCompleto();
+  document.getElementById('modal-completo').classList.add('open');
+}
+
+function guardarCompleto(){
+  const nombre = document.getElementById('comp-nombre').value.trim();
+  const monto  = parseInt(document.getElementById('comp-monto').value)||0;
+  const cant   = parseInt(document.getElementById('comp-cant').value)||1;
+  if(!nombre){ alert('Ingresa el nombre o referencia'); return; }
+  if(!monto){  alert('Ingresa el monto'); return; }
+  if(!DATA.completos) DATA.completos = [];
+  const venta = {
+    id: Date.now(),
+    fecha: document.getElementById('comp-fecha').value,
+    nombre, cant, monto,
+    tipo: document.getElementById('comp-tipo').value,
+    nota: document.getElementById('comp-nota').value.trim()
+  };
+  DATA.completos.push(venta);
+  saveLocal(); closeModal('modal-completo'); renderCompletosAdmin();
+  api({accion:'saveCompletos', completos:DATA.completos});
+}
+
+function eliminarCompleto(id){
+  if(!confirm('¿Eliminar esta venta?')) return;
+  DATA.completos = DATA.completos.filter(c=>c.id!==id);
+  saveLocal(); renderCompletosAdmin();
+  api({accion:'saveCompletos', completos:DATA.completos});
+}
+
+function renderCompletosAdmin(){
+  const comp = DATA.completos||[];
+  const totalVentas  = comp.reduce((s,c)=>s+c.cant,0);
+  const totalMonto   = comp.reduce((s,c)=>s+c.monto,0);
+  const solos        = comp.filter(c=>c.tipo==='solo').reduce((s,c)=>s+c.cant,0);
+  const bebidas      = comp.filter(c=>c.tipo==='bebida').reduce((s,c)=>s+c.cant,0);
+
+  document.getElementById('stats-completos').innerHTML=`
+    <div class="stat-card"><div class="stat-label">Total recaudado</div><div class="stat-val val-g">${fmt(totalMonto)}</div></div>
+    <div class="stat-card"><div class="stat-label">Completos vendidos</div><div class="stat-val val-b">${totalVentas}</div></div>
+    <div class="stat-card"><div class="stat-label">🌭 Solo</div><div class="stat-val">${solos} × ${fmt(1500)}</div></div>
+    <div class="stat-card"><div class="stat-label">🥤 Con bebida</div><div class="stat-val">${bebidas} × ${fmt(2000)}</div></div>`;
+
+  const lista = document.getElementById('lista-completos');
+  if(!comp.length){ lista.innerHTML='<div class="empty">Sin ventas registradas.</div>'; return; }
+
+  lista.innerHTML = [...comp].sort((a,b)=>b.fecha.localeCompare(a.fecha)).map(c=>`
+    <div class="mov-row" style="grid-template-columns:85px 1fr 120px 80px 80px 30px">
+      <div style="color:var(--text2);font-size:11px">${fmtD(c.fecha)}</div>
+      <div>
+        <div style="font-weight:500">${c.nombre}</div>
+        ${c.nota?`<div style="font-size:11px;color:var(--text2)">${c.nota}</div>`:''}
+      </div>
+      <div>
+        <span class="tipo-badge ${c.tipo==='solo'?'badge-e':c.tipo==='bebida'?'':'t-giro'}" style="${c.tipo==='bebida'?'background:var(--blue-bg);color:var(--blue-text)':''}">
+          ${c.tipo==='solo'?'🌭 Solo':c.tipo==='bebida'?'🥤 Con bebida':'🌭+🥤 Mixto'}
+        </span>
+      </div>
+      <div style="text-align:center;font-weight:500">${c.cant}</div>
+      <div style="font-weight:600;color:var(--green-text)">${fmt(c.monto)}</div>
+      <div><button class="del-btn" onclick="eliminarCompleto(${c.id})">✕</button></div>
+    </div>`).join('');
+}
+
+// ══════════════════════════════════════════
 // INIT
 // ══════════════════════════════════════════
 (async()=>{
   await loadData();
   renderPagos();
+  // Re-render al girar el celular
+  window.addEventListener('resize', ()=>{ if(!isAdmin) renderPagos(); });
   // Refresca datos públicos cada 60 segundos
   setInterval(async()=>{
     if(!isAdmin){
       await loadData();
-      // Refresca la tab activa
       const activeTab=document.querySelector('.pub-tab.active');
       if(activeTab) activeTab.click();
     }
