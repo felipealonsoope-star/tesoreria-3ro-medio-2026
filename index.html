@@ -838,29 +838,24 @@ function renderPagos(){
   if(filtro==='deuda') lista=als.filter(a=>MESES.some(m=>!a.cuotas[m])||!a.cc);
 
   // Desktop: tabla completa. Mobile vertical: cards compactas
-  // Siempre usar cards — se ven bien en mobile y desktop
-  document.getElementById('lista-pagos').style.display = 'none';
-  document.getElementById('thead-pub').innerHTML = '';
-  document.getElementById('tbody-pub').innerHTML = '';
+  // Tabla — funciona en mobile con scroll horizontal
+  document.getElementById('lista-pagos').style.display = '';
+  document.getElementById('pub-pagos-cards').innerHTML = '';
 
-  const container = document.getElementById('pub-pagos-cards');
-  if(!container) return;
+  document.getElementById('thead-pub').innerHTML =
+    '<th>Alumno</th>'+MESES.map(m=>`<th style="text-align:center">${m}</th>`).join('')+'<th style="text-align:center">C.C.</th><th style="text-align:right">Estado</th>';
 
-  container.innerHTML = lista.map(a=>{
+  document.getElementById('tbody-pub').innerHTML = lista.map(a=>{
     const dm=MESES.filter(m=>!a.cuotas[m]).length*CUOTA;
     const dc=a.cc?0:CUOTA_CC;
     const dt=dm+dc;
-    return `<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin-bottom:8px;box-shadow:var(--shadow)">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:8px">
-        <span style="font-weight:500;font-size:13px">${a.nombre}</span>
-        <span class="badge ${dt===0?'badge-ok':'badge-debt'}" style="white-space:nowrap">${dt===0?'Al día':fmt(dt)+' debe'}</span>
-      </div>
-      <div style="display:flex;gap:4px;flex-wrap:wrap">
-        ${MESES.map(m=>`<span class="pill ${a.cuotas[m]?'pill-p':'pill-d'}" style="font-size:10px;padding:2px 6px">${m}</span>`).join('')}
-        <span class="pill ${a.cc?'pill-p':'pill-d'}" style="font-size:10px;padding:2px 6px">C.C.</span>
-      </div>
-    </div>`;
-  }).join('')||'<div class="empty">No hay alumnos en esta categoría.</div>';
+    return `<tr>
+      <td style="min-width:140px;white-space:nowrap">${a.nombre}</td>
+      ${MESES.map(m=>`<td style="text-align:center;padding:5px 4px"><span class="pill ${a.cuotas[m]?'pill-p':'pill-d'}">${a.cuotas[m]?'✓':'✗'}</span></td>`).join('')}
+      <td style="text-align:center;padding:5px 4px"><span class="pill ${a.cc?'pill-p':'pill-d'}">${a.cc?'✓':'✗'}</span></td>
+      <td style="text-align:right;padding:6px 10px"><span class="badge ${dt===0?'badge-ok':'badge-debt'}">${dt===0?'Al día':fmt(dt)+' debe'}</span></td>
+    </tr>`;
+  }).join('')||'<tr><td colspan="13" class="empty">No hay alumnos en esta categoría.</td></tr>';
 }
 
 // ══════════════════════════════════════════
