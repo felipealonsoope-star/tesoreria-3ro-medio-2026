@@ -279,12 +279,11 @@ td:first-child{font-weight:500}
 <!-- TABS PÚBLICOS -->
 <div class="pub-tabs" id="pub-tabs-bar">
   <button class="pub-tab active" onclick="setPubTab('pagos',this)">Estado de pagos</button>
-  <button class="pub-tab" onclick="setPubTab('caja',this)">Libro de caja</button>
   <button class="pub-tab" onclick="setPubTab('banco',this)">Banco</button>
   <button class="pub-tab" onclick="setPubTab('gira',this)">Gira de estudios</button>
   <button class="pub-tab" onclick="setPubTab('exuf',this)">Ex UF</button>
   <button class="pub-tab" onclick="setPubTab('bonos',this)">Bono cooperación</button>
-  <button class="pub-tab" onclick="setPubTab('eventos',this)">Rifas y eventos</button>
+  <button class="pub-tab" onclick="setPubTab('eventos',this)">Eventos</button>
   <button class="pub-tab" onclick="setPubTab('avisos',this)">Avisos</button>
 </div>
 
@@ -330,7 +329,7 @@ td:first-child{font-weight:500}
 
   <!-- EVENTOS PÚBLICOS -->
   <div id="pub-eventos" class="pub-section">
-    <div id="pub-eventos-lista"><div class="empty">No hay rifas ni eventos registrados.</div></div>
+    <div id="pub-eventos-lista"><div class="empty">No hay eventos registrados.</div></div>
   </div>
 
   <div id="pub-gira" class="pub-section">
@@ -377,7 +376,6 @@ td:first-child{font-weight:500}
     <button class="admin-tab" onclick="switchAdminTab('caja-chica',this)">Caja chica</button>
     <button class="admin-tab" onclick="switchAdminTab('gira',this)">Gira</button>
     <button class="admin-tab" onclick="switchAdminTab('exuf',this)">Ex UF</button>
-    <button class="admin-tab" onclick="switchAdminTab('caja',this)">Libro caja</button>
     <button class="admin-tab" onclick="switchAdminTab('banco',this)">Banco</button>
     <button class="admin-tab" onclick="switchAdminTab('bonos',this)">Bonos</button>
     <button class="admin-tab" onclick="switchAdminTab('eventos',this)">Eventos</button>
@@ -484,9 +482,9 @@ td:first-child{font-weight:500}
   <!-- ADMIN EVENTOS -->
   <div id="as-eventos" class="admin-section">
     <div class="toolbar">
-      <button class="btn btn-primary" onclick="openModalEvento()">+ Nuevo evento / rifa</button>
+      <button class="btn btn-primary" onclick="openModalEvento()">+ Nuevo evento</button>
     </div>
-    <div id="lista-eventos-admin"><div class="empty">Sin eventos. Crea rifas, paseos u otros cobros.</div></div>
+    <div id="lista-eventos-admin"><div class="empty">Sin eventos. Crea cuotas, paseos u otros cobros.</div></div>
   </div>
 
   <!-- ADMIN AVISOS -->
@@ -566,8 +564,8 @@ td:first-child{font-weight:500}
 
 <div class="overlay" id="modal-evento">
   <div class="modal">
-    <h3 id="ev-title">Nuevo evento / rifa</h3>
-    <div class="field"><label>Nombre</label><input type="text" id="ev-nombre" placeholder="Ej: Rifa abril 2026"></div>
+    <h3 id="ev-title">Nuevo evento</h3>
+    <div class="field"><label>Nombre</label><input type="text" id="ev-nombre" placeholder="Ej: Cuota curso junio"></div>
     <div class="field"><label>Monto por unidad de cobro ($)</label><input type="number" id="ev-monto" min="0" placeholder="3000"></div>
     <div class="field" style="display:flex;flex-direction:row;align-items:center;gap:8px">
       <input type="checkbox" id="ev-porapoderado" style="width:auto;margin:0;flex:none">
@@ -811,7 +809,7 @@ function renderPagos(){
   // ── Recaudado por categoría ──
   const cuotasRec = totalPag;
   const ccRec     = ccPag * CUOTA_CC;
-  const rifasRec  = (DATA.eventos||[]).reduce((s,ev)=>s+als.filter(a=>ev.pagos&&ev.pagos[a.nombre]).length*(ev.monto||0),0);
+  const rifasRec  = (DATA.eventos||[]).reduce((s,ev)=>s+evUnidades(ev).filter(u=>ev.pagos&&ev.pagos[u.key]).length*(ev.monto||0),0);
   const giraRec   = (DATA.gira||[]).filter(g=>g.inscrito).reduce((s,g)=>g.pagoTotal?s+CUOTA_GIRA_TOTAL:s+MESES_GIRA.filter(m=>g.cuotas[m]).length*CUOTA_GIRA,0);
   const exufRec   = (DATA.exuf||[]).reduce((s,e)=>s+MESES_EXUF.filter(m=>e.cuotas[m]).length*CUOTA_EXUF,0);
   const totalDisponible = totalBancoReal > 0 ? totalBancoReal : cuotasRec+ccRec+rifasRec+giraRec+exufRec;
@@ -838,7 +836,7 @@ function renderPagos(){
         `:''}
         ${giraRec>0?`<div class="pub-stat"><div class="pub-stat-label">Gira</div><div class="pub-stat-val" style="font-size:${fsize(giraRec)}">${fmt(giraRec)}</div><div class="pub-stat-sub">recaudado</div></div>`:''}
         ${exufRec>0?`<div class="pub-stat"><div class="pub-stat-label">Ex UF</div><div class="pub-stat-val" style="font-size:${fsize(exufRec)}">${fmt(exufRec)}</div><div class="pub-stat-sub">recaudado</div></div>`:''}
-        ${rifasRec>0?`<div class="pub-stat"><div class="pub-stat-label">Rifas</div><div class="pub-stat-val" style="font-size:${fsize(rifasRec)}">${fmt(rifasRec)}</div><div class="pub-stat-sub">recaudado</div></div>`:''}
+        ${rifasRec>0?`<div class="pub-stat"><div class="pub-stat-label">Eventos</div><div class="pub-stat-val" style="font-size:${fsize(rifasRec)}">${fmt(rifasRec)}</div><div class="pub-stat-sub">recaudado</div></div>`:''}
         <div class="pub-stat" style="background:rgba(255,255,255,0.25)"><div class="pub-stat-label">💰 Total disponible</div><div class="pub-stat-val" style="font-size:${fsize(totalDisponible)}">${fmt(totalDisponible)}</div><div class="pub-stat-sub">saldo en banco</div></div>
       </div>`;
   }
@@ -963,19 +961,7 @@ function renderBancoPublico(){
     </div>`;
   }).join('');
 
-  const diff=saldoTotal-saldoC;
-  const color=Math.abs(diff)<100?'var(--green-text)':diff>0?'var(--amber-text)':'var(--red-text)';
-  document.getElementById('pub-cuadre').innerHTML=`
-    <div class="cuadre-box" style="margin-top:14px">
-      <div style="font-size:12px;font-weight:500;color:var(--text2);text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px">Cuadre de cuentas</div>
-      <div class="cuadre-grid">
-        <div><div class="ci-label">💳 CuentaRUT</div><div class="ci-val" style="color:${saldoRut>=0?'var(--green-text)':'var(--red-text)'}">${fmt(saldoRut)}</div></div>
-        <div><div class="ci-label">🏦 Bipersonal</div><div class="ci-val" style="color:${saldoBip>=0?'var(--green-text)':'var(--red-text)'}">${fmt(saldoBip)}</div></div>
-        <div><div class="ci-label">Total banco</div><div class="ci-val val-g">${fmt(saldoTotal)}</div></div>
-        <div><div class="ci-label">Libro de caja</div><div class="ci-val" style="color:${saldoC>=0?'var(--green-text)':'var(--red-text)'}">${fmt(saldoC)}</div></div>
-        <div><div class="ci-label">Diferencia</div><div class="ci-val" style="color:${color}">${fmt(Math.abs(diff))}</div><div class="ci-note">${Math.abs(diff)<100?'✓ Cuadrado':diff>0?'Banco mayor':'Caja mayor'}</div></div>
-      </div>
-    </div>`;
+  document.getElementById('pub-cuadre').innerHTML='';
 }
 
 // ══════════════════════════════════════════
@@ -985,7 +971,7 @@ function renderEventosPublicos(){
   if(!DATA) return;
   const evs=DATA.eventos||[];
   const cont=document.getElementById('pub-eventos-lista');
-  if(!evs.length){cont.innerHTML='<div class="empty">No hay rifas ni eventos registrados.</div>';return;}
+  if(!evs.length){cont.innerHTML='<div class="empty">No hay eventos registrados.</div>';return;}
   cont.innerHTML=evs.map(ev=>{
     const units=evUnidades(ev);
     const total=units.length;
@@ -1227,21 +1213,7 @@ function renderBancoAdmin(){
     </div>`;
   }).join('');
 
-  // Cuadre de cuentas
-  const saldoC=caja.filter(m=>m.tipo==='entrada').reduce((s,m)=>s+m.monto,0)
-              -caja.filter(m=>m.tipo==='salida').reduce((s,m)=>s+m.monto,0);
-  const color=Math.abs(saldoTotal-saldoC)<100?'var(--green-text)':saldoTotal>saldoC?'var(--amber-text)':'var(--red-text)';
-  document.getElementById('cuadre-admin').innerHTML=`
-    <div class="cuadre-box">
-      <div style="font-size:12px;font-weight:500;color:var(--text2);text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px">Cuadre de cuentas</div>
-      <div class="cuadre-grid">
-        <div><div class="ci-label">💳 CuentaRUT</div><div class="ci-val" style="color:${saldoRut>=0?'var(--green-text)':'var(--red-text)'}">${fmt(saldoRut)}</div></div>
-        <div><div class="ci-label">🏦 Bipersonal</div><div class="ci-val" style="color:${saldoBip>=0?'var(--green-text)':'var(--red-text)'}">${fmt(saldoBip)}</div></div>
-        <div><div class="ci-label">Total banco</div><div class="ci-val val-g">${fmt(saldoTotal)}</div></div>
-        <div><div class="ci-label">Libro de caja</div><div class="ci-val" style="color:${saldoC>=0?'var(--green-text)':'var(--red-text)'}">${fmt(saldoC)}</div></div>
-        <div><div class="ci-label">Diferencia</div><div class="ci-val" style="color:${color}">${fmt(Math.abs(saldoTotal-saldoC))}</div><div class="ci-note">${Math.abs(saldoTotal-saldoC)<100?'✓ Cuadrado':saldoTotal>saldoC?'Banco > Caja':'Caja > Banco'}</div></div>
-      </div>
-    </div>`;
+  document.getElementById('cuadre-admin').innerHTML='';
 }
 function openBancoModal(tipo){
   // 'hito' se guarda como retiro pero en cuenta 'info' (no afecta saldos)
@@ -1280,6 +1252,7 @@ const HOJA_BANCO_A = [
   {tipo:'retiro',   cuenta:'info',       fecha:'2026-06-12', desc:'Traspaso al ahorro del curso (queda en Bipersonal)', monto:1474580, op:''},
   {tipo:'retiro',   cuenta:'info',       fecha:'2026-08-24', desc:'Pago al APA — Ex UF (2 partes: 18/08 y 24/08)', monto:558000, op:''},
   {tipo:'retiro',   cuenta:'info',       fecha:'2026-08-31', desc:'Pago al APA — Bonos (29 apoderados)', monto:725000, op:''},
+  {tipo:'retiro',   cuenta:'info',       fecha:'2026-04-07', desc:'Traspaso inicial de fondos del curso — directiva (07/04)', monto:2721600, op:''},
 ];
 
 async function configurarBancoA(){
@@ -1479,7 +1452,7 @@ function renderBonosPublico(){
 function renderEventosAdmin(){
   const evs=DATA.eventos||[];
   const cont=document.getElementById('lista-eventos-admin');
-  if(!evs.length){cont.innerHTML='<div class="empty">Sin eventos. Crea rifas, paseos u otros cobros.</div>';return;}
+  if(!evs.length){cont.innerHTML='<div class="empty">Sin eventos. Crea cuotas, paseos u otros cobros.</div>';return;}
   cont.innerHTML=evs.map(ev=>{
     const units=evUnidades(ev);
     const total=units.length;
@@ -1491,7 +1464,10 @@ function renderEventosAdmin(){
           <div style="font-size:12px;color:var(--text2);margin-top:3px">${fmtD(ev.fecha)} · ${fmt(ev.monto)} c/u · ${pag}/${total} pagaron · ${fmt(pag*ev.monto)} recaudado</div>
           ${ev.desc?`<div style="font-size:11px;color:var(--text3);margin-top:2px">${ev.desc}</div>`:''}
         </div>
-        <button class="btn btn-red" style="font-size:11px;padding:3px 9px;flex-shrink:0" onclick="eliminarEvento(${ev.id})">Eliminar</button>
+        <div style="display:flex;flex-direction:column;gap:5px;flex-shrink:0">
+          <button class="btn" style="font-size:11px;padding:3px 9px;background:#eef0f2;color:#5b6470;border-color:#dde1e6;white-space:nowrap" onclick="${ev.porApoderado?`convertirEventoAlumno(${ev.id})`:`convertirEventoApoderado(${ev.id})`}">${ev.porApoderado?'Separar por alumno':'Agrupar por apoderado'}</button>
+          <button class="btn btn-red" style="font-size:11px;padding:3px 9px" onclick="eliminarEvento(${ev.id})">Eliminar</button>
+        </div>
       </div>
       <div class="ev-admin-grid">
         ${units.map(u=>`<button class="ev-al-btn ${ev.pagos&&ev.pagos[u.key]?'ev-al-p':'ev-al-d'}" onclick="toggleEvPago(${ev.id},'${u.key}')">
@@ -1502,11 +1478,31 @@ function renderEventosAdmin(){
     </div>`;
   }).join('');
 }
+function convertirEventoApoderado(id){
+  if(!isAdmin){alert('Solo el tesorero.');return;}
+  const ev=(DATA.eventos||[]).find(e=>e.id===id);
+  if(!ev||ev.porApoderado)return;
+  if(!confirm('Agrupar "'+ev.nombre+'" por apoderado: los hermanos (ej. Ávila Urra) pasan a contar como una sola familia. Se conserva quién ya pagó. ¿Continuar?'))return;
+  const nuevos={};
+  getApoderados().forEach(a=>{ nuevos[a.key]=a.alumnos.some(n=>ev.pagos&&ev.pagos[n]); });
+  ev.porApoderado=true; ev.pagos=nuevos;
+  saveLocal(); syncEventos(); renderEventosAdmin();
+}
+function convertirEventoAlumno(id){
+  if(!isAdmin){alert('Solo el tesorero.');return;}
+  const ev=(DATA.eventos||[]).find(e=>e.id===id);
+  if(!ev||!ev.porApoderado)return;
+  if(!confirm('Separar "'+ev.nombre+'" por alumno: cada hermano cuenta aparte. Se conserva quién ya pagó. ¿Continuar?'))return;
+  const aps=getApoderados(); const nuevos={};
+  activos().forEach(a=>{ const ap=aps.find(x=>x.alumnos.includes(a.nombre)); nuevos[a.nombre]=ap?!!(ev.pagos&&ev.pagos[ap.key]):false; });
+  ev.porApoderado=false; ev.pagos=nuevos;
+  saveLocal(); syncEventos(); renderEventosAdmin();
+}
 function openModalEvento(){
   ['ev-nombre','ev-monto','ev-desc'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('ev-porapoderado').checked=false;
   document.getElementById('ev-fecha').value=today();
-  document.getElementById('ev-title').textContent='Nuevo evento / rifa';
+  document.getElementById('ev-title').textContent='Nuevo evento';
   document.getElementById('modal-evento').classList.add('open');
 }
 function guardarEvento(){
