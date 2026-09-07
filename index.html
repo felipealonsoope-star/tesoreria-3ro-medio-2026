@@ -561,7 +561,11 @@ td:first-child{font-weight:500}
   <div class="modal">
     <h3 id="ev-title">Nuevo evento / rifa</h3>
     <div class="field"><label>Nombre</label><input type="text" id="ev-nombre" placeholder="Ej: Rifa abril 2026"></div>
-    <div class="field"><label>Monto por alumno ($)</label><input type="number" id="ev-monto" min="0" placeholder="3000"></div>
+    <div class="field"><label>Monto por unidad de cobro ($)</label><input type="number" id="ev-monto" min="0" placeholder="3000"></div>
+    <div class="field" style="display:flex;flex-direction:row;align-items:center;gap:8px">
+      <input type="checkbox" id="ev-porapoderado" style="width:auto;margin:0;flex:none">
+      <label for="ev-porapoderado" style="margin:0;cursor:pointer">Cobro por apoderado (agrupa hermanos, ej. Ávila = 1)</label>
+    </div>
     <div class="field"><label>Fecha</label><input type="date" id="ev-fecha"></div>
     <div class="field"><label>Descripción (opcional)</label><textarea id="ev-desc" placeholder="Detalles del evento..."></textarea></div>
     <div class="modal-actions"><button class="btn" onclick="closeModal('modal-evento')">Cancelar</button><button class="btn btn-primary" onclick="guardarEvento()">Crear</button></div>
@@ -665,9 +669,10 @@ async function loadData(){
           exuf:    j.data.exuf   || [],  // ahora del Sheet
           // Bonos: del Sheet si ya existe la hoja; si no, del local (hasta actualizar Apps Script)
           bonos:   (j.data.bonos && j.data.bonos.length) ? j.data.bonos : (local.bonos || []),
-          eventos: local.eventos|| [],   // aún local
+          // Eventos: del Sheet si ya hay; si no, del local (y se suben al Sheet en la próxima acción)
+          eventos: (j.data.eventos && j.data.eventos.length) ? j.data.eventos : (local.eventos||[]),
           avisos:  local.avisos || [],   // aún local
-          nextEv:  local.nextEv || 1,
+          nextEv:  (j.data.eventos && j.data.eventos.length) ? (j.data.nextEv||1) : (local.nextEv||1),
           nextAv:  local.nextAv || 1
         };
         saveLocal(); return;
@@ -972,16 +977,17 @@ function renderEventosPublicos(){
   const evs=DATA.eventos||[];
   const cont=document.getElementById('pub-eventos-lista');
   if(!evs.length){cont.innerHTML='<div class="empty">No hay rifas ni eventos registrados.</div>';return;}
-  const als=activos();
   cont.innerHTML=evs.map(ev=>{
-    const pag=als.filter(a=>ev.pagos&&ev.pagos[a.nombre]).length;
-    const total=als.length;
+    const units=evUnidades(ev);
+    const total=units.length;
+    const pag=units.filter(u=>ev.pagos&&ev.pagos[u.key]).length;
     const porc=total>0?Math.round(pag/total*100):0;
+    const unidadTxt=ev.porApoderado?'apoderado':'alumno';
     return `<div class="evento-card">
       <div class="evento-header">
         <div>
           <div class="evento-nombre">${ev.nombre}</div>
-          <div class="evento-meta">${fmtD(ev.fecha)} · ${fmt(ev.monto)} por alumno${ev.desc?` · ${ev.desc}`:''}</div>
+          <div class="evento-meta">${fmtD(ev.fecha)} · ${fmt(ev.monto)} por ${unidadTxt}${ev.desc?` · ${ev.desc}`:''}</div>
         </div>
         <span class="badge ${pag===total?'badge-ok':'badge-debt'}">${pag===total?'Completo':pag+'/'+total}</span>
       </div>
@@ -991,9 +997,9 @@ function renderEventosPublicos(){
         <span class="evento-stat">📊 ${porc}% completado</span>
       </div>
       <div class="evento-grid">
-        ${als.map(a=>`<div class="evento-al ${ev.pagos&&ev.pagos[a.nombre]?'ev-p':'ev-d'}">
-          <span>${a.nombre.split(',')[0]}</span>
-          <span>${ev.pagos&&ev.pagos[a.nombre]?'✓':'✗'}</span>
+        ${units.map(u=>`<div class="evento-al ${ev.pagos&&ev.pagos[u.key]?'ev-p':'ev-d'}">
+          <span>${u.label}</span>
+          <span>${ev.pagos&&ev.pagos[u.key]?'✓':'✗'}</span>
         </div>`).join('')}
       </div>
     </div>`;
@@ -1573,22 +1579,23 @@ function renderEventosAdmin(){
   const evs=DATA.eventos||[];
   const cont=document.getElementById('lista-eventos-admin');
   if(!evs.length){cont.innerHTML='<div class="empty">Sin eventos. Crea rifas, paseos u otros cobros.</div>';return;}
-  const als=activos();
   cont.innerHTML=evs.map(ev=>{
-    const pag=als.filter(a=>ev.pagos&&ev.pagos[a.nombre]).length;
+    const units=evUnidades(ev);
+    const total=units.length;
+    const pag=units.filter(u=>ev.pagos&&ev.pagos[u.key]).length;
     return `<div class="ev-admin-card">
       <div class="ev-admin-header">
         <div>
-          <div style="font-weight:500;font-size:14px">${ev.nombre}</div>
-          <div style="font-size:12px;color:var(--text2);margin-top:3px">${fmtD(ev.fecha)} · ${fmt(ev.monto)} c/u · ${pag}/${als.length} pagaron · ${fmt(pag*ev.monto)} recaudado</div>
+          <div style="font-weight:500;font-size:14px">${ev.nombre}${ev.porApoderado?' <span style="font-size:10px;color:var(--text2);font-weight:400">· por apoderado</span>':''}</div>
+          <div style="font-size:12px;color:var(--text2);margin-top:3px">${fmtD(ev.fecha)} · ${fmt(ev.monto)} c/u · ${pag}/${total} pagaron · ${fmt(pag*ev.monto)} recaudado</div>
           ${ev.desc?`<div style="font-size:11px;color:var(--text3);margin-top:2px">${ev.desc}</div>`:''}
         </div>
         <button class="btn btn-red" style="font-size:11px;padding:3px 9px;flex-shrink:0" onclick="eliminarEvento(${ev.id})">Eliminar</button>
       </div>
       <div class="ev-admin-grid">
-        ${als.map(a=>`<button class="ev-al-btn ${ev.pagos&&ev.pagos[a.nombre]?'ev-al-p':'ev-al-d'}" onclick="toggleEvPago(${ev.id},'${a.nombre}')">
-          <span style="font-size:11px">${a.nombre.split(',')[0]}</span>
-          <span>${ev.pagos&&ev.pagos[a.nombre]?'✓':'✗'}</span>
+        ${units.map(u=>`<button class="ev-al-btn ${ev.pagos&&ev.pagos[u.key]?'ev-al-p':'ev-al-d'}" onclick="toggleEvPago(${ev.id},'${u.key}')">
+          <span style="font-size:11px">${u.label}</span>
+          <span>${ev.pagos&&ev.pagos[u.key]?'✓':'✗'}</span>
         </button>`).join('')}
       </div>
     </div>`;
@@ -1596,6 +1603,7 @@ function renderEventosAdmin(){
 }
 function openModalEvento(){
   ['ev-nombre','ev-monto','ev-desc'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('ev-porapoderado').checked=false;
   document.getElementById('ev-fecha').value=today();
   document.getElementById('ev-title').textContent='Nuevo evento / rifa';
   document.getElementById('modal-evento').classList.add('open');
@@ -1604,24 +1612,35 @@ function guardarEvento(){
   const nombre=document.getElementById('ev-nombre').value.trim();
   const monto=parseInt(document.getElementById('ev-monto').value)||0;
   if(!nombre){alert('Ingresa el nombre');return;}
+  const porApoderado=document.getElementById('ev-porapoderado').checked;
   if(!DATA.eventos)DATA.eventos=[];
   if(!DATA.nextEv)DATA.nextEv=1;
+  const claves = porApoderado ? getApoderados().map(a=>a.key) : activos().map(a=>a.nombre);
   DATA.eventos.push({
-    id:DATA.nextEv++, nombre, monto,
+    id:DATA.nextEv++, nombre, monto, porApoderado,
     fecha:document.getElementById('ev-fecha').value,
     desc:document.getElementById('ev-desc').value.trim(),
-    pagos:Object.fromEntries(activos().map(a=>[a.nombre,false]))
+    pagos:Object.fromEntries(claves.map(k=>[k,false]))
   });
-  saveLocal();closeModal('modal-evento');renderEventosAdmin();
+  saveLocal();syncEventos();closeModal('modal-evento');renderEventosAdmin();
+}
+// Guarda TODOS los eventos en el Sheet (columna JSON). Los eventos ya no son solo locales.
+function syncEventos(){
+  api({accion:'saveEventos', eventos:DATA.eventos, nextEv:DATA.nextEv||1});
+}
+// Devuelve las unidades de cobro de un evento: apoderados (agrupando hermanos) o alumnos
+function evUnidades(ev){
+  if(ev && ev.porApoderado) return getApoderados().map(a=>({key:a.key,label:a.label}));
+  return activos().map(a=>({key:a.nombre,label:a.nombre.split(',')[0]}));
 }
 function eliminarEvento(id){
   if(!confirm('¿Eliminar este evento?'))return;
   DATA.eventos=DATA.eventos.filter(e=>e.id!==id);
-  saveLocal();renderEventosAdmin();
+  saveLocal();syncEventos();renderEventosAdmin();
 }
-function toggleEvPago(id,nombre){
+function toggleEvPago(id,clave){
   const ev=DATA.eventos.find(e=>e.id===id);
-  if(ev){if(!ev.pagos)ev.pagos={};ev.pagos[nombre]=!ev.pagos[nombre];saveLocal();renderEventosAdmin();}
+  if(ev){if(!ev.pagos)ev.pagos={};ev.pagos[clave]=!ev.pagos[clave];saveLocal();syncEventos();renderEventosAdmin();}
 }
 
 // ══════════════════════════════════════════
