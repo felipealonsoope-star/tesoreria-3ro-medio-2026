@@ -437,6 +437,16 @@ td:first-child{font-weight:500}
         <input type="number" id="saldo-rut-input" placeholder="670260" style="width:130px;padding:5px 8px;border:1px solid var(--border2);border-radius:8px;font-size:12px">
         <button class="btn" onclick="actualizarSaldoRut()">Actualizar</button>
       </div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;border-top:1px solid var(--border);padding-top:10px">
+        <label style="font-size:12px;color:var(--text2)">Traspaso entre cuentas del curso:</label>
+        <input type="number" id="traspaso-input" placeholder="Monto" style="width:110px;padding:5px 8px;border:1px solid var(--border2);border-radius:8px;font-size:12px">
+        <select id="traspaso-dir" style="padding:5px 8px;border:1px solid var(--border2);border-radius:8px;font-size:12px">
+          <option value="rut2bip">CuentaRUT → Ahorro</option>
+          <option value="bip2rut">Ahorro → CuentaRUT</option>
+        </select>
+        <button class="btn" onclick="traspasarCuentas()">Traspasar</button>
+      </div>
+      <div style="font-size:11px;color:var(--text3);margin-top:8px">El traspaso ajusta ambos saldos y deja el hito. Recuerda hacer también la transferencia en BancoEstado.</div>
     </div>
     <div class="table-card">
       <div class="mov-head"><div>Fecha</div><div>Descripción</div><div>Tipo</div><div>Monto</div><div>N° Op.</div><div></div></div>
@@ -1296,6 +1306,39 @@ async function actualizarSaldoRut(){
   saveLocal(); renderBancoAdmin(); renderPagos();
   inp.value='';
   alert('Saldo CuentaRUT actualizado a '+fmt(val));
+}
+
+// Traspaso entre las dos cuentas del curso (CuentaRUT <-> Ahorro/Bipersonal)
+async function traspasarCuentas(){
+  if(!isAdmin){alert('Solo el tesorero.');return;}
+  const inp=document.getElementById('traspaso-input');
+  const dir=document.getElementById('traspaso-dir').value;
+  const val=parseInt(inp.value)||0;
+  if(val<=0){alert('Ingresa el monto a traspasar');return;}
+  await loadData();
+  if(!DATA.banco) DATA.banco=[];
+  const rutM=DATA.banco.filter(m=>(m.cuenta||'rut')==='rut');
+  const bipM=DATA.banco.filter(m=>m.cuenta==='bipersonal');
+  const sRut=rutM.filter(m=>m.tipo==='deposito').reduce((s,m)=>s+m.monto,0)-rutM.filter(m=>m.tipo!=='deposito').reduce((s,m)=>s+m.monto,0);
+  const sBip=bipM.filter(m=>m.tipo==='deposito').reduce((s,m)=>s+m.monto,0)-bipM.filter(m=>m.tipo!=='deposito').reduce((s,m)=>s+m.monto,0);
+  const rut2bip = dir==='rut2bip';
+  const desde = rut2bip ? 'CuentaRUT' : 'Ahorro (Bipersonal)';
+  const hacia = rut2bip ? 'Ahorro (Bipersonal)' : 'CuentaRUT';
+  const origen = rut2bip ? sRut : sBip;
+  const nuevoRut = rut2bip ? sRut-val : sRut+val;
+  const nuevoBip = rut2bip ? sBip+val : sBip-val;
+  if(val>origen && !confirm('El monto ('+fmt(val)+') es mayor que el saldo de '+desde+' ('+fmt(origen)+'). ¿Continuar igual?')) return;
+  if(!confirm('Traspasar '+fmt(val)+' de '+desde+' → '+hacia+':\n\nCuentaRUT: '+fmt(sRut)+' → '+fmt(nuevoRut)+'\nBipersonal: '+fmt(sBip)+' → '+fmt(nuevoBip)+'\n\nRecuerda hacer también la transferencia en BancoEstado. ¿Continuar?')) return;
+  const idx=DATA.banco.map((m,i)=>({m,i})).filter(x=>['rut','bipersonal'].includes(x.m.cuenta||'rut')).map(x=>x.i);
+  idx.sort((a,b)=>b-a);
+  for(const i of idx){ await api({accion:'delBanco',fila:i}); DATA.banco.splice(i,1); }
+  const movR={tipo:'deposito',cuenta:'rut',fecha:today(),desc:'Saldo disponible CuentaRUT (al '+fmtD(today())+')',monto:nuevoRut,op:''};
+  const movB={tipo:'deposito',cuenta:'bipersonal',fecha:today(),desc:'Fondo del curso — cuenta de respaldo (al '+fmtD(today())+')',monto:nuevoBip,op:''};
+  const movH={tipo:'retiro',cuenta:'info',fecha:today(),desc:'Traspaso '+desde+' → '+hacia,monto:val,op:''};
+  for(const m of [movR,movB,movH]){ DATA.banco.push(m); await api({accion:'addBanco',...m}); }
+  saveLocal(); renderBancoAdmin(); renderPagos();
+  inp.value='';
+  alert('Traspaso registrado.\nCuentaRUT: '+fmt(nuevoRut)+'\nBipersonal: '+fmt(nuevoBip));
 }
 
 
